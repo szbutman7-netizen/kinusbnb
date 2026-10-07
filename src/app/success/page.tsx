@@ -3,12 +3,11 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { QRCodeSVG } from "qrcode.react";
 import confetti from "canvas-confetti";
 import { dataStore } from "@/lib/services/dataService";
 import { Shliach } from "@/types";
 import { Navbar } from "@/components/layout/Navbar";
-import { CheckCircle2, Printer, ArrowRight, ShieldCheck, Calendar, MapPin, QrCode } from "lucide-react";
+import { CheckCircle2, Printer, ArrowRight, ShieldCheck, MapPin, Calendar, User } from "lucide-react";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -16,7 +15,6 @@ function SuccessContent() {
   const [shliach, setShliach] = useState<Shliach | null>(null);
 
   useEffect(() => {
-    // Launch festive confetti
     try {
       confetti({
         particleCount: 80,
@@ -55,7 +53,7 @@ function SuccessContent() {
         </p>
       </div>
 
-      {/* Printable Badge Card */}
+      {/* Printable Confirmation Card */}
       <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden print:shadow-none print:border-none">
         {/* Card Header */}
         <div className="bg-blue-900 text-white p-5 flex items-center justify-between">
@@ -64,7 +62,7 @@ function SuccessContent() {
               כינוס השלוחים העולמי תשפ״ז
             </span>
             <span className="text-lg font-black block">
-              אישור לינה וקליטה (Guest Pass)
+              אישור הרשמה ולינה
             </span>
           </div>
           <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-amber-400 font-bold text-sm">
@@ -74,52 +72,43 @@ function SuccessContent() {
 
         {/* Card Body */}
         <div className="p-6 space-y-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pb-6 border-b border-slate-200">
-            <div className="space-y-1 text-center sm:text-right">
-              <span className="text-xs font-semibold text-slate-400">שם השליח:</span>
-              <h2 className="text-xl font-bold text-slate-900">
-                {shliach?.hebrewName || "הרב השליח"}
-              </h2>
-              <p className="text-sm text-slate-600 flex items-center justify-center sm:justify-start gap-1">
-                <MapPin className="w-3.5 h-3.5 text-blue-900" />
-                שליח ב{shliach?.city || "מקום השליחות"}, {shliach?.country || ""}
+          <div className="space-y-1 pb-4 border-b border-slate-200">
+            <span className="text-xs font-semibold text-slate-400">פרטי השליח:</span>
+            <h2 className="text-2xl font-bold text-slate-900">
+              {shliach?.hebrewName || "הרב השליח"}
+            </h2>
+            <p className="text-sm text-slate-600 flex items-center gap-1.5 pt-1">
+              <MapPin className="w-4 h-4 text-blue-900" />
+              <span>שליח ב{shliach?.city || "מקום השליחות"}, {shliach?.country || ""}</span>
+            </p>
+            {shliach?.passportOrId && (
+              <p className="text-xs text-slate-500 font-mono pt-0.5">
+                מספר מזהה / ת״ז: {shliach.passportOrId}
               </p>
-            </div>
-
-            {/* QR Code for Check-in */}
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center shadow-xs">
-              <QRCodeSVG
-                value={shliach?.id || id || "kinus-guest"}
-                size={110}
-                level="M"
-              />
-              <span className="text-[10px] text-slate-500 font-mono block mt-1">
-                קוד קבלה אישי
-              </span>
-            </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-xs">
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <span className="text-slate-500 block mb-0.5">תאריכי שהות:</span>
-              <span className="font-bold text-slate-900 block">
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <span className="text-slate-500 block mb-1">תאריכי שהות:</span>
+              <span className="font-bold text-slate-900 block text-sm">
                 {shliach?.arrivalDate || "18 נובמבר"} - {shliach?.departureDate || "23 נובמבר"}
               </span>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <span className="text-slate-500 block mb-0.5">סטטוס תשלום:</span>
-              <span className="font-bold text-emerald-700 flex items-center gap-1">
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
+              <span className="text-slate-500 block mb-1">סטטוס תשלום:</span>
+              <span className="font-bold text-emerald-700 flex items-center gap-1 text-sm">
                 <ShieldCheck className="w-4 h-4" />
                 שולם ($180) ב-Stripe
               </span>
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 space-y-1">
-            <p className="font-bold">הנחיות להגעה:</p>
-            <p>1. שמרו אישור זה או את קוד ה-QR בצילום מסך בנייד.</p>
-            <p>2. בהגעתכם לכינוס, גשו לעמדת הקבלה להצגת ה-QR לקבלת מפתח ופרטי החדר.</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 space-y-1.5">
+            <p className="font-bold text-sm">הנחיות להגעה וקליטה:</p>
+            <p>1. בהגעתכם לכינוס, גשו לעמדת הקבלה והזדהו באמצעות שמכם או מספר תעודת הזהות/הדרכון.</p>
+            <p>2. בעמדה ימתינו לכם פרטי הדירה, קוד הכניסה והמפתח.</p>
           </div>
         </div>
 
@@ -130,7 +119,7 @@ function SuccessContent() {
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-white transition-colors"
           >
             <Printer className="w-4 h-4" />
-            הדפס אישור
+            הדפס אישור הרשמה
           </button>
 
           <Link

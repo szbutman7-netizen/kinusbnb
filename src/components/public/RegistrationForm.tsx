@@ -214,7 +214,7 @@ export function RegistrationForm() {
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                שם מלא בעברית (לתג הזיהוי ולתעודה)
+                שם מלא בעברית
               </label>
               <input
                 type="text"

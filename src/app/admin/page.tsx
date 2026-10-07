@@ -12,7 +12,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Sparkles,
-  QrCode
+  CheckSquare
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -49,7 +49,7 @@ export default function AdminDashboardPage() {
             href="/admin/reception"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-colors shadow-xs"
           >
-            <QrCode className="w-4 h-4" />
+            <CheckSquare className="w-4 h-4" />
             פתח עמדת קבלה מהירה
           </Link>
           <Link

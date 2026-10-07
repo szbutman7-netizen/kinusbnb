@@ -48,7 +48,7 @@ export default function HomePage() {
             <Clock className="w-8 h-8 text-amber-600 mx-auto mb-3" />
             <h3 className="font-bold text-slate-900 text-sm">קליטה מהירה</h3>
             <p className="text-xs text-slate-500 mt-1">
-              סריקת קוד QR בעמדת הקבלה וקבלת מפתח ופרטי הדירה תוך שניות
+              איתור מהיר בעמדת הקבלה וקבלת מפתח ופרטי הדירה תוך שניות
             </p>
           </div>
         </div>

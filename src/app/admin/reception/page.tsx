@@ -7,18 +7,16 @@ import { Shliach } from "@/types";
 import { 
   CheckSquare, 
   Search, 
-  QrCode, 
   CheckCircle2, 
-  AlertTriangle, 
   ShieldAlert, 
   MapPin, 
   Home, 
   Users, 
-  Printer, 
   Clock, 
   Key,
   X,
-  Camera
+  Phone,
+  Mail
 } from "lucide-react";
 
 export default function ReceptionPage() {
@@ -27,8 +25,6 @@ export default function ReceptionPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedShliach, setSelectedShliach] = useState<Shliach | null>(null);
-  const [showQrSimulator, setShowQrSimulator] = useState(false);
-  const [qrInput, setQrInput] = useState("");
 
   const staffName = user?.displayName || "דייל קבלה";
 
@@ -58,21 +54,9 @@ export default function ReceptionPage() {
     if (!result.success) {
       alert(result.message);
     } else {
-      // Refresh selected shliach
+      // Refresh selected shliach in state
       const updated = shluchim.find(s => s.id === shliach.id);
-      if (updated) setSelectedShliach({ ...updated, checkedIn: true });
-    }
-  };
-
-  const handleQrLookup = () => {
-    if (!qrInput.trim()) return;
-    const found = shluchim.find(s => s.id.toLowerCase() === qrInput.trim().toLowerCase() || s.passportOrId?.toLowerCase() === qrInput.trim().toLowerCase());
-    if (found) {
-      setSelectedShliach(found);
-      setShowQrSimulator(false);
-      setQrInput("");
-    } else {
-      alert("קוד QR או מזהה לא נמצא במאגר");
+      if (updated) setSelectedShliach({ ...updated, checkedIn: true, checkedInBy: staffName, checkedInAt: new Date().toISOString() });
     }
   };
 
@@ -95,16 +79,9 @@ export default function ReceptionPage() {
             עמדת קבלה וצ'ק-אין (Reception Desk)
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            קליטת שלוחים מהירה, סריקת QR, מניעת חסימות והצגת פרטי חדר ושותפים
+            קליטת שלוחים מהירה, איתור מיידי, ביצוע צ'ק-אין, מניעת חסימות והצגת פרטי דירה ושותפים
           </p>
         </div>
-        <button
-          onClick={() => setShowQrSimulator(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-colors shadow-sm"
-        >
-          <Camera className="w-4 h-4" />
-          סריקת QR מתג האורח
-        </button>
       </div>
 
       {/* Quick Search Bar */}
@@ -117,6 +94,7 @@ export default function ReceptionPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="הקלד שם שליח, מספר טלפון, עיר שליחות, ת״ז או דרכון לאיתור מיידי..."
             className="w-full pr-12 pl-4 py-3 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            autoFocus
           />
         </div>
 
@@ -313,68 +291,18 @@ export default function ReceptionPage() {
                 </div>
               )}
 
-              {/* Thermal Print Button */}
-              <button
-                onClick={() => window.print()}
-                className="w-full py-2.5 px-4 rounded-xl border border-slate-300 hover:bg-slate-50 flex items-center justify-center gap-2 text-slate-700 font-bold"
-              >
-                <Printer className="w-4 h-4" />
-                הדפס תג קבלה (Thermal Badge)
-              </button>
+              {selectedShliach.preferredRoommates && (
+                <div className="p-3 bg-slate-50 rounded-xl border text-slate-700">
+                  <span className="font-bold block text-[10px] text-slate-500">בקשת שותפים בהרשמה:</span>
+                  <span>{selectedShliach.preferredRoommates}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
       ) : (
         <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 text-xs">
-          השתמש בסרגל החיפוש למעלה או סרוק קוד QR כדי לטעון כרטיס שליח לקבלה
-        </div>
-      )}
-
-      {/* QR Code Scanner / Simulator Modal */}
-      {showQrSimulator && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-xs">
-            <div className="flex items-center justify-between border-b pb-2">
-              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <Camera className="w-4 h-4 text-amber-500" />
-                סורק QR / הזנת מזהה
-              </h3>
-              <button onClick={() => setShowQrSimulator(false)} className="text-slate-400">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <p className="text-slate-600">
-              כוון את סורק הברקוד לתג השליח, או הקלד את מזהה השליח / מספר הדרכון:
-            </p>
-
-            <div>
-              <input
-                type="text"
-                value={qrInput}
-                onChange={(e) => setQrInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleQrLookup(); }}
-                placeholder="הדבק או סרוק מזהה (למשל: shliach-1)"
-                autoFocus
-                className="w-full p-2.5 border rounded-xl font-mono text-center"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t">
-              <button
-                onClick={() => setShowQrSimulator(false)}
-                className="px-3 py-1.5 border rounded-xl hover:bg-slate-50"
-              >
-                סגור
-              </button>
-              <button
-                onClick={handleQrLookup}
-                className="px-4 py-1.5 bg-amber-500 text-slate-950 font-bold rounded-xl hover:bg-amber-400"
-              >
-                אתר שליח
-              </button>
-            </div>
-          </div>
+          השתמש בסרגל החיפוש למעלה כדי לאתר שליח ולבצע צ'ק-אין
         </div>
       )}
     </div>
