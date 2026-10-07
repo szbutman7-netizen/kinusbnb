@@ -1,0 +1,76 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { dataStore } from "@/lib/services/dataService";
+import { 
+  Shliach, 
+  Apartment, 
+  Bed, 
+  UserProfile, 
+  EmailTemplate, 
+  EmailLog, 
+  DashboardStats 
+} from "@/types";
+
+export function useKinusData() {
+  const [shluchim, setShluchim] = useState<Shliach[]>([]);
+  const [apartments, setApartments] = useState<Apartment[]>([]);
+  const [beds, setBeds] = useState<Bed[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const refreshData = () => {
+    setShluchim(dataStore.getShluchim());
+    setApartments(dataStore.getApartments());
+    setBeds(dataStore.getBeds());
+    setUsers(dataStore.getUsers());
+    setTemplates(dataStore.getTemplates());
+    setEmailLogs(dataStore.getEmailLogs());
+    setStats(dataStore.getStats());
+  };
+
+  useEffect(() => {
+    refreshData();
+    setIsLoaded(true);
+
+    const unsubscribe = dataStore.subscribe(() => {
+      refreshData();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  return {
+    isLoaded,
+    shluchim,
+    apartments,
+    beds,
+    users,
+    templates,
+    emailLogs,
+    stats,
+    actions: {
+      addShliach: dataStore.addShliach.bind(dataStore),
+      updateShliach: dataStore.updateShliach.bind(dataStore),
+      toggleBlockCheckIn: dataStore.toggleBlockCheckIn.bind(dataStore),
+      checkInShliach: dataStore.checkInShliach.bind(dataStore),
+      addApartmentWithBeds: dataStore.addApartmentWithBeds.bind(dataStore),
+      updateApartment: dataStore.updateApartment.bind(dataStore),
+      deleteApartment: dataStore.deleteApartment.bind(dataStore),
+      assignPlacement: dataStore.assignPlacement.bind(dataStore),
+      unassignPlacement: dataStore.unassignPlacement.bind(dataStore),
+      setBedReserved: dataStore.setBedReserved.bind(dataStore),
+      batchPublishPlacement: dataStore.batchPublishPlacement.bind(dataStore),
+      addEmailLog: dataStore.addEmailLog.bind(dataStore),
+      saveTemplate: dataStore.saveTemplate.bind(dataStore),
+      addUser: dataStore.addUser.bind(dataStore),
+      updateUser: dataStore.updateUser.bind(dataStore),
+      deleteUser: dataStore.deleteUser.bind(dataStore),
+    }
+  };
+}

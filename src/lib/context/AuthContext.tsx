@@ -1,0 +1,120 @@
+"use client";
+
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { UserProfile, ScreenPermissions, ScreenAccessLevel } from "@/types";
+import { dataStore } from "@/lib/services/dataService";
+import { signInWithPopup, signOut as fbSignOut } from "firebase/auth";
+import { auth, googleProvider } from "@/lib/firebase/config";
+
+interface AuthContextType {
+  user: UserProfile | null;
+  isLoading: boolean;
+  loginWithGoogle: () => Promise<{ success: boolean; message: string }>;
+  loginAsDemoUser: (role: "SUPER_ADMIN" | "HOUSING_MANAGER" | "RECEPTION_STAFF") => void;
+  logout: () => Promise<void>;
+  hasAccess: (screen: keyof ScreenPermissions, requiredLevel?: ScreenAccessLevel) => boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check session in localStorage
+    const savedUser = localStorage.getItem("kinus_auth_user");
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error("Failed to parse saved user", e);
+      }
+    } else {
+      // Default dev super admin for instant smooth demo access
+      const defaultUser = dataStore.getUsers()[0];
+      if (defaultUser) {
+        setUser(defaultUser);
+        localStorage.setItem("kinus_auth_user", JSON.stringify(defaultUser));
+      }
+    }
+    setIsLoading(false);
+  }, []);
+
+  const loginWithGoogle = async (): Promise<{ success: boolean; message: string }> => {
+    try {
+      setIsLoading(true);
+      const result = await signInWithPopup(auth, googleProvider);
+      const email = result.user.email?.toLowerCase();
+
+      if (!email) {
+        return { success: false, message: "לא התקבל אימייל מחשבון Google" };
+      }
+
+      // Check Whitelist
+      const registeredUsers = dataStore.getUsers();
+      const matched = registeredUsers.find(u => u.email.toLowerCase() === email && u.isActive);
+
+      if (!matched) {
+        await fbSignOut(auth);
+        return { 
+          success: false, 
+          message: `כתובת הדוא"ל (${email}) אינה מורשית לגישה למערכת. נא לפנות למנהל המערכת.` 
+        };
+      }
+
+      // Update lastLogin
+      dataStore.updateUser(matched.id, { lastLoginAt: new Date().toISOString() });
+      setUser(matched);
+      localStorage.setItem("kinus_auth_user", JSON.stringify(matched));
+      return { success: true, message: `ברוך הבא, ${matched.displayName}` };
+    } catch (error: any) {
+      console.warn("Google Sign-In fallback/cancelled:", error);
+      return { success: false, message: error.message || "ההתחברות בוטלה או נכשלה" };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loginAsDemoUser = (role: "SUPER_ADMIN" | "HOUSING_MANAGER" | "RECEPTION_STAFF") => {
+    const demoUser = dataStore.getUsers().find(u => u.role === role) || dataStore.getUsers()[0];
+    if (demoUser) {
+      setUser(demoUser);
+      localStorage.setItem("kinus_auth_user", JSON.stringify(demoUser));
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await fbSignOut(auth);
+    } catch (e) {
+      // ignore
+    }
+    setUser(null);
+    localStorage.removeItem("kinus_auth_user");
+  };
+
+  const hasAccess = (screen: keyof ScreenPermissions, requiredLevel: ScreenAccessLevel = "VIEW"): boolean => {
+    if (!user) return false;
+    if (user.role === "SUPER_ADMIN") return true;
+
+    const currentLevel = user.screenAccess[screen];
+    if (currentLevel === "NONE") return false;
+    if (requiredLevel === "EDIT" && currentLevel !== "EDIT") return false;
+    return true;
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, isLoading, loginWithGoogle, loginAsDemoUser, logout, hasAccess }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+}
