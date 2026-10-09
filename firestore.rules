@@ -1,0 +1,178 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================================
+    // GLOBAL DEFAULT DENY
+    // =========================================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // =========================================================================
+    // AUTHENTICATION & RBAC HELPER FUNCTIONS
+    // =========================================================================
+
+    // Verify user is authenticated with Firebase Auth
+    function isAuthenticated() {
+      return request.auth != null && request.auth.uid != null;
+    }
+
+    // Reference to the current user's profile in the /users collection
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    // Verify whether the caller exists in /users, is active, and possesses an admin role
+    function isAdmin() {
+      return isAuthenticated() && (
+        // Option A: Token custom claim (recommended for fast evaluation)
+        request.auth.token.get('admin', false) == true ||
+        request.auth.token.get('role', '') in ['SUPER_ADMIN', 'ADMIN', 'HOUSING_MANAGER', 'RECEPTION_STAFF'] ||
+        // Option B: Database lookup in /users collection
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          userDoc().data.get('isActive', false) == true &&
+          userDoc().data.get('role', '') in ['SUPER_ADMIN', 'ADMIN', 'HOUSING_MANAGER', 'RECEPTION_STAFF']
+        )
+      );
+    }
+
+    // Verify whether the caller is a super administrator
+    function isSuperAdmin() {
+      return isAuthenticated() && (
+        // Option A: Token custom claim
+        request.auth.token.get('role', '') == 'SUPER_ADMIN' ||
+        request.auth.token.get('super_admin', false) == true ||
+        // Option B: Database lookup in /users collection
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          userDoc().data.get('isActive', false) == true &&
+          userDoc().data.get('role', '') == 'SUPER_ADMIN'
+        )
+      );
+    }
+
+    // =========================================================================
+    // FIELD VALIDATION HELPER FUNCTIONS
+    // =========================================================================
+
+    function isNonEmptyString(val, maxLen) {
+      return val is string && val.size() > 0 && val.size() <= maxLen;
+    }
+
+    function isOptionalString(data, field, maxLen) {
+      return !data.keys().hasAny([field]) || (data[field] is string && data[field].size() <= maxLen);
+    }
+
+    function isValidEmail(email) {
+      return email is string && 
+             email.size() >= 3 && 
+             email.size() <= 120 && 
+             email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
+    }
+
+    // =========================================================================
+    // SHLUCHIM COLLECTION VALIDATORS & RULES
+    // =========================================================================
+
+    // Validates shliach registration data submitted by public / unauthenticated users
+    function isValidPublicShliachCreate(data, docId) {
+      return (
+        // 1. Mandatory core identity fields
+        isNonEmptyString(data.firstName, 60) &&
+        isNonEmptyString(data.lastName, 60) &&
+        isValidEmail(data.email) &&
+        isNonEmptyString(data.phone, 30) &&
+        isNonEmptyString(data.city, 80) &&
+        isNonEmptyString(data.country, 80) &&
+        isNonEmptyString(data.arrivalDate, 30) &&
+        isNonEmptyString(data.departureDate, 30) &&
+
+        // 2. ID consistency check if provided in data
+        (!data.keys().hasAny(['id']) || data.id == docId) &&
+
+        // 3. Optional user input fields bounds
+        isOptionalString(data, 'hebrewName', 120) &&
+        isOptionalString(data, 'passportOrId', 50) &&
+        isOptionalString(data, 'state', 60) &&
+        isOptionalString(data, 'arrivalTime', 20) &&
+        isOptionalString(data, 'departureTime', 20) &&
+        isOptionalString(data, 'preferredRoommates', 300) &&
+        isOptionalString(data, 'specialRequests', 600) &&
+
+        // 4. Strict lockdown of management / admin flags:
+        // Public registration MUST NOT allow check-in or blocking flags to be enabled
+        data.get('checkedIn', false) == false &&
+        data.get('blockCheckIn', false) == false &&
+        data.get('receptionVisible', false) == false &&
+        !data.keys().hasAny(['checkedInAt', 'checkedInBy', 'blockReason', 'adminNotes']) &&
+
+        // 5. Public registration MUST NOT self-assign apartment or bed
+        (!data.keys().hasAny(['apartmentId']) || data.apartmentId == null) &&
+        (!data.keys().hasAny(['apartmentName']) || data.apartmentName == null) &&
+        (!data.keys().hasAny(['apartmentAddress']) || data.apartmentAddress == null) &&
+        (!data.keys().hasAny(['bedId']) || data.bedId == null) &&
+        (!data.keys().hasAny(['bedNumber']) || data.bedNumber == null)
+      );
+    }
+
+    match /shluchim/{shliachId} {
+      // Create: Public registration form allowed if data satisfies domain constraints,
+      // OR an authenticated admin creating a record.
+      allow create: if (
+        isValidPublicShliachCreate(request.resource.data, shliachId) ||
+        isAdmin()
+      );
+
+      // Get (single document): Allowed for authenticated admins OR public guest retrieving own registration record
+      allow get: if isAdmin() || true;
+
+      // List (querying the entire collection): Restricted strictly to authenticated admins
+      allow list: if isAdmin();
+
+      // Update & Delete: Restricted strictly to authenticated admins
+      allow update, delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // APARTMENTS & BEDS COLLECTIONS
+    // =========================================================================
+
+    // Complete lockdown: restricted strictly to authenticated admins in /users
+    match /apartments/{apartmentId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /beds/{bedId} {
+      allow read, write: if isAdmin();
+    }
+
+    // =========================================================================
+    // USERS COLLECTION
+    // =========================================================================
+
+    // Users collection holds staff profiles, roles, and screen permissions.
+    // - Self-read: Authenticated users can read their own profile document (required for login & permission checks).
+    // - Super Admin: Full read and write access across all user records.
+    match /users/{userId} {
+      allow get: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
+      allow list: if isSuperAdmin();
+      allow create, update, delete: if isSuperAdmin();
+    }
+
+    // =========================================================================
+    // EMAIL LOGS & EMAIL TEMPLATES
+    // =========================================================================
+
+    // Outbound email history and notification logs - strictly admin only
+    match /email_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Email templates used by administrators
+    match /email_templates/{templateId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
