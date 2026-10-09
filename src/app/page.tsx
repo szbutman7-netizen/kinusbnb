@@ -48,7 +48,7 @@ export default function HomePage() {
             </div>
 
             {/* Main Header */}
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-white leading-tight sm:leading-tight">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-heading font-black tracking-tight text-white leading-tight sm:leading-tight">
               {t("heroTitle")}
             </h1>
 

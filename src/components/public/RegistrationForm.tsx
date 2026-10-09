@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { dataStore } from "@/lib/services/dataService";
 import { useKinusData } from "@/lib/hooks/useKinusData";
@@ -26,6 +26,26 @@ import {
 const KINUS_START_DATE = "2026-11-04";
 const KINUS_END_DATE = "2026-11-09";
 
+const INITIAL_FORM_DATA = {
+  firstName: "",
+  lastName: "",
+  hebrewName: "",
+  email: "",
+  phone: "",
+  country: "",
+  city: "",
+  passportOrId: "",
+  arrivalDate: "",
+  arrivalTime: "",
+  departureDate: "",
+  departureTime: "",
+  preferredRoommates: "",
+  specialRequests: "",
+  cardNumber: "",
+  cardExp: "",
+  cardCvc: "",
+};
+
 export function RegistrationForm() {
   const router = useRouter();
   const { t, language, isRtl } = useLanguage();
@@ -34,25 +54,13 @@ export function RegistrationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    hebrewName: "",
-    email: "",
-    phone: "",
-    country: "",
-    city: "",
-    passportOrId: "",
-    arrivalDate: "",
-    arrivalTime: "",
-    departureDate: "",
-    departureTime: "",
-    preferredRoommates: "",
-    specialRequests: "",
-    cardNumber: "",
-    cardExp: "",
-    cardCvc: "",
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+
+  // Ensure state resets to step 1 whenever component mounts
+  useEffect(() => {
+    setStep(1);
+    setIsSubmitting(false);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -159,6 +167,11 @@ export function RegistrationForm() {
           console.warn("Email relay background notice:", err);
         }
       }
+
+      // Reset form state so subsequent visits start clean at Step 1
+      setFormData(INITIAL_FORM_DATA);
+      setStep(1);
+      setIsSubmitting(false);
 
       router.push(`/success?id=${shliachId}`);
     } catch (err: any) {

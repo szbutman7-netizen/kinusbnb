@@ -30,9 +30,7 @@ export function WhatsAppButton({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={accessibleLabel}
-        className={`fixed bottom-6 ${
-          isRtl ? "left-6" : "right-6"
-        } z-50 flex items-center gap-2.5 px-4 py-3 bg-[#25D366] text-white rounded-full shadow-2xl hover:bg-[#20ba5a] hover:scale-105 active:scale-95 transition-all duration-300 font-sans border border-white/20 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#25D366]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1A30] group ${className}`}
+        className={`fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-[#102444] text-[#E8D8A8] rounded-full shadow-2xl hover:bg-[#15305B] hover:border-[#E8D8A8] hover:scale-105 active:scale-95 transition-all duration-300 font-sans border border-[#E8D8A8]/40 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#E8D8A8]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1A30] group ${className}`}
       >
         <svg
           className="w-6 h-6 fill-current flex-shrink-0"
@@ -54,7 +52,7 @@ export function WhatsAppButton({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={accessibleLabel}
-      className={`inline-flex items-center gap-2 px-4 py-2 bg-[#25D366] text-white rounded-full shadow-md hover:bg-[#20ba5a] hover:shadow-lg active:scale-95 transition-all text-xs font-bold focus:outline-none focus-visible:ring-4 focus-visible:ring-[#25D366]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#102444] ${className}`}
+      className={`inline-flex items-center gap-2 px-4 py-2 bg-[#102444] text-[#E8D8A8] border border-[#E8D8A8]/30 hover:border-[#E8D8A8] hover:bg-[#15305B] rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all text-xs font-bold focus:outline-none focus-visible:ring-4 focus-visible:ring-[#E8D8A8]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#102444] ${className}`}
     >
       <svg
         className="w-4 h-4 fill-current flex-shrink-0"

@@ -17,11 +17,11 @@ export const translations = {
     langEnglish: "English",
 
     // WhatsApp
-    whatsappLabel: "מענה אנושי: 13474542013+",
-    whatsappFullAria: "פנייה למענה אנושי בוואטסאפ במספר 13474542013+",
+    whatsappLabel: "פנייה בוואטסאפ",
+    whatsappFullAria: "פנייה למענה אנושי בוואטסאפ",
     whatsappBannerTitle: "צריכים עזרה או מענה אנושי?",
-    whatsappBannerSubtitle: "מוקד הלינה של הכינוס זמין עבורכם ישירות בוואטסאפ: 13474542013+",
-    whatsappButtonText: "פנייה בוואטסאפ (13474542013+)",
+    whatsappBannerSubtitle: "מוקד הלינה של הכינוס זמין עבורכם ישירות בוואטסאפ",
+    whatsappButtonText: "פנייה בוואטסאפ",
 
     // Home Page
     traditionalBh: "ב״ה",
@@ -192,11 +192,11 @@ export const translations = {
     langEnglish: "English",
 
     // WhatsApp
-    whatsappLabel: "Live Support: +13474542013",
-    whatsappFullAria: "Contact live human support on WhatsApp at +13474542013",
+    whatsappLabel: "Message on WhatsApp",
+    whatsappFullAria: "Contact live human support on WhatsApp",
     whatsappBannerTitle: "Need Assistance or Personal Guidance?",
-    whatsappBannerSubtitle: "The Kinus Hospitality Desk is available for you directly on WhatsApp: +13474542013",
-    whatsappButtonText: "Message on WhatsApp (+13474542013)",
+    whatsappBannerSubtitle: "The Kinus Hospitality Desk is available for you directly on WhatsApp",
+    whatsappButtonText: "Message on WhatsApp",
 
     // Home Page
     traditionalBh: 'B"H',

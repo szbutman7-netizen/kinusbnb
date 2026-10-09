@@ -21,7 +21,7 @@ export function Navbar() {
           >
             <KinusLogo size={44} color="#E8D8A8" className="group-hover:scale-105 transition-transform flex-shrink-0" />
             <div className={isRtl ? "text-right" : "text-left"}>
-              <span className="text-base sm:text-lg font-bold text-white tracking-wide block leading-tight">
+              <span className="text-lg sm:text-xl font-black font-heading text-white tracking-wide block leading-tight">
                 {t("title")}
               </span>
               <span className="text-[11px] sm:text-xs text-[#E8D8A8] font-medium tracking-wider uppercase block">
@@ -33,7 +33,7 @@ export function Navbar() {
           {/* Navigation Links and Tools */}
           <nav
             aria-label="Main Navigation"
-            className="flex items-center gap-2 sm:gap-4"
+            className="flex items-center gap-2 sm:gap-3"
           >
             <WhatsAppButton
               className="hidden lg:inline-flex"
@@ -41,14 +41,14 @@ export function Navbar() {
 
             <Link
               href="/"
-              className="text-xs sm:text-sm font-medium text-slate-200 hover:text-[#E8D8A8] transition-colors hidden md:block px-2 py-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
+              className="hidden md:inline-flex items-center justify-center px-4 py-2 text-xs sm:text-sm font-semibold rounded-full border border-[#E8D8A8]/30 text-slate-200 hover:border-[#E8D8A8] hover:text-[#E8D8A8] hover:bg-[#15305B]/60 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
             >
               {t("navInfo")}
             </Link>
 
             <Link
               href="/register"
-              className="inline-flex items-center justify-center px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold rounded-full border border-[#E8D8A8] text-[#E8D8A8] hover:bg-[#E8D8A8] hover:text-[#0B1A30] transition-all tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#102444]"
+              className="inline-flex items-center justify-center px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold rounded-full bg-[#E8D8A8] text-[#0B1A30] hover:bg-white hover:shadow-lg active:scale-95 transition-all tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#102444]"
             >
               {t("navRegister")}
             </Link>
