@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { Shield, Sparkles, LogIn, Lock, CheckCircle, AlertCircle } from "lucide-react";
+import { APP_VERSION } from "@/version";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -125,10 +126,13 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        <div className="text-center pt-2">
-          <a href="/" className="text-xs text-blue-400 hover:underline">
-            חזרה לטופס הרשמת השלוחים
+        <div className="text-center pt-2 space-y-2">
+          <a href="/" className="text-xs text-blue-400 hover:underline block">
+            חזרה לדף הראשי
           </a>
+          <span className="text-[10px] text-slate-500 font-mono block">
+            מערכת ניהול {APP_VERSION}
+          </span>
         </div>
       </div>
     </div>
