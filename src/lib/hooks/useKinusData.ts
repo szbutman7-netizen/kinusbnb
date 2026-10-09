@@ -9,7 +9,8 @@ import {
   UserProfile, 
   EmailTemplate, 
   EmailLog, 
-  DashboardStats 
+  DashboardStats,
+  FormSettings
 } from "@/types";
 
 export function useKinusData() {
@@ -19,6 +20,7 @@ export function useKinusData() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [formSettings, setFormSettings] = useState<FormSettings>({ isOpen: true });
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -29,6 +31,7 @@ export function useKinusData() {
     setUsers(dataStore.getUsers());
     setTemplates(dataStore.getTemplates());
     setEmailLogs(dataStore.getEmailLogs());
+    setFormSettings(dataStore.getFormSettings());
     setStats(dataStore.getStats());
   };
 
@@ -53,6 +56,7 @@ export function useKinusData() {
     users,
     templates,
     emailLogs,
+    formSettings,
     stats,
     actions: {
       addShliach: dataStore.addShliach.bind(dataStore),
@@ -71,6 +75,7 @@ export function useKinusData() {
       addUser: dataStore.addUser.bind(dataStore),
       updateUser: dataStore.updateUser.bind(dataStore),
       deleteUser: dataStore.deleteUser.bind(dataStore),
+      updateFormSettings: dataStore.updateFormSettings.bind(dataStore),
     }
   };
 }

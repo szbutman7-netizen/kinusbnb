@@ -12,6 +12,7 @@ export interface ScreenPermissions {
   reception: ScreenAccessLevel;
   emails: ScreenAccessLevel;
   users: ScreenAccessLevel;
+  settings?: ScreenAccessLevel;
 }
 
 export interface UserProfile {
@@ -131,4 +132,12 @@ export interface DashboardStats {
   totalBeds: number;
   availableBeds: number;
   blockedGuests: number;
+}
+
+export interface FormSettings {
+  isOpen: boolean;
+  closedMessageHe?: string;
+  closedMessageEn?: string;
+  updatedAt?: string;
+  updatedBy?: string;
 }

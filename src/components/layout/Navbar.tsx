@@ -2,43 +2,63 @@
 
 import Link from "next/link";
 import { KinusLogo } from "@/components/common/KinusLogo";
+import { WhatsAppButton } from "@/components/common/WhatsAppButton";
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { useLanguage } from "@/lib/context/LanguageContext";
 
 export function Navbar() {
+  const { t, isRtl } = useLanguage();
+
   return (
-    <header className="sticky top-0 z-50 bg-[#07142A]/90 backdrop-blur-md border-b border-[#E8D8A8]/20">
+    <header className="sticky top-0 z-50 bg-[#07142A]/95 backdrop-blur-md border-b border-[#E8D8A8]/20 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-20 gap-3">
           {/* Official Logo & Title */}
-          <Link href="/" className="flex items-center gap-3.5 group">
-            <KinusLogo size={44} color="#E8D8A8" className="group-hover:scale-105 transition-transform" />
-            <div className="text-right">
+          <Link
+            href="/"
+            className="flex items-center gap-3.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07142A] rounded-xl p-1"
+            aria-label={t("title")}
+          >
+            <KinusLogo size={44} color="#E8D8A8" className="group-hover:scale-105 transition-transform flex-shrink-0" />
+            <div className={isRtl ? "text-right" : "text-left"}>
               <span className="text-base sm:text-lg font-bold text-white tracking-wide block leading-tight">
-                כינוס השלוחים העולמי
+                {t("title")}
               </span>
               <span className="text-[11px] sm:text-xs text-[#E8D8A8] font-medium tracking-wider uppercase block">
-                מחלקת אירוח ולינה • תשפ״ז
+                {t("deptSubtitle")}
               </span>
             </div>
           </Link>
 
-          {/* Navigation Links - Purely public, ZERO admin traces */}
-          <nav className="flex items-center gap-4">
+          {/* Navigation Links and Tools */}
+          <nav
+            aria-label="Main Navigation"
+            className="flex items-center gap-2 sm:gap-4"
+          >
+            <WhatsAppButton
+              className="hidden lg:inline-flex"
+            />
+
             <Link
               href="/"
-              className="text-xs sm:text-sm font-medium text-slate-300 hover:text-[#E8D8A8] transition-colors hidden sm:block"
+              className="text-xs sm:text-sm font-medium text-slate-200 hover:text-[#E8D8A8] transition-colors hidden md:block px-2 py-1 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
             >
-              מידע כללי
+              {t("navInfo")}
             </Link>
 
             <Link
               href="/register"
-              className="inline-flex items-center justify-center px-5 py-2 text-xs sm:text-sm font-medium rounded-full border border-[#E8D8A8] text-[#E8D8A8] hover:bg-[#E8D8A8] hover:text-[#07142A] transition-all tracking-wide"
+              className="inline-flex items-center justify-center px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold rounded-full border border-[#E8D8A8] text-[#E8D8A8] hover:bg-[#E8D8A8] hover:text-[#07142A] transition-all tracking-wide focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#07142A]"
             >
-              הרשמה ללינה
+              {t("navRegister")}
             </Link>
+
+            {/* Language Switcher */}
+            <LanguageSwitcher />
           </nav>
         </div>
       </div>
     </header>
   );
 }
+

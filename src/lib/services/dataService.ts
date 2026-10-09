@@ -18,7 +18,8 @@ import {
   UserProfile, 
   EmailTemplate, 
   EmailLog, 
-  DashboardStats 
+  DashboardStats,
+  FormSettings
 } from "@/types";
 import { 
   INITIAL_SHLUCHIM, 
@@ -36,6 +37,7 @@ class StoreManager {
   private users: UserProfile[] = [];
   private templates: EmailTemplate[] = [];
   private emailLogs: EmailLog[] = [];
+  private formSettings: FormSettings = { isOpen: true };
   
   private listeners: Set<() => void> = new Set();
   private isFirebaseConnected = false;
@@ -52,6 +54,7 @@ class StoreManager {
       const storedUsers = localStorage.getItem("kinus_users");
       const storedTemplates = localStorage.getItem("kinus_templates");
       const storedLogs = localStorage.getItem("kinus_logs");
+      const storedFormSettings = localStorage.getItem("kinus_form_settings");
 
       this.shluchim = storedShluchim ? JSON.parse(storedShluchim) : INITIAL_SHLUCHIM;
       this.apartments = storedApts ? JSON.parse(storedApts) : INITIAL_APARTMENTS;
@@ -59,6 +62,7 @@ class StoreManager {
       this.users = storedUsers ? JSON.parse(storedUsers) : INITIAL_USERS;
       this.templates = storedTemplates ? JSON.parse(storedTemplates) : INITIAL_EMAIL_TEMPLATES;
       this.emailLogs = storedLogs ? JSON.parse(storedLogs) : [];
+      this.formSettings = storedFormSettings ? JSON.parse(storedFormSettings) : { isOpen: true };
     } else {
       this.shluchim = [...INITIAL_SHLUCHIM];
       this.apartments = [...INITIAL_APARTMENTS];
@@ -66,6 +70,7 @@ class StoreManager {
       this.users = [...INITIAL_USERS];
       this.templates = [...INITIAL_EMAIL_TEMPLATES];
       this.emailLogs = [];
+      this.formSettings = { isOpen: true };
     }
   }
 
@@ -77,6 +82,7 @@ class StoreManager {
       localStorage.setItem("kinus_users", JSON.stringify(this.users));
       localStorage.setItem("kinus_templates", JSON.stringify(this.templates));
       localStorage.setItem("kinus_logs", JSON.stringify(this.emailLogs));
+      localStorage.setItem("kinus_form_settings", JSON.stringify(this.formSettings));
     }
     this.notify();
   }
@@ -115,6 +121,27 @@ class StoreManager {
 
   public getEmailLogs(): EmailLog[] {
     return [...this.emailLogs];
+  }
+
+  public getFormSettings(): FormSettings {
+    return { ...this.formSettings };
+  }
+
+  public async updateFormSettings(settings: Partial<FormSettings>): Promise<void> {
+    this.formSettings = {
+      ...this.formSettings,
+      ...settings,
+      updatedAt: new Date().toISOString()
+    };
+    this.persist();
+
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        await setDoc(doc(db, "settings", "registrationForm"), this.formSettings, { merge: true });
+      }
+    } catch (e) {
+      console.warn("Firestore updateFormSettings fallback to local:", e);
+    }
   }
 
   public getStats(): DashboardStats {
