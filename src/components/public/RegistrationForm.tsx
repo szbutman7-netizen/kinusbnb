@@ -7,8 +7,10 @@ import { useKinusData } from "@/lib/hooks/useKinusData";
 import { Shliach } from "@/types";
 import { KinusLogo } from "@/components/common/KinusLogo";
 import { WhatsAppButton } from "@/components/common/WhatsAppButton";
+import { KinusDatePicker } from "@/components/common/KinusDatePicker";
 import { COUNTRIES } from "@/lib/constants/countries";
 import { useLanguage } from "@/lib/context/LanguageContext";
+import { DEFAULT_ARRIVAL_DATES, DEFAULT_DEPARTURE_DATES } from "@/lib/services/dataService";
 import { 
   User, 
   Calendar, 
@@ -70,6 +72,13 @@ export function RegistrationForm() {
   const handleNextStep = () => {
     setErrorMessage("");
     if (step === 1) {
+      if (formData.hebrewName.trim()) {
+        const hasEnglish = /[a-zA-Z]/.test(formData.hebrewName);
+        if (hasEnglish) {
+          setErrorMessage(t("hebrewOnlyError"));
+          return;
+        }
+      }
       // All fields are optional - validate email only if entered
       if (formData.email && !formData.email.includes("@")) {
         setErrorMessage(t("valEmailInvalid"));
@@ -319,56 +328,25 @@ export function RegistrationForm() {
                 <User className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
                 {t("step1Header")}
               </h2>
-              <span className="text-[11px] text-slate-300 bg-slate-800/90 px-2 py-0.5 rounded-md border border-slate-700">
-                {t("optionalFieldsBadge")}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("firstNameLabel")}
-                </label>
-                <input
-                  id="firstName"
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  placeholder={t("firstNamePlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="lastName" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("lastNameLabel")}
-                </label>
-                <input
-                  id="lastName"
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder={t("lastNamePlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
-                />
-              </div>
             </div>
 
             <div>
               <label htmlFor="hebrewName" className="block text-xs font-semibold text-slate-200 mb-1">
-                {t("hebrewNameLabel")}
+                {language === "he" ? "שם השליח (בעברית בלבד)" : "Shliach Full Name (Hebrew only)"}
               </label>
               <input
                 id="hebrewName"
                 type="text"
                 name="hebrewName"
+                dir="rtl"
                 value={formData.hebrewName}
                 onChange={handleChange}
-                placeholder={t("hebrewNamePlaceholder")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
+                placeholder="הרב מנחם מענדל כהן"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all text-right"
               />
+              <span className="text-[10px] text-slate-400 block mt-1">
+                {language === "he" ? "* את שם השליח יש למלא בעברית בלבד" : "* Please fill the Shliach's name in Hebrew only"}
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -470,9 +448,6 @@ export function RegistrationForm() {
                 <Calendar className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
                 {t("step2Header")}
               </h2>
-              <span className="text-[11px] text-slate-300 bg-slate-800/90 px-2 py-0.5 rounded-md border border-slate-700">
-                {t("optionalFieldsBadge")}
-              </span>
             </div>
 
             <div className="p-3 bg-[#E8D8A8]/10 border border-[#E8D8A8]/20 rounded-xl text-xs text-[#E8D8A8] space-y-1">
@@ -484,23 +459,16 @@ export function RegistrationForm() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="arrivalDate" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("arrivalDateLabel")}
-                </label>
-                <input
+                <KinusDatePicker
                   id="arrivalDate"
-                  type="date"
                   name="arrivalDate"
-                  min={KINUS_START_DATE}
-                  max={KINUS_END_DATE}
+                  label={t("arrivalDateLabel")}
                   value={formData.arrivalDate}
-                  onChange={handleChange}
-                  aria-describedby="arrival-range-hint"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                  onChange={(val) => setFormData(prev => ({ ...prev, arrivalDate: val }))}
+                  allowedDates={formSettings?.allowedArrivalDates?.length ? formSettings.allowedArrivalDates : DEFAULT_ARRIVAL_DATES}
+                  placeholder={t("dateSelectPlaceholder")}
+                  hint={t("dateRangeHint")}
                 />
-                <span id="arrival-range-hint" className="text-[10px] text-[#E8D8A8] block mt-1 font-medium">
-                  {t("dateRangeHint")}
-                </span>
               </div>
 
               <div>
@@ -520,23 +488,16 @@ export function RegistrationForm() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="departureDate" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("departureDateLabel")}
-                </label>
-                <input
+                <KinusDatePicker
                   id="departureDate"
-                  type="date"
                   name="departureDate"
-                  min={KINUS_START_DATE}
-                  max={KINUS_END_DATE}
+                  label={t("departureDateLabel")}
                   value={formData.departureDate}
-                  onChange={handleChange}
-                  aria-describedby="departure-range-hint"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                  onChange={(val) => setFormData(prev => ({ ...prev, departureDate: val }))}
+                  allowedDates={formSettings?.allowedDepartureDates?.length ? formSettings.allowedDepartureDates : DEFAULT_DEPARTURE_DATES}
+                  placeholder={t("dateSelectPlaceholder")}
+                  hint={t("dateRangeHint")}
                 />
-                <span id="departure-range-hint" className="text-[10px] text-[#E8D8A8] block mt-1 font-medium">
-                  {t("dateRangeHint")}
-                </span>
               </div>
 
               <div>
@@ -715,19 +676,6 @@ export function RegistrationForm() {
               )}
             </button>
           )}
-        </div>
-
-        {/* WhatsApp Human Support Banner */}
-        <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#07142A]/80 p-4 rounded-xl border border-slate-700/70">
-          <div className={isRtl ? "text-right" : "text-left"}>
-            <span className="text-xs font-bold text-white block">
-              {t("whatsappBannerTitle")}
-            </span>
-            <span className="text-[11px] text-slate-300">
-              {t("whatsappBannerSubtitle")}
-            </span>
-          </div>
-          <WhatsAppButton label={t("whatsappButtonText")} />
         </div>
       </form>
     </div>

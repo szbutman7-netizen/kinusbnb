@@ -19,7 +19,8 @@ import {
   EmailTemplate, 
   EmailLog, 
   DashboardStats,
-  FormSettings
+  FormSettings,
+  ContactMessage
 } from "@/types";
 import { 
   INITIAL_SHLUCHIM, 
@@ -29,6 +30,9 @@ import {
   INITIAL_EMAIL_TEMPLATES 
 } from "./mockData";
 
+export const DEFAULT_ARRIVAL_DATES = ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
+export const DEFAULT_DEPARTURE_DATES = ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
+
 // In-Memory & LocalStorage Cache fallback
 class StoreManager {
   private shluchim: Shliach[] = [];
@@ -37,7 +41,12 @@ class StoreManager {
   private users: UserProfile[] = [];
   private templates: EmailTemplate[] = [];
   private emailLogs: EmailLog[] = [];
-  private formSettings: FormSettings = { isOpen: true };
+  private contactMessages: ContactMessage[] = [];
+  private formSettings: FormSettings = { 
+    isOpen: true,
+    allowedArrivalDates: [...DEFAULT_ARRIVAL_DATES],
+    allowedDepartureDates: [...DEFAULT_DEPARTURE_DATES]
+  };
   
   private listeners: Set<() => void> = new Set();
   private isFirebaseConnected = false;
@@ -55,6 +64,7 @@ class StoreManager {
       const storedTemplates = localStorage.getItem("kinus_templates");
       const storedLogs = localStorage.getItem("kinus_logs");
       const storedFormSettings = localStorage.getItem("kinus_form_settings");
+      const storedMessages = localStorage.getItem("kinus_contact_messages");
 
       this.shluchim = storedShluchim ? JSON.parse(storedShluchim) : INITIAL_SHLUCHIM;
       this.apartments = storedApts ? JSON.parse(storedApts) : INITIAL_APARTMENTS;
@@ -62,7 +72,18 @@ class StoreManager {
       this.users = storedUsers ? JSON.parse(storedUsers) : INITIAL_USERS;
       this.templates = storedTemplates ? JSON.parse(storedTemplates) : INITIAL_EMAIL_TEMPLATES;
       this.emailLogs = storedLogs ? JSON.parse(storedLogs) : [];
-      this.formSettings = storedFormSettings ? JSON.parse(storedFormSettings) : { isOpen: true };
+      this.contactMessages = storedMessages ? JSON.parse(storedMessages) : [];
+      
+      const parsedSettings = storedFormSettings ? JSON.parse(storedFormSettings) : null;
+      this.formSettings = {
+        isOpen: parsedSettings?.isOpen ?? true,
+        closedMessageHe: parsedSettings?.closedMessageHe || "",
+        closedMessageEn: parsedSettings?.closedMessageEn || "",
+        allowedArrivalDates: parsedSettings?.allowedArrivalDates || [...DEFAULT_ARRIVAL_DATES],
+        allowedDepartureDates: parsedSettings?.allowedDepartureDates || [...DEFAULT_DEPARTURE_DATES],
+        updatedAt: parsedSettings?.updatedAt,
+        updatedBy: parsedSettings?.updatedBy
+      };
     } else {
       this.shluchim = [...INITIAL_SHLUCHIM];
       this.apartments = [...INITIAL_APARTMENTS];
@@ -70,7 +91,12 @@ class StoreManager {
       this.users = [...INITIAL_USERS];
       this.templates = [...INITIAL_EMAIL_TEMPLATES];
       this.emailLogs = [];
-      this.formSettings = { isOpen: true };
+      this.contactMessages = [];
+      this.formSettings = { 
+        isOpen: true,
+        allowedArrivalDates: [...DEFAULT_ARRIVAL_DATES],
+        allowedDepartureDates: [...DEFAULT_DEPARTURE_DATES]
+      };
     }
   }
 
@@ -83,6 +109,7 @@ class StoreManager {
       localStorage.setItem("kinus_templates", JSON.stringify(this.templates));
       localStorage.setItem("kinus_logs", JSON.stringify(this.emailLogs));
       localStorage.setItem("kinus_form_settings", JSON.stringify(this.formSettings));
+      localStorage.setItem("kinus_contact_messages", JSON.stringify(this.contactMessages));
     }
     this.notify();
   }
@@ -429,6 +456,79 @@ class StoreManager {
   public deleteUser(id: string): void {
     this.users = this.users.filter(u => u.id !== id);
     this.persist();
+  }
+
+  // --- Contact Messages ---
+  public getContactMessages(): ContactMessage[] {
+    return [...this.contactMessages];
+  }
+
+  public async addContactMessage(msg: Omit<ContactMessage, "id" | "createdAt" | "status">): Promise<void> {
+    const newMessage: ContactMessage = {
+      ...msg,
+      id: "msg-" + Date.now(),
+      status: "NEW",
+      createdAt: new Date().toISOString()
+    };
+    this.contactMessages.unshift(newMessage);
+    this.persist();
+
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        await setDoc(doc(db, "contactMessages", newMessage.id), newMessage);
+      }
+    } catch (e) {
+      console.warn("Firestore contact message fallback to local:", e);
+    }
+  }
+
+  public async replyContactMessage(id: string, replyText: string, staffName: string): Promise<void> {
+    const idx = this.contactMessages.findIndex(m => m.id === id);
+    if (idx !== -1) {
+      this.contactMessages[idx] = {
+        ...this.contactMessages[idx],
+        status: "REPLIED",
+        reply: replyText,
+        repliedAt: new Date().toISOString(),
+        repliedBy: staffName
+      };
+      this.persist();
+
+      // Log email that will be sent
+      this.addEmailLog({
+        recipientEmail: this.contactMessages[idx].email,
+        recipientName: this.contactMessages[idx].name,
+        subject: `מענה לפנייתך באתר כינוס השלוחים: ${this.contactMessages[idx].subject}`,
+        status: "SENT",
+        bodyPreview: replyText.substring(0, 80)
+      });
+
+      try {
+        if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+          await updateDoc(doc(db, "contactMessages", id), {
+            status: "REPLIED",
+            reply: replyText,
+            repliedAt: new Date().toISOString(),
+            repliedBy: staffName
+          });
+        }
+      } catch (e) {
+        console.warn("Firestore contact message reply fallback:", e);
+      }
+    }
+  }
+
+  public async deleteContactMessage(id: string): Promise<void> {
+    this.contactMessages = this.contactMessages.filter(m => m.id !== id);
+    this.persist();
+
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        await deleteDoc(doc(db, "contactMessages", id));
+      }
+    } catch (e) {
+      console.warn("Firestore delete contact message fallback:", e);
+    }
   }
 }
 

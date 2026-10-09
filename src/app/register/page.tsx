@@ -32,7 +32,6 @@ export default function RegisterPage() {
             <span>{t("backToInfo")}</span>
           </Link>
           <div className="flex items-center gap-4">
-            <WhatsAppButton className="hidden sm:inline-flex" />
             <span className="text-xs text-[#E8D8A8]/80 font-serif">{t("traditionalBh")}</span>
           </div>
         </div>

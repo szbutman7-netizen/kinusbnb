@@ -58,7 +58,7 @@ export const translations = {
     bottomCtaButton: "מעבר לטופס הרשמה מקוון",
 
     // Footer
-    footerAddress: "מחלקת אירוח ולינה • 770 Eastern Parkway, Brooklyn, NY",
+    footerAddress: "מחלקת אירוח ולינה • 788 Eastern Parkway, Suite 301, Brooklyn NY, 11213",
     footerCopyright: "כינוס השלוחים העולמי תשפ״ז",
 
     // Register Page
@@ -157,6 +157,29 @@ export const translations = {
     formClosedSubtitle: "מחלקת האירוח והלינה • כינוס השלוחים תשפ״ז",
     formClosedDesc: "ההרשמה המקוונת לדירות ואירוח בכינוס השלוחים סגורה כעת לקבלת פניות חדשות. במידה ודרוש מענה דחוף או סיוע אישי, ניתן לפנות ישירות למוקד הלינה בוואטסאפ.",
     formClosedContactUs: "לבירורים דחופים וסיוע אישי:",
+
+    // Date Picker
+    dateSelectPlaceholder: "אנא בחר תאריך",
+    hebrewOnlyError: "יש להזין שם בעברית בלבד",
+
+    // Contact Us Block
+    contactSectionTag: "יצירת קשר ופניות",
+    contactSectionTitle: "צור קשר עם מוקד האירוח",
+    contactSectionDesc: "לכל שאלה, בקשה מיוחדת או פנייה בנושא לינה בכינוס, אנא השאירו פרטים ונחזור אליכם בהקדם במייל.",
+    contactNameLabel: "שם מלא",
+    contactNamePlaceholder: "הרב לוי יצחק",
+    contactEmailLabel: "כתובת דוא״ל למענה",
+    contactEmailPlaceholder: "shliach@chabad.org",
+    contactPhoneLabel: "טלפון / וואטסאפ",
+    contactPhonePlaceholder: "+1-718-555-0199",
+    contactSubjectLabel: "נושא הפנייה",
+    contactSubjectPlaceholder: "בירור לגבי שיבוץ דירה / צרכי נגישות",
+    contactMessageLabel: "תוכן הפנייה",
+    contactMessagePlaceholder: "פרטו את שאלתכם או בקשתכם כאן...",
+    contactSubmitBtn: "שליחת פנייה למוקד",
+    contactSubmittingBtn: "שולח פנייה...",
+    contactSuccessAlert: "פנייתך נשלחה בהצלחה! צוות הכינוס ישיב בהקדם לדוא״ל שציינת.",
+    contactErrorAlert: "אירעה שגיאה בשליחת הפנייה. אנא נסה שוב או פנה בוואטסאפ.",
   },
   en: {
     // Top Bar & Navbar
@@ -210,7 +233,7 @@ export const translations = {
     bottomCtaButton: "Proceed to Online Registration",
 
     // Footer
-    footerAddress: "Hospitality & Housing Department • 770 Eastern Parkway, Brooklyn, NY",
+    footerAddress: "Hospitality & Housing Department • 788 Eastern Parkway, Suite 301, Brooklyn NY, 11213",
     footerCopyright: "International Kinus HaShluchim 5787",
 
     // Register Page
@@ -309,6 +332,29 @@ export const translations = {
     formClosedSubtitle: "Hospitality & Housing Department • Kinus HaShluchim 5787",
     formClosedDesc: "Online housing registration for the International Kinus HaShluchim is currently closed for new applications. If you require urgent assistance or personal coordination, please reach out to our team directly via WhatsApp.",
     formClosedContactUs: "For urgent inquiries & assistance:",
+
+    // Date Picker
+    dateSelectPlaceholder: "Please select date",
+    hebrewOnlyError: "Please enter Hebrew name only",
+
+    // Contact Us Block
+    contactSectionTag: "Contact & Inquiries",
+    contactSectionTitle: "Contact the Housing Office",
+    contactSectionDesc: "For any questions, special requests, or housing inquiries, please leave your details below and we will get back to you promptly via email.",
+    contactNameLabel: "Full Name",
+    contactNamePlaceholder: "Rabbi Levi Yitzchok",
+    contactEmailLabel: "Email Address for Reply",
+    contactEmailPlaceholder: "shliach@chabad.org",
+    contactPhoneLabel: "Phone / WhatsApp",
+    contactPhonePlaceholder: "+1-718-555-0199",
+    contactSubjectLabel: "Subject",
+    contactSubjectPlaceholder: "Inquiry regarding apartment placement / accessibility",
+    contactMessageLabel: "Message",
+    contactMessagePlaceholder: "Please describe your question or request here...",
+    contactSubmitBtn: "Submit Inquiry to Office",
+    contactSubmittingBtn: "Submitting inquiry...",
+    contactSuccessAlert: "Your inquiry has been submitted successfully! The Kinus team will respond promptly to your email.",
+    contactErrorAlert: "An error occurred submitting your inquiry. Please try again or reach out on WhatsApp.",
   }
 };
 

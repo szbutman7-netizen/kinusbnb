@@ -13,6 +13,7 @@ export interface ScreenPermissions {
   emails: ScreenAccessLevel;
   users: ScreenAccessLevel;
   settings?: ScreenAccessLevel;
+  messages?: ScreenAccessLevel;
 }
 
 export interface UserProfile {
@@ -117,6 +118,7 @@ export interface EmailLog {
   recipientName: string;
   subject: string;
   templateName?: string;
+  bodyPreview?: string;
   sentAt: string;
   sentBy?: string;
   status: 'SENT' | 'FAILED';
@@ -138,6 +140,23 @@ export interface FormSettings {
   isOpen: boolean;
   closedMessageHe?: string;
   closedMessageEn?: string;
+  allowedArrivalDates?: string[];
+  allowedDepartureDates?: string[];
   updatedAt?: string;
   updatedBy?: string;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+  status: 'NEW' | 'REPLIED' | 'ARCHIVED';
+  createdAt: string;
+  reply?: string;
+  replyText?: string;
+  repliedAt?: string;
+  repliedBy?: string;
 }

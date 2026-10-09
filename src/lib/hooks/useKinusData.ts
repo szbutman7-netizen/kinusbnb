@@ -10,7 +10,8 @@ import {
   EmailTemplate, 
   EmailLog, 
   DashboardStats,
-  FormSettings
+  FormSettings,
+  ContactMessage
 } from "@/types";
 
 export function useKinusData() {
@@ -21,6 +22,7 @@ export function useKinusData() {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
   const [formSettings, setFormSettings] = useState<FormSettings>({ isOpen: true });
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -32,6 +34,7 @@ export function useKinusData() {
     setTemplates(dataStore.getTemplates());
     setEmailLogs(dataStore.getEmailLogs());
     setFormSettings(dataStore.getFormSettings());
+    setContactMessages(dataStore.getContactMessages());
     setStats(dataStore.getStats());
   };
 
@@ -57,6 +60,7 @@ export function useKinusData() {
     templates,
     emailLogs,
     formSettings,
+    contactMessages,
     stats,
     actions: {
       addShliach: dataStore.addShliach.bind(dataStore),
@@ -76,6 +80,9 @@ export function useKinusData() {
       updateUser: dataStore.updateUser.bind(dataStore),
       deleteUser: dataStore.deleteUser.bind(dataStore),
       updateFormSettings: dataStore.updateFormSettings.bind(dataStore),
+      addContactMessage: dataStore.addContactMessage.bind(dataStore),
+      replyContactMessage: dataStore.replyContactMessage.bind(dataStore),
+      deleteContactMessage: dataStore.deleteContactMessage.bind(dataStore),
     }
   };
 }

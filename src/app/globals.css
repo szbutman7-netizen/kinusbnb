@@ -2,8 +2,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #040D1E;
-  --foreground: #f8fafc;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --kinus-navy: #0b2545;
+  --kinus-navy-dark: #07192f;
+  --kinus-gold: #c5a869;
+  --kinus-gold-dark: #8c6d2d;
+  --kinus-gold-light: #fbf7ee;
+  --kinus-border: #e2e8f0;
 }
 
 @theme {
@@ -13,6 +19,8 @@
 
 body {
   font-family: var(--font-assistant), "Assistant", system-ui, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
 }
 
 .font-serif {

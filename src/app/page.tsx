@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { KinusLogo } from "@/components/common/KinusLogo";
 import { WhatsAppButton } from "@/components/common/WhatsAppButton";
+import { ContactSection } from "@/components/public/ContactSection";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import { Building2, ShieldCheck, HeartHandshake, MapPin, Calendar, Clock, ArrowLeft, ArrowRight } from "lucide-react";
 
@@ -207,6 +208,9 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Contact Us Block */}
+        <ContactSection />
       </main>
 
       {/* Official Clean Footer (No admin links) */}
@@ -217,10 +221,15 @@ export default function HomePage() {
             <span className="text-slate-200 font-medium">{t("footerCopyright")}</span>
           </div>
           <div className="flex items-center gap-3">
-            <WhatsAppButton />
-            <span className="text-slate-500" aria-hidden="true">|</span>
             <div className="text-slate-300">
-              {t("footerAddress")}
+              <a
+                href="https://maps.google.com/?q=788%20Eastern%20Pkwy%2C%20Brooklyn%2C%20NY%2011213"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#E8D8A8] underline transition-colors"
+              >
+                788 Eastern Parkway, Suite 301, Brooklyn NY, 11213
+              </a>
             </div>
           </div>
         </div>

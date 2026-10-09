@@ -16,7 +16,8 @@ import {
   ShieldAlert,
   Menu,
   X,
-  Sliders
+  Sliders,
+  MessageSquare
 } from "lucide-react";
 import { useState } from "react";
 
@@ -47,6 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { label: "לוח בקרה", href: "/admin", icon: LayoutDashboard, access: true },
     { label: "הגדרות טופס", href: "/admin/settings", icon: Sliders, access: user.role === "SUPER_ADMIN" || user.role === "ADMIN" || user.role === "HOUSING_MANAGER" },
+    { label: "פניות הציבור", href: "/admin/messages", icon: MessageSquare, access: true },
     { label: "דירות ומיטות", href: "/admin/apartments", icon: Building2, access: hasAccess("apartments") },
     { label: "מאגר נרשמים", href: "/admin/shluchim", icon: Users, access: hasAccess("shluchim") },
     { label: "מסך שיבוץ", href: "/admin/placement", icon: Layers, access: hasAccess("placement") },

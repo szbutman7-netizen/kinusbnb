@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useKinusData } from "@/lib/hooks/useKinusData";
 import { useAuth } from "@/lib/context/AuthContext";
+import { DEFAULT_ARRIVAL_DATES, DEFAULT_DEPARTURE_DATES } from "@/lib/services/dataService";
 import { 
   Sliders, 
   CheckCircle2, 
@@ -10,12 +11,22 @@ import {
   Unlock, 
   Save, 
   ExternalLink, 
-  AlertCircle,
-  Eye,
-  MessageCircle,
-  Clock
+  Eye, 
+  Clock,
+  Calendar
 } from "lucide-react";
 import Link from "next/link";
+
+const ALL_POSSIBLE_DATES = [
+  { value: "2026-11-03", label: "יום שלישי, כ״ג בחשוון (3 בנובמבר)" },
+  { value: "2026-11-04", label: "יום רביעי, כ״ד בחשוון (4 בנובמבר)" },
+  { value: "2026-11-05", label: "יום חמישי, כ״ה בחשוון (5 בנובמבר)" },
+  { value: "2026-11-06", label: "יום שישי, כ״ו בחשוון (6 בנובמבר)" },
+  { value: "2026-11-07", label: "שבת קודש, כ״ז בחשוון (7 בנובמבר)" },
+  { value: "2026-11-08", label: "יום ראשון (באנקעט), כ״ח בחשוון (8 בנובמבר)" },
+  { value: "2026-11-09", label: "יום שני, כ״ט בחשוון (9 בנובמבר)" },
+  { value: "2026-11-10", label: "יום שלישי, ל׳ בחשוון (10 בנובמבר)" },
+];
 
 export default function FormSettingsPage() {
   const { formSettings, actions, isLoaded } = useKinusData();
@@ -24,6 +35,8 @@ export default function FormSettingsPage() {
   const [isOpen, setIsOpen] = useState(true);
   const [closedMessageHe, setClosedMessageHe] = useState("");
   const [closedMessageEn, setClosedMessageEn] = useState("");
+  const [allowedArrivalDates, setAllowedArrivalDates] = useState<string[]>([...DEFAULT_ARRIVAL_DATES]);
+  const [allowedDepartureDates, setAllowedDepartureDates] = useState<string[]>([...DEFAULT_DEPARTURE_DATES]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -32,6 +45,12 @@ export default function FormSettingsPage() {
       setIsOpen(formSettings.isOpen ?? true);
       setClosedMessageHe(formSettings.closedMessageHe || "");
       setClosedMessageEn(formSettings.closedMessageEn || "");
+      if (formSettings.allowedArrivalDates?.length) {
+        setAllowedArrivalDates(formSettings.allowedArrivalDates);
+      }
+      if (formSettings.allowedDepartureDates?.length) {
+        setAllowedDepartureDates(formSettings.allowedDepartureDates);
+      }
     }
   }, [formSettings]);
 
@@ -42,6 +61,8 @@ export default function FormSettingsPage() {
         isOpen: newVal,
         closedMessageHe,
         closedMessageEn,
+        allowedArrivalDates,
+        allowedDepartureDates,
         updatedBy: user?.displayName || "מנהל מערכת"
       });
       setSaveSuccess(true);
@@ -49,6 +70,18 @@ export default function FormSettingsPage() {
     } catch (err) {
       console.error("Failed to toggle form status:", err);
     }
+  };
+
+  const toggleArrivalDate = (dateVal: string) => {
+    setAllowedArrivalDates(prev => 
+      prev.includes(dateVal) ? prev.filter(d => d !== dateVal) : [...prev, dateVal].sort()
+    );
+  };
+
+  const toggleDepartureDate = (dateVal: string) => {
+    setAllowedDepartureDates(prev => 
+      prev.includes(dateVal) ? prev.filter(d => d !== dateVal) : [...prev, dateVal].sort()
+    );
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -59,6 +92,8 @@ export default function FormSettingsPage() {
         isOpen,
         closedMessageHe,
         closedMessageEn,
+        allowedArrivalDates,
+        allowedDepartureDates,
         updatedBy: user?.displayName || "מנהל מערכת"
       });
       setSaveSuccess(true);
@@ -85,10 +120,10 @@ export default function FormSettingsPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
             <Sliders className="w-6 h-6 text-blue-900" />
-            הגדרות טופס הרשמה
+            הגדרות טופס הרשמה ותאריכים
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            שליטה בזמינות טופס ההרשמה הציבורי, פתיחה או נעילת ההרשמה והתאמת הודעות מערכת
+            שליטה בזמינות טופס ההרשמה הציבורי, פתיחה או נעילת ההרשמה וקביעת טווח תאריכי השהות המורשים
           </p>
         </div>
 
@@ -131,8 +166,8 @@ export default function FormSettingsPage() {
               </div>
               <p className="text-xs text-slate-500 mt-1 max-w-lg">
                 {isOpen 
-                  ? "הטופס זמין לכלל השלוחים. שדות הרישום, בחירת התאריכים והסליקה ב-Stripe פתוחים כסדרם."
-                  : "ההרשמה נעולה. שדות ההזנה מוסתרים מהמשתמשים ומוצגת הודעה מכובדת בשתי השפות עם הפניה לוואטסאפ."
+                  ? "הטופס זמין לכלל השלוחים. שדות הרישום, בחירת התאריכים והסליקה פתוחים כסדרם."
+                  : "ההרשמה נעולה. שדות ההזנה מוסתרים ומוצגת הודעה מכובדת עם הפניה ישירה לוואטסאפ."
                 }
               </p>
             </div>
@@ -163,17 +198,90 @@ export default function FormSettingsPage() {
           </div>
         </div>
 
-        {/* Message Settings Form */}
+        {/* Form Settings */}
         <form onSubmit={handleSave} className="p-6 space-y-6">
+          {/* Allowed Dates Section */}
           <div className="space-y-4">
-            <h2 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+            <div className="border-b border-slate-100 pb-2 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-blue-900" />
+                קביעת תאריכים מורשים להרשמה (בחירה מבוקרת)
+              </h2>
+              <span className="text-[11px] text-slate-500 font-normal">
+                ברירת מחדל: 4 עד 9 בנובמבר 2026 (כ״ד – כ״ט בחשוון)
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+              {/* Arrival Dates */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <h3 className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <span>תאריכי הגעה מורשים:</span>
+                  <span className="text-[10px] text-blue-800 font-normal">{allowedArrivalDates.length} תאריכים נבחרו</span>
+                </h3>
+                <div className="space-y-1.5 max-h-52 overflow-y-auto">
+                  {ALL_POSSIBLE_DATES.map((d) => {
+                    const isChecked = allowedArrivalDates.includes(d.value);
+                    return (
+                      <label
+                        key={`arr-${d.value}`}
+                        className={`flex items-center gap-2.5 p-2 rounded-lg text-xs cursor-pointer transition-colors ${
+                          isChecked ? "bg-blue-100/70 text-blue-900 font-semibold" : "hover:bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleArrivalDate(d.value)}
+                          className="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
+                        />
+                        <span className="text-[11px]">{d.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Departure Dates */}
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <h3 className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <span>תאריכי עזיבה מורשים:</span>
+                  <span className="text-[10px] text-blue-800 font-normal">{allowedDepartureDates.length} תאריכים נבחרו</span>
+                </h3>
+                <div className="space-y-1.5 max-h-52 overflow-y-auto">
+                  {ALL_POSSIBLE_DATES.map((d) => {
+                    const isChecked = allowedDepartureDates.includes(d.value);
+                    return (
+                      <label
+                        key={`dep-${d.value}`}
+                        className={`flex items-center gap-2.5 p-2 rounded-lg text-xs cursor-pointer transition-colors ${
+                          isChecked ? "bg-blue-100/70 text-blue-900 font-semibold" : "hover:bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleDepartureDate(d.value)}
+                          className="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5"
+                        />
+                        <span className="text-[11px]">{d.label}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Custom Closed Messages */}
+          <div className="space-y-4 pt-4 border-t border-slate-100">
+            <h2 className="text-sm font-bold text-slate-900 pb-1">
               הודעות מותאמות בעת סגירת הטופס (אופציונלי)
             </h2>
             <p className="text-xs text-slate-500">
               אם תשאירו שדות אלה ריקים, המערכת תציג את הודעות ברירת המחדל הרשמיות של הכינוס בעברית ובאנגלית.
             </p>
 
-            {/* Hebrew message */}
             <div>
               <label htmlFor="closedMessageHe" className="block text-xs font-bold text-slate-700 mb-1">
                 הודעת סגירה בעברית:
@@ -188,7 +296,6 @@ export default function FormSettingsPage() {
               />
             </div>
 
-            {/* English message */}
             <div>
               <label htmlFor="closedMessageEn" className="block text-xs font-bold text-slate-700 mb-1 text-left" dir="ltr">
                 English Closed Message:
@@ -237,38 +344,6 @@ export default function FormSettingsPage() {
             </button>
           </div>
         </form>
-      </div>
-
-      {/* Live Preview Card */}
-      <div className="bg-slate-900 rounded-2xl p-6 text-white border border-slate-800 space-y-4">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5">
-            <Eye className="w-4 h-4" />
-            תצוגה מקדימה: כיצד השלוחים יראו את העמוד כעת
-          </span>
-          <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold ${
-            isOpen ? "bg-emerald-900/80 text-emerald-300 border border-emerald-700" : "bg-rose-900/80 text-rose-300 border border-rose-700"
-          }`}>
-            {isOpen ? "טופס הרשמה פעיל" : "מסך הרשמה סגורה"}
-          </span>
-        </div>
-
-        {isOpen ? (
-          <div className="p-4 bg-slate-800/80 rounded-xl border border-slate-700 text-xs text-slate-300 space-y-1">
-            <p className="font-bold text-white">הטופס פתוח באופן מלא:</p>
-            <p>שלוחים המגיעים לכתובת <code>/register</code> יראו את כל 3 שלבי הרישום (פרטים אישיים, תאריכי הגעה, סליקת Stripe) ויוכלו לבצע הרשמה ותשלום כרגיל.</p>
-          </div>
-        ) : (
-          <div className="p-4 bg-slate-800/80 rounded-xl border border-slate-700 text-xs text-slate-300 space-y-2">
-            <div className="flex items-center gap-2 text-amber-400 font-bold">
-              <Lock className="w-4 h-4" />
-              ההרשמה נעולה כעת:
-            </div>
-            <p>
-              שלוחים המגיעים לכתובת <code>/register</code> יקבלו את כרטיס ההודעה המעוצב ללא שדות הזנה, עם כפתור פנייה ייעודי ישיר למוקד הלינה בוואטסאפ: <strong>13474542013+</strong>.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
