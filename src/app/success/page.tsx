@@ -7,7 +7,8 @@ import confetti from "canvas-confetti";
 import { dataStore } from "@/lib/services/dataService";
 import { Shliach } from "@/types";
 import { Navbar } from "@/components/layout/Navbar";
-import { CheckCircle2, Printer, ArrowRight, ShieldCheck, MapPin, Calendar, User } from "lucide-react";
+import { KinusLogo } from "@/components/common/KinusLogo";
+import { CheckCircle2, Printer, ArrowRight, ShieldCheck, MapPin } from "lucide-react";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -42,89 +43,91 @@ function SuccessContent() {
   return (
     <div className="max-w-xl mx-auto py-8">
       <div className="text-center mb-8">
-        <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
-          <CheckCircle2 className="w-10 h-10" />
+        <div className="w-16 h-16 bg-[#E8D8A8]/10 text-[#E8D8A8] border border-[#E8D8A8]/30 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+          <CheckCircle2 className="w-9 h-9" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
+        <h1 className="text-2xl sm:text-3xl font-serif text-white">
           ההרשמה נקלטה בהצלחה!
         </h1>
-        <p className="text-slate-600 text-sm mt-1">
-          אישור ההרשמה והקבלה נשלחו אל תיבת הדוא״ל שלכם.
+        <p className="text-slate-300 text-xs sm:text-sm mt-1 font-light">
+          אישור ההרשמה והלינה נשלחו אל תיבת הדוא״ל שלכם.
         </p>
       </div>
 
       {/* Printable Confirmation Card */}
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden print:shadow-none print:border-none">
+      <div className="bg-[#0B1E38] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden print:bg-white print:text-black print:border print:shadow-none">
         {/* Card Header */}
-        <div className="bg-blue-900 text-white p-5 flex items-center justify-between">
-          <div>
-            <span className="text-xs text-amber-400 font-bold uppercase tracking-wider block">
-              כינוס השלוחים העולמי תשפ״ז
-            </span>
-            <span className="text-lg font-black block">
-              אישור הרשמה ולינה
-            </span>
+        <div className="bg-[#07142A] p-5 flex items-center justify-between border-b border-[#E8D8A8]/20 text-white">
+          <div className="flex items-center gap-3">
+            <KinusLogo size={38} color="#E8D8A8" />
+            <div>
+              <span className="text-[10px] text-[#E8D8A8] font-bold uppercase tracking-widest block">
+                כינוס השלוחים העולמי תשפ״ז
+              </span>
+              <span className="text-base font-serif font-bold block">
+                אישור הרשמה ולינה
+              </span>
+            </div>
           </div>
-          <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-amber-400 font-bold text-sm">
-            770
-          </div>
+          <span className="text-xs text-[#E8D8A8] font-serif">ב״ה</span>
         </div>
 
         {/* Card Body */}
-        <div className="p-6 space-y-6">
-          <div className="space-y-1 pb-4 border-b border-slate-200">
+        <div className="p-6 space-y-5 text-white">
+          <div className="space-y-1 pb-4 border-b border-slate-700/60">
             <span className="text-xs font-semibold text-slate-400">פרטי השליח:</span>
-            <h2 className="text-2xl font-bold text-slate-900">
+            <h2 className="text-xl font-bold text-white">
               {shliach?.hebrewName || "הרב השליח"}
             </h2>
-            <p className="text-sm text-slate-600 flex items-center gap-1.5 pt-1">
-              <MapPin className="w-4 h-4 text-blue-900" />
+            <p className="text-xs text-slate-300 flex items-center gap-1.5 pt-0.5">
+              <MapPin className="w-3.5 h-3.5 text-[#E8D8A8]" />
               <span>שליח ב{shliach?.city || "מקום השליחות"}, {shliach?.country || ""}</span>
             </p>
             {shliach?.passportOrId && (
-              <p className="text-xs text-slate-500 font-mono pt-0.5">
+              <p className="text-[11px] text-slate-400 font-mono pt-0.5">
                 מספר מזהה / ת״ז: {shliach.passportOrId}
               </p>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4 text-xs">
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-slate-500 block mb-1">תאריכי שהות:</span>
-              <span className="font-bold text-slate-900 block text-sm">
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div className="p-3 bg-[#07142A] rounded-xl border border-slate-800">
+              <span className="text-slate-400 block mb-1 text-[11px]">תאריכי שהות:</span>
+              <span className="font-bold text-white block">
                 {shliach?.arrivalDate || "18 נובמבר"} - {shliach?.departureDate || "23 נובמבר"}
               </span>
             </div>
 
-            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-slate-500 block mb-1">סטטוס תשלום:</span>
-              <span className="font-bold text-emerald-700 flex items-center gap-1 text-sm">
-                <ShieldCheck className="w-4 h-4" />
+            <div className="p-3 bg-[#07142A] rounded-xl border border-slate-800">
+              <span className="text-slate-400 block mb-1 text-[11px]">סטטוס תשלום:</span>
+              <span className="font-bold text-emerald-400 flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" />
                 שולם ($180) ב-Stripe
               </span>
             </div>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-xs text-blue-900 space-y-1.5">
-            <p className="font-bold text-sm">הנחיות להגעה וקליטה:</p>
-            <p>1. בהגעתכם לכינוס, גשו לעמדת הקבלה והזדהו באמצעות שמכם או מספר תעודת הזהות/הדרכון.</p>
-            <p>2. בעמדה ימתינו לכם פרטי הדירה, קוד הכניסה והמפתח.</p>
+          <div className="bg-[#07142A]/60 border border-[#E8D8A8]/20 rounded-xl p-4 text-xs text-slate-200 space-y-1.5">
+            <p className="font-bold text-[#E8D8A8]">הנחיות להגעה וקליטה:</p>
+            <p className="text-[11px] leading-relaxed">
+              בהגעתכם לקראון הייטס, גשו לעמדת הקבלה והזדהו בשמכם או במספר תעודת הזהות/הדרכון לקבלת מפתח הדירה ופרטי החדר.
+            </p>
           </div>
         </div>
 
         {/* Card Footer Actions */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between print:hidden">
+        <div className="p-4 bg-[#07142A] border-t border-slate-800 flex items-center justify-between print:hidden">
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-white transition-colors"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-700 text-slate-300 text-xs font-semibold hover:border-slate-500 transition-colors"
           >
-            <Printer className="w-4 h-4" />
+            <Printer className="w-3.5 h-3.5" />
             הדפס אישור הרשמה
           </button>
 
           <Link
             href="/"
-            className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-blue-900 text-white text-xs font-semibold hover:bg-blue-800 transition-colors"
+            className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-colors"
           >
             חזרה לדף הבית
             <ArrowRight className="w-3.5 h-3.5" />
@@ -137,10 +140,10 @@ function SuccessContent() {
 
 export default function SuccessPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="min-h-screen flex flex-col bg-[#040D1E] text-slate-100 font-sans selection:bg-[#E8D8A8] selection:text-[#040D1E]">
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        <Suspense fallback={<div className="text-center py-20">טוען אישור הרשמה...</div>}>
+        <Suspense fallback={<div className="text-center py-20 text-slate-400 text-xs">טוען אישור הרשמה...</div>}>
           <SuccessContent />
         </Suspense>
       </main>

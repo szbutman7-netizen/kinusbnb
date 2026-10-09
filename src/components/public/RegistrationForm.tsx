@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { dataStore } from "@/lib/services/dataService";
 import { Shliach } from "@/types";
+import { KinusLogo } from "@/components/common/KinusLogo";
 import { 
   User, 
-  MapPin, 
   Calendar, 
   CreditCard, 
   CheckCircle, 
@@ -14,7 +14,6 @@ import {
   ArrowLeft, 
   ArrowRight,
   Lock,
-  Sparkles,
   AlertCircle
 } from "lucide-react";
 
@@ -100,7 +99,7 @@ export function RegistrationForm() {
 
       await dataStore.addShliach(newShliach);
 
-      // Attempt sending confirmation email via relay
+      // Attempt sending confirmation email via relay in background
       try {
         await fetch("/api/email-relay/send", {
           method: "POST",
@@ -123,50 +122,53 @@ export function RegistrationForm() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-2xl mx-auto">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white p-6 sm:p-8">
+    <div className="bg-[#0B1E38] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden max-w-2xl mx-auto">
+      {/* Header Banner in authentic Kinus styling */}
+      <div className="bg-gradient-to-b from-[#07142A] to-[#0D2343] p-6 sm:p-8 border-b border-[#E8D8A8]/20 text-white">
         <div className="flex items-center justify-between">
-          <div>
-            <div className="text-amber-400 font-semibold text-xs tracking-wider uppercase flex items-center gap-1.5 mb-1">
-              <Sparkles className="w-4 h-4" />
-              טופס הרשמה רשמי
+          <div className="flex items-center gap-4">
+            <KinusLogo size={52} color="#E8D8A8" />
+            <div>
+              <span className="text-[#E8D8A8] font-medium text-xs tracking-widest uppercase block">
+                טופס הרשמה רשמי
+              </span>
+              <h1 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-wide">
+                אירוח ולינה בכינוס השלוחים
+              </h1>
+              <p className="text-slate-300 text-xs mt-0.5 font-light">
+                שנת הקהל תשפ״ז • ברוקלין, ניו יורק
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              אירוח ולינה בכינוס השלוחים
-            </h1>
-            <p className="text-blue-200 text-sm mt-1">
-              הרשמה מקוונת לשלוחי כ״ק אדמו״ר נשיא דורנו
-            </p>
           </div>
+
           <div className="hidden sm:block text-left">
-            <span className="text-3xl font-black text-amber-400">$180</span>
-            <span className="block text-xs text-blue-200">לכל ימי הכינוס</span>
+            <span className="text-2xl font-serif font-bold text-[#E8D8A8] block">$180</span>
+            <span className="text-[11px] text-slate-400">לכל ימי הכינוס</span>
           </div>
         </div>
 
         {/* Step Indicator */}
-        <div className="mt-6 flex items-center justify-between text-xs font-medium text-blue-200 border-t border-blue-800/60 pt-4">
-          <div className={`flex items-center gap-1.5 ${step >= 1 ? "text-amber-400 font-bold" : ""}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 1 ? "bg-amber-400 text-slate-900" : "bg-blue-800 text-white"}`}>1</span>
+        <div className="mt-6 flex items-center justify-between text-xs font-medium border-t border-slate-700/60 pt-4">
+          <div className={`flex items-center gap-2 ${step >= 1 ? "text-[#E8D8A8] font-bold" : "text-slate-500"}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 1 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-400"}`}>1</span>
             פרטי השליח
           </div>
-          <div className="w-12 h-0.5 bg-blue-800" />
-          <div className={`flex items-center gap-1.5 ${step >= 2 ? "text-amber-400 font-bold" : ""}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 2 ? "bg-amber-400 text-slate-900" : "bg-blue-800 text-white"}`}>2</span>
+          <div className="w-12 h-0.5 bg-slate-700" />
+          <div className={`flex items-center gap-2 ${step >= 2 ? "text-[#E8D8A8] font-bold" : "text-slate-500"}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 2 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-400"}`}>2</span>
             הגעה ושותפים
           </div>
-          <div className="w-12 h-0.5 bg-blue-800" />
-          <div className={`flex items-center gap-1.5 ${step >= 3 ? "text-amber-400 font-bold" : ""}`}>
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 3 ? "bg-amber-400 text-slate-900" : "bg-blue-800 text-white"}`}>3</span>
+          <div className="w-12 h-0.5 bg-slate-700" />
+          <div className={`flex items-center gap-2 ${step >= 3 ? "text-[#E8D8A8] font-bold" : "text-slate-500"}`}>
+            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step >= 3 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-400"}`}>3</span>
             סליקה ואישור
           </div>
         </div>
       </div>
 
       {errorMessage && (
-        <div className="m-6 p-4 bg-red-50 border-r-4 border-red-500 rounded-lg flex items-center gap-3 text-red-800 text-sm">
-          <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500" />
+        <div className="m-6 p-4 bg-red-950/60 border border-red-700/60 rounded-xl flex items-center gap-3 text-red-200 text-xs">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-400" />
           <span>{errorMessage}</span>
         </div>
       )}
@@ -175,14 +177,14 @@ export function RegistrationForm() {
       <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
         {step === 1 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-              <User className="w-5 h-5 text-blue-900" />
+            <h2 className="text-base font-bold text-white border-b border-slate-700 pb-2 flex items-center gap-2">
+              <User className="w-4 h-4 text-[#E8D8A8]" />
               פרטים אישיים ומקום השליחות
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   שם פרטי (באנגלית) *
                 </label>
                 <input
@@ -192,12 +194,12 @@ export function RegistrationForm() {
                   onChange={handleChange}
                   placeholder="Menachem M."
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-500 focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   שם משפחה (באנגלית) *
                 </label>
                 <input
@@ -207,13 +209,13 @@ export function RegistrationForm() {
                   onChange={handleChange}
                   placeholder="Schneerson"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-500 focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 שם מלא בעברית
               </label>
               <input
@@ -222,14 +224,14 @@ export function RegistrationForm() {
                 value={formData.hebrewName}
                 onChange={handleChange}
                 placeholder="הרב מנחם מענדל שניאורסאהן"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-500 focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs transition-all"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  דוא״ל (אימייל לקבלת אישור ועדכונים) *
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  דוא״ל לקבלת אישור ופרטי הדירה *
                 </label>
                 <input
                   type="email"
@@ -238,12 +240,12 @@ export function RegistrationForm() {
                   onChange={handleChange}
                   placeholder="rabbi@chabad.org"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-500 focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs transition-all"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   מספר טלפון נייד (וואטסאפ) *
                 </label>
                 <input
@@ -253,21 +255,21 @@ export function RegistrationForm() {
                   onChange={handleChange}
                   placeholder="+1-718-555-0123"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-500 focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs transition-all"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   ארץ השליחות *
                 </label>
                 <select
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm bg-white"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs"
                 >
                   <option value="ישראל">ישראל</option>
                   <option value="ארה״ב">ארה״ב (USA)</option>
@@ -283,7 +285,7 @@ export function RegistrationForm() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   עיר השליחות *
                 </label>
                 <input
@@ -293,13 +295,13 @@ export function RegistrationForm() {
                   onChange={handleChange}
                   placeholder="פריז / מוסקבה / ירושלים"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-500 focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 מספר דרכון או תעודת זהות (לזיהוי בעמדת הקבלה)
               </label>
               <input
@@ -308,7 +310,7 @@ export function RegistrationForm() {
                 value={formData.passportOrId}
                 onChange={handleChange}
                 placeholder="038291029"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-500 focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs transition-all"
               />
             </div>
           </div>
@@ -316,14 +318,14 @@ export function RegistrationForm() {
 
         {step === 2 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-900" />
+            <h2 className="text-base font-bold text-white border-b border-slate-700 pb-2 flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-[#E8D8A8]" />
               זמני שהות ובקשות מיוחדות
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   תאריך הגעה משוער *
                 </label>
                 <input
@@ -332,12 +334,12 @@ export function RegistrationForm() {
                   value={formData.arrivalDate}
                   onChange={handleChange}
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   שעת הגעה משוערת
                 </label>
                 <input
@@ -345,14 +347,14 @@ export function RegistrationForm() {
                   name="arrivalTime"
                   value={formData.arrivalTime}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   תאריך עזיבה משוער *
                 </label>
                 <input
@@ -361,12 +363,12 @@ export function RegistrationForm() {
                   value={formData.departureDate}
                   onChange={handleChange}
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
                   שעת עזיבה משוערת
                 </label>
                 <input
@@ -374,14 +376,14 @@ export function RegistrationForm() {
                   name="departureTime"
                   value={formData.departureTime}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                שותפים מועדפים לחדר (אם ישנם שלוחים שתרצו ללון עימם)
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
+                שותפים מבוקשים לחדר (אם ישנם שלוחים שתרצו ללון עימם)
               </label>
               <input
                 type="text"
@@ -389,15 +391,15 @@ export function RegistrationForm() {
                 value={formData.preferredRoommates}
                 onChange={handleChange}
                 placeholder="לדוגמה: הרב לוי סגל, הרב יוסף כהן"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-500 focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs"
               />
-              <p className="text-[11px] text-slate-500 mt-1">
-                צוות השיבוץ יעשה כל מאמץ לשבץ אתכם יחד בהתאם למלאי הדירות.
+              <p className="text-[11px] text-slate-400 mt-1">
+                צוות השיבוץ יעשה מאמץ מרבי לשבץ אתכם יחד בהתאם למלאי הדירות.
               </p>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-300 mb-1">
                 בקשות מיוחדות / צרכי נגישות
               </label>
               <textarea
@@ -405,8 +407,8 @@ export function RegistrationForm() {
                 value={formData.specialRequests}
                 onChange={handleChange}
                 rows={3}
-                placeholder="קומה נמוכה, מעלית, צרכים רפואיים וכו'"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-900 focus:border-blue-900 outline-none text-sm"
+                placeholder="קומה נמוכה, מעלית, צרכים מיוחדים וכו'"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-500 focus:ring-1 focus:ring-[#E8D8A8] focus:border-[#E8D8A8] outline-none text-xs"
               />
             </div>
           </div>
@@ -414,69 +416,66 @@ export function RegistrationForm() {
 
         {step === 3 && (
           <div className="space-y-4">
-            <h2 className="text-lg font-bold text-slate-900 border-b pb-2 flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-blue-900" />
+            <h2 className="text-base font-bold text-white border-b border-slate-700 pb-2 flex items-center gap-2">
+              <CreditCard className="w-4 h-4 text-[#E8D8A8]" />
               תשלום מאובטח באמצעות Stripe
             </h2>
 
-            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-              <div className="flex justify-between items-center pb-3 border-b border-slate-200 text-sm">
-                <span className="font-medium text-slate-700">דמי השתתפות בלינה ואירוח:</span>
-                <span className="font-bold text-slate-900">$180.00 USD</span>
+            <div className="bg-[#07142A] rounded-xl p-4 border border-slate-800">
+              <div className="flex justify-between items-center pb-3 border-b border-slate-800 text-xs">
+                <span className="text-slate-300">דמי השתתפות באירוח ולינה:</span>
+                <span className="font-serif font-bold text-[#E8D8A8] text-base">$180.00 USD</span>
               </div>
-              <div className="flex justify-between items-center pt-3 text-xs text-slate-500">
-                <span>כולל: מיטה מוצעת, מגבות, ערכת רחצה ומפתח לדירה</span>
-                <span className="text-emerald-700 font-bold">סליקה מאובטחת SSL</span>
+              <div className="flex justify-between items-center pt-3 text-[11px] text-slate-400">
+                <span>כולל מיטה מוצעת, מגבות ומפתח לדירה</span>
+                <span className="text-emerald-400 font-bold">סליקה מאובטחת SSL</span>
               </div>
             </div>
 
-            {/* Embedded Stripe Elements Form Mock/Active */}
-            <div className="border border-slate-300 rounded-xl p-4 bg-white space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
-                <span className="font-semibold text-slate-700">פרטי כרטיס אשראי</span>
-                <span className="flex items-center gap-1 text-slate-500">
-                  <Lock className="w-3.5 h-3.5 text-emerald-600" />
+            {/* Embedded Stripe Elements Card */}
+            <div className="border border-slate-700 rounded-xl p-4 bg-[#07142A] space-y-3">
+              <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+                <span className="font-semibold text-slate-300">פרטי כרטיס אשראי</span>
+                <span className="flex items-center gap-1 text-[11px]">
+                  <Lock className="w-3.5 h-3.5 text-emerald-400" />
                   Stripe 256-bit Encryption
                 </span>
               </div>
 
               <div>
-                <label className="block text-[11px] text-slate-500 mb-1">מספר כרטיס</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={formData.cardNumber}
-                    readOnly
-                    className="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-mono text-sm"
-                  />
-                  <CreditCard className="w-5 h-5 absolute left-3 top-2.5 text-slate-400" />
-                </div>
+                <label className="block text-[10px] text-slate-400 mb-1">מספר כרטיס</label>
+                <input
+                  type="text"
+                  value={formData.cardNumber}
+                  readOnly
+                  className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-xs"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] text-slate-500 mb-1">תוקף (MM/YY)</label>
+                  <label className="block text-[10px] text-slate-400 mb-1">תוקף (MM/YY)</label>
                   <input
                     type="text"
                     value={formData.cardExp}
                     readOnly
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-mono text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-xs"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-slate-500 mb-1">CVC / קוד אבטחה</label>
+                  <label className="block text-[10px] text-slate-400 mb-1">CVC / קוד אבטחה</label>
                   <input
                     type="text"
                     value={formData.cardCvc}
                     readOnly
-                    className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 font-mono text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-xs"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex items-start gap-2 text-xs text-slate-500 pt-1">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 text-[11px] text-slate-400 pt-1">
+              <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
               <span>
                 התשלום מועבר ישירות באמצעות Stripe ואינו נשמר בשרתי האתר. אישור תשלום יישלח מיד לדוא״ל שלך.
               </span>
@@ -485,14 +484,14 @@ export function RegistrationForm() {
         )}
 
         {/* Buttons Controls */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-700">
           {step > 1 ? (
             <button
               type="button"
               onClick={() => setStep((step - 1) as any)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-700 text-slate-300 text-xs font-semibold hover:border-slate-500 transition-colors"
             >
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
               חזור
             </button>
           ) : (
@@ -503,16 +502,16 @@ export function RegistrationForm() {
             <button
               type="button"
               onClick={handleNextStep}
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-blue-900 text-white text-sm font-semibold hover:bg-blue-800 transition-all shadow-md"
+              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-all shadow-md"
             >
               המשך
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-3.5 h-3.5" />
             </button>
           ) : (
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-emerald-700 text-white text-sm font-bold hover:bg-emerald-600 transition-all shadow-lg hover:shadow-emerald-700/20 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-all shadow-lg disabled:opacity-50"
             >
               {isSubmitting ? (
                 <span>מעבד תשלום...</span>

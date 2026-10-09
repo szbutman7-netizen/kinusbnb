@@ -1,66 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/lib/context/AuthContext";
-import { Shield, Sparkles, LogIn, LogOut, User } from "lucide-react";
+import { KinusLogo } from "@/components/common/KinusLogo";
 
 export function Navbar() {
-  const { user, logout } = useAuth();
-
   return (
-    <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <header className="sticky top-0 z-50 bg-[#07142A]/90 backdrop-blur-md border-b border-[#E8D8A8]/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-blue-900 text-amber-400 flex items-center justify-center font-bold text-xl shadow-md group-hover:scale-105 transition-transform">
-                770
-              </div>
-              <div>
-                <span className="text-lg font-bold text-slate-900 tracking-tight block leading-tight">
-                  כינוס השלוחים העולמי
-                </span>
-                <span className="text-xs text-blue-900 font-medium">
-                  מחלקת אירוח ולינה
-                </span>
-              </div>
-            </Link>
-          </div>
+        <div className="flex justify-between items-center h-20">
+          {/* Official Logo & Title */}
+          <Link href="/" className="flex items-center gap-3.5 group">
+            <KinusLogo size={44} color="#E8D8A8" className="group-hover:scale-105 transition-transform" />
+            <div className="text-right">
+              <span className="text-base sm:text-lg font-bold text-white tracking-wide block leading-tight">
+                כינוס השלוחים העולמי
+              </span>
+              <span className="text-[11px] sm:text-xs text-[#E8D8A8] font-medium tracking-wider uppercase block">
+                מחלקת אירוח ולינה • תשפ״ז
+              </span>
+            </div>
+          </Link>
 
-          <nav className="flex items-center gap-3">
+          {/* Navigation Links - Purely public, ZERO admin traces */}
+          <nav className="flex items-center gap-4">
             <Link
               href="/"
-              className="text-sm font-medium text-slate-700 hover:text-blue-900 px-3 py-2 rounded-lg transition-colors"
+              className="text-xs sm:text-sm font-medium text-slate-300 hover:text-[#E8D8A8] transition-colors hidden sm:block"
             >
-              טופס הרשמה
+              מידע כללי
             </Link>
 
-            {user ? (
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/admin"
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-lg bg-blue-900 text-white hover:bg-blue-800 shadow-sm transition-all"
-                >
-                  <Shield className="w-4 h-4 text-amber-400" />
-                  ממשק ניהול
-                </Link>
-                <button
-                  onClick={() => logout()}
-                  title="התנתק"
-                  className="p-2 text-slate-500 hover:text-red-600 rounded-lg transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <Link
-                href="/admin/login"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-semibold rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 transition-all"
-              >
-                <LogIn className="w-4 h-4 text-slate-500" />
-                כניסת צוות
-              </Link>
-            )}
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center px-5 py-2 text-xs sm:text-sm font-medium rounded-full border border-[#E8D8A8] text-[#E8D8A8] hover:bg-[#E8D8A8] hover:text-[#07142A] transition-all tracking-wide"
+            >
+              הרשמה ללינה
+            </Link>
           </nav>
         </div>
       </div>
