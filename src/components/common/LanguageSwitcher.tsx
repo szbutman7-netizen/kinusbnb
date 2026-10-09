@@ -15,9 +15,9 @@ export function LanguageSwitcher({ className = "" }: LanguageSwitcherProps) {
     <div
       role="radiogroup"
       aria-label={t("langSwitchAria")}
-      className={`inline-flex items-center p-0.5 rounded-lg bg-slate-100 border border-slate-200 shadow-xs ${className}`}
+      className={`inline-flex items-center p-1 rounded-full bg-[#0B1A30]/90 border border-[#E8D8A8]/30 shadow-sm ${className}`}
     >
-      <div className="px-1.5 text-slate-500 flex items-center justify-center" aria-hidden="true">
+      <div className="px-1.5 text-[#E8D8A8] flex items-center justify-center" aria-hidden="true">
         <Globe className="w-3.5 h-3.5" />
       </div>
 
@@ -26,10 +26,10 @@ export function LanguageSwitcher({ className = "" }: LanguageSwitcherProps) {
         role="radio"
         aria-checked={language === "he"}
         onClick={() => setLanguage("he")}
-        className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B2545] ${
+        className={`px-3 py-1 text-xs font-semibold rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#102444] ${
           language === "he"
-            ? "bg-white text-[#0B2545] font-bold shadow-xs border border-slate-200"
-            : "text-slate-600 hover:text-slate-900"
+            ? "bg-[#E8D8A8] text-[#0B1A30] font-bold shadow-sm"
+            : "text-slate-200 hover:text-white hover:bg-slate-800/60"
         }`}
       >
         עברית
@@ -40,10 +40,10 @@ export function LanguageSwitcher({ className = "" }: LanguageSwitcherProps) {
         role="radio"
         aria-checked={language === "en"}
         onClick={() => setLanguage("en")}
-        className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0B2545] ${
+        className={`px-3 py-1 text-xs font-semibold rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#102444] ${
           language === "en"
-            ? "bg-white text-[#0B2545] font-bold shadow-xs border border-slate-200"
-            : "text-slate-600 hover:text-slate-900"
+            ? "bg-[#E8D8A8] text-[#0B1A30] font-bold shadow-sm"
+            : "text-slate-200 hover:text-white hover:bg-slate-800/60"
         }`}
       >
         English

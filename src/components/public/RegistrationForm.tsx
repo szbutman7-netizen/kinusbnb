@@ -172,14 +172,14 @@ export function RegistrationForm() {
     const customMessage = language === "en" ? formSettings.closedMessageEn : formSettings.closedMessageHe;
 
     return (
-      <div className="bg-[#0B1E38] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden max-w-2xl mx-auto">
+      <div className="bg-[#15305B] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden max-w-2xl mx-auto">
         {/* Header Banner */}
         <div className="relative overflow-hidden p-6 sm:p-8 border-b border-[#E8D8A8]/20 text-white">
           <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 mix-blend-luminosity scale-105 pointer-events-none"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105 pointer-events-none"
             style={{ backgroundImage: "url('/assets/hero-banquet.jpg')" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#07142A]/90 via-[#0B1E38]/95 to-[#0B1E38] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#102444]/85 via-[#15305B]/90 to-[#15305B] pointer-events-none" />
 
           <div className="relative z-10 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -219,12 +219,12 @@ export function RegistrationForm() {
             </p>
           </div>
 
-          <div className="max-w-lg mx-auto bg-[#07142A]/90 border border-slate-700/80 rounded-2xl p-5 sm:p-6 text-xs sm:text-sm text-slate-200 leading-relaxed font-light shadow-md">
+          <div className="max-w-lg mx-auto bg-[#102444]/90 border border-slate-700/80 rounded-2xl p-5 sm:p-6 text-xs sm:text-sm text-slate-200 leading-relaxed font-light shadow-md">
             {customMessage?.trim() || t("formClosedDesc")}
           </div>
 
           {/* WhatsApp Direct Help */}
-          <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#07142A]/80 p-5 rounded-xl border border-slate-700/70">
+          <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#102444]/80 p-5 rounded-xl border border-slate-700/70">
             <div className={isRtl ? "text-right" : "text-left"}>
               <span className="text-xs font-bold text-white block">
                 {t("formClosedContactUs")}
@@ -241,15 +241,15 @@ export function RegistrationForm() {
   }
 
   return (
-    <div className="bg-[#0B1E38] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden max-w-2xl mx-auto">
+    <div className="bg-[#15305B] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden max-w-2xl mx-auto">
       {/* Header Banner in authentic Kinus styling with atmospheric background */}
       <div className="relative overflow-hidden p-6 sm:p-8 border-b border-[#E8D8A8]/20 text-white">
         {/* Atmosphere Background Image */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-25 mix-blend-luminosity scale-105 pointer-events-none"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105 pointer-events-none"
           style={{ backgroundImage: "url('/assets/hero-banquet.jpg')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#07142A]/90 via-[#0B1E38]/95 to-[#0B1E38] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#102444]/85 via-[#15305B]/90 to-[#15305B] pointer-events-none" />
 
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -342,7 +342,7 @@ export function RegistrationForm() {
                 value={formData.hebrewName}
                 onChange={handleChange}
                 placeholder="הרב מנחם מענדל כהן"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all text-right"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all text-right"
               />
               <span className="text-[10px] text-slate-400 block mt-1">
                 {language === "he" ? "* את שם השליח יש למלא בעברית בלבד" : "* Please fill the Shliach's name in Hebrew only"}
@@ -361,7 +361,7 @@ export function RegistrationForm() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder={t("emailPlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
                 />
               </div>
 
@@ -376,7 +376,7 @@ export function RegistrationForm() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder={t("phonePlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
                 />
               </div>
             </div>
@@ -391,7 +391,7 @@ export function RegistrationForm() {
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
                 >
                   <option value="">{t("countrySelectDefault")}</option>
                   {COUNTRIES.map((c) => {
@@ -418,7 +418,7 @@ export function RegistrationForm() {
                   value={formData.city}
                   onChange={handleChange}
                   placeholder={t("cityPlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
                 />
               </div>
             </div>
@@ -434,7 +434,7 @@ export function RegistrationForm() {
                 value={formData.passportOrId}
                 onChange={handleChange}
                 placeholder={t("passportPlaceholder")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
               />
             </div>
           </fieldset>
@@ -481,7 +481,7 @@ export function RegistrationForm() {
                   name="arrivalTime"
                   value={formData.arrivalTime}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
                 />
               </div>
             </div>
@@ -510,7 +510,7 @@ export function RegistrationForm() {
                   name="departureTime"
                   value={formData.departureTime}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
                 />
               </div>
             </div>
@@ -527,7 +527,7 @@ export function RegistrationForm() {
                 onChange={handleChange}
                 placeholder={t("roommatesPlaceholder")}
                 aria-describedby="roommates-help"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
               />
               <p id="roommates-help" className="text-[11px] text-slate-300 mt-1">
                 {t("roommatesHelp")}
@@ -545,7 +545,7 @@ export function RegistrationForm() {
                 onChange={handleChange}
                 rows={3}
                 placeholder={t("specialRequestsPlaceholder")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
               />
             </div>
           </fieldset>
@@ -559,7 +559,7 @@ export function RegistrationForm() {
               {t("step3Header")}
             </h2>
 
-            <div className="bg-[#07142A] rounded-xl p-4 border border-slate-800">
+            <div className="bg-[#102444] rounded-xl p-4 border border-slate-800">
               <div className="flex justify-between items-center pb-3 border-b border-slate-800 text-xs">
                 <span className="text-slate-200 font-medium">{t("feeSummaryLabel")}</span>
                 <span className="font-serif font-bold text-[#E8D8A8] text-base">$180.00 USD</span>
@@ -574,7 +574,7 @@ export function RegistrationForm() {
             </div>
 
             {/* Embedded Stripe Elements Card */}
-            <div className="border border-slate-700 rounded-xl p-4 bg-[#07142A] space-y-3">
+            <div className="border border-slate-700 rounded-xl p-4 bg-[#102444] space-y-3">
               <div className="flex items-center justify-between text-xs text-slate-300 mb-1">
                 <span className="font-semibold text-white">{t("cardDetailsHeader")}</span>
                 <span className="flex items-center gap-1 text-[11px] text-slate-300">

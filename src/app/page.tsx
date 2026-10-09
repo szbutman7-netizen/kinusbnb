@@ -13,18 +13,18 @@ export default function HomePage() {
   const CtaArrow = isRtl ? ArrowLeft : ArrowRight;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#040D1E] text-slate-100 font-sans selection:bg-[#E8D8A8] selection:text-[#040D1E]">
+    <div className="min-h-screen flex flex-col bg-[#0B1A30] text-slate-100 font-sans selection:bg-[#E8D8A8] selection:text-[#0B1A30]">
       <Navbar />
 
       <main className="flex-1" id="main-content">
         {/* Cinematic Hero Section with authentic atmosphere image */}
-        <section className="relative overflow-hidden pt-12 pb-24 sm:pt-20 sm:pb-32 border-b border-[#E8D8A8]/15 bg-[#040D1E]">
-          {/* Authentic Banquet Backdrop */}
+        <section className="relative overflow-hidden pt-12 pb-24 sm:pt-20 sm:pb-32 border-b border-[#E8D8A8]/15 bg-[#0B1A30]">
+          {/* Authentic Banquet Backdrop - Clearly visible atmosphere */}
           <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 mix-blend-luminosity scale-105 pointer-events-none"
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105 pointer-events-none transition-opacity duration-300"
             style={{ backgroundImage: "url('/assets/hero-banquet.jpg')" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#040D1E]/95 via-[#07142A]/85 to-[#040D1E] pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B1A30]/80 via-[#0F2342]/70 to-[#0B1A30]/85 pointer-events-none" />
 
           {/* Decorative glow */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-[#E8D8A8]/5 rounded-full blur-3xl pointer-events-none" />
@@ -37,7 +37,7 @@ export default function HomePage() {
 
             {/* Official Kinus Emblem */}
             <div className="flex justify-center mb-6">
-              <div className="p-3 rounded-full bg-[#E8D8A8]/5 border border-[#E8D8A8]/20 shadow-[0_0_30px_rgba(232,216,168,0.15)]">
+              <div className="p-3 rounded-full bg-[#E8D8A8]/10 border border-[#E8D8A8]/20 shadow-[0_0_30px_rgba(232,216,168,0.15)]">
                 <KinusLogo size={88} variant="emblem" />
               </div>
             </div>
@@ -66,7 +66,7 @@ export default function HomePage() {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-full border border-[#E8D8A8] bg-[#E8D8A8] text-[#040D1E] font-bold text-sm tracking-wide shadow-lg hover:bg-transparent hover:text-[#E8D8A8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#040D1E] transition-all transform hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-full border border-[#E8D8A8] bg-[#E8D8A8] text-[#0B1A30] font-bold text-sm tracking-wide shadow-lg hover:bg-transparent hover:text-[#E8D8A8] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1A30] transition-all transform hover:-translate-y-0.5"
               >
                 <span>{t("heroRegisterCta")}</span>
                 <CtaArrow className="w-4 h-4" aria-hidden="true" />
@@ -88,7 +88,7 @@ export default function HomePage() {
         </section>
 
         {/* Accommodation Pillars Section */}
-        <section id="details" className="py-16 sm:py-24 bg-[#07142A]/80 border-b border-slate-800">
+        <section id="details" className="py-16 sm:py-24 bg-[#102444]/90 border-b border-slate-800">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16">
               <span className="text-xs font-bold text-[#E8D8A8] tracking-[0.2em] uppercase block mb-2">
@@ -102,7 +102,7 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* Feature 1 */}
-              <div className="p-8 rounded-2xl bg-[#0B1E38]/50 border border-slate-800 hover:border-[#E8D8A8]/30 transition-all text-center">
+              <div className="p-8 rounded-2xl bg-[#15305B]/60 border border-slate-800 hover:border-[#E8D8A8]/30 transition-all text-center">
                 <div className="w-14 h-14 rounded-full bg-[#E8D8A8]/10 text-[#E8D8A8] flex items-center justify-center mx-auto mb-5 border border-[#E8D8A8]/20" aria-hidden="true">
                   <MapPin className="w-6 h-6" />
                 </div>
@@ -115,7 +115,7 @@ export default function HomePage() {
               </div>
 
               {/* Feature 2 */}
-              <div className="p-8 rounded-2xl bg-[#0B1E38]/50 border border-slate-800 hover:border-[#E8D8A8]/30 transition-all text-center">
+              <div className="p-8 rounded-2xl bg-[#15305B]/60 border border-slate-800 hover:border-[#E8D8A8]/30 transition-all text-center">
                 <div className="w-14 h-14 rounded-full bg-[#E8D8A8]/10 text-[#E8D8A8] flex items-center justify-center mx-auto mb-5 border border-[#E8D8A8]/20" aria-hidden="true">
                   <HeartHandshake className="w-6 h-6" />
                 </div>
@@ -128,7 +128,7 @@ export default function HomePage() {
               </div>
 
               {/* Feature 3 */}
-              <div className="p-8 rounded-2xl bg-[#0B1E38]/50 border border-slate-800 hover:border-[#E8D8A8]/30 transition-all text-center">
+              <div className="p-8 rounded-2xl bg-[#15305B]/60 border border-slate-800 hover:border-[#E8D8A8]/30 transition-all text-center">
                 <div className="w-14 h-14 rounded-full bg-[#E8D8A8]/10 text-[#E8D8A8] flex items-center justify-center mx-auto mb-5 border border-[#E8D8A8]/20" aria-hidden="true">
                   <ShieldCheck className="w-6 h-6" />
                 </div>
@@ -144,7 +144,7 @@ export default function HomePage() {
         </section>
 
         {/* FAQs and Practical Details */}
-        <section className="py-16 sm:py-20 bg-[#040D1E]" aria-labelledby="faq-heading">
+        <section className="py-16 sm:py-20 bg-[#0B1A30]" aria-labelledby="faq-heading">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 id="faq-heading" className="text-2xl font-serif text-white">
@@ -153,7 +153,7 @@ export default function HomePage() {
             </div>
 
             <div className="space-y-4">
-              <div className="p-5 rounded-xl bg-[#07142A] border border-slate-800">
+              <div className="p-5 rounded-xl bg-[#102444] border border-slate-800">
                 <h3 className="font-bold text-sm text-[#E8D8A8] mb-1">
                   {t("faq1Q")}
                 </h3>
@@ -162,7 +162,7 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-[#07142A] border border-slate-800">
+              <div className="p-5 rounded-xl bg-[#102444] border border-slate-800">
                 <h3 className="font-bold text-sm text-[#E8D8A8] mb-1">
                   {t("faq2Q")}
                 </h3>
@@ -171,7 +171,7 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-[#07142A] border border-slate-800">
+              <div className="p-5 rounded-xl bg-[#102444] border border-slate-800">
                 <h3 className="font-bold text-sm text-[#E8D8A8] mb-1">
                   {t("faq3Q")}
                 </h3>
@@ -184,10 +184,10 @@ export default function HomePage() {
             {/* Bottom Register CTA Card with atmosphere image */}
             <div className="relative overflow-hidden mt-14 p-8 sm:p-12 rounded-3xl border border-[#E8D8A8]/30 text-center space-y-4">
               <div
-                className="absolute inset-0 bg-cover bg-center opacity-20 mix-blend-luminosity pointer-events-none"
+                className="absolute inset-0 bg-cover bg-center opacity-35 pointer-events-none"
                 style={{ backgroundImage: "url('/assets/kinus-crowd-main.jpg')" }}
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#07142A]/95 via-[#0D2343]/90 to-[#07142A]/95 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#102444]/80 via-[#15305B]/75 to-[#102444]/80 pointer-events-none" />
               <div className="relative z-10 space-y-4">
                 <h3 className="text-xl sm:text-2xl font-serif text-white">
                   {t("bottomCtaTitle")}
@@ -198,7 +198,7 @@ export default function HomePage() {
                 <div className="pt-2">
                   <Link
                     href="/register"
-                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] font-bold text-sm hover:bg-white transition-all shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-[#E8D8A8] text-[#0B1A30] font-bold text-sm hover:bg-white transition-all shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
                   >
                     <span>{t("bottomCtaButton")}</span>
                     <CtaArrow className="w-4 h-4" aria-hidden="true" />
@@ -214,7 +214,7 @@ export default function HomePage() {
       </main>
 
       {/* Official Clean Footer (No admin links) */}
-      <footer className="border-t border-slate-800 bg-[#020813] py-8 text-center text-xs text-slate-300">
+      <footer className="border-t border-slate-800 bg-[#071224] py-8 text-center text-xs text-slate-300">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <KinusLogo size={24} variant="emblem" />
@@ -240,4 +240,3 @@ export default function HomePage() {
     </div>
   );
 }
-

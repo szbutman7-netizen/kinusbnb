@@ -60,9 +60,9 @@ function SuccessContent() {
       </div>
 
       {/* Printable Confirmation Card */}
-      <div className="bg-[#0B1E38] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden print:bg-white print:text-black print:border print:shadow-none">
+      <div className="bg-[#15305B] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden print:bg-white print:text-black print:border print:shadow-none">
         {/* Card Header */}
-        <div className="bg-[#07142A] p-5 flex items-center justify-between border-b border-[#E8D8A8]/20 text-white">
+        <div className="bg-[#102444] p-5 flex items-center justify-between border-b border-[#E8D8A8]/20 text-white">
           <div className="flex items-center gap-3">
             <KinusLogo size={38} color="#E8D8A8" />
             <div className={isRtl ? "text-right" : "text-left"}>
@@ -96,14 +96,14 @@ function SuccessContent() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="p-3 bg-[#07142A] rounded-xl border border-slate-800">
+            <div className="p-3 bg-[#102444] rounded-xl border border-slate-700/80">
               <span className="text-slate-300 block mb-1 text-[11px]">{t("successStayDates")}</span>
               <span className="font-bold text-white block">
                 {shliach?.arrivalDate || "2026-11-04"} - {shliach?.departureDate || "2026-11-09"}
               </span>
             </div>
 
-            <div className="p-3 bg-[#07142A] rounded-xl border border-slate-800">
+            <div className="p-3 bg-[#102444] rounded-xl border border-slate-700/80">
               <span className="text-slate-300 block mb-1 text-[11px]">{t("successPaymentStatus")}</span>
               <span className="font-bold text-emerald-400 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
@@ -112,7 +112,7 @@ function SuccessContent() {
             </div>
           </div>
 
-          <div className="bg-[#07142A]/60 border border-[#E8D8A8]/20 rounded-xl p-4 text-xs text-slate-200 space-y-1.5">
+          <div className="bg-[#102444]/80 border border-[#E8D8A8]/20 rounded-xl p-4 text-xs text-slate-200 space-y-1.5">
             <p className="font-bold text-[#E8D8A8]">{t("successArrivalGuideTitle")}</p>
             <p className="text-[11px] leading-relaxed text-slate-200">
               {t("successArrivalGuideText")}
@@ -121,7 +121,7 @@ function SuccessContent() {
         </div>
 
         {/* Card Footer Actions */}
-        <div className="p-4 bg-[#07142A] border-t border-slate-800 flex items-center justify-between print:hidden">
+        <div className="p-4 bg-[#102444] border-t border-slate-800 flex items-center justify-between print:hidden">
           <button
             onClick={handlePrint}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-700 text-slate-200 text-xs font-semibold hover:border-[#E8D8A8] hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
@@ -132,7 +132,7 @@ function SuccessContent() {
 
           <Link
             href="/"
-            className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
+            className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-[#E8D8A8] text-[#0B1A30] text-xs font-bold hover:bg-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
           >
             <span>{t("btnHome")}</span>
             <BackHomeIcon className="w-3.5 h-3.5" aria-hidden="true" />
@@ -145,7 +145,7 @@ function SuccessContent() {
 
 export default function SuccessPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-[#040D1E] text-slate-100 font-sans selection:bg-[#E8D8A8] selection:text-[#040D1E]">
+    <div className="min-h-screen flex flex-col bg-[#0B1A30] text-slate-100 font-sans selection:bg-[#E8D8A8] selection:text-[#0B1A30]">
       <Navbar />
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full" id="main-content">
         <Suspense fallback={<div className="text-center py-20 text-slate-400 text-xs">טוען אישור הרשמה...</div>}>

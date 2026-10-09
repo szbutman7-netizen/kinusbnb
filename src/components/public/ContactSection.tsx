@@ -66,7 +66,7 @@ export function ContactSection() {
   };
 
   return (
-    <section className="py-16 bg-[#040D1E] border-t border-slate-800" id="contact" aria-labelledby="contact-heading">
+    <section className="py-16 bg-[#0B1A30] border-t border-slate-800" id="contact" aria-labelledby="contact-heading">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 space-y-2">
           <span className="text-[#E8D8A8] font-semibold text-xs tracking-widest uppercase">
@@ -80,7 +80,7 @@ export function ContactSection() {
           </p>
         </div>
 
-        <div className="bg-[#07142A] border border-[#E8D8A8]/30 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+        <div className="bg-[#102444] border border-[#E8D8A8]/30 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#E8D8A8]/5 rounded-full blur-3xl pointer-events-none" />
 
           {success && (

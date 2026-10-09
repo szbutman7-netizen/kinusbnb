@@ -12,13 +12,13 @@ export default function RegisterPage() {
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-[#040D1E] text-slate-100 font-sans selection:bg-[#E8D8A8] selection:text-[#040D1E]">
-      {/* Atmosphere Background Image */}
+    <div className="relative min-h-screen flex flex-col bg-[#0B1A30] text-slate-100 font-sans selection:bg-[#E8D8A8] selection:text-[#0B1A30]">
+      {/* Atmosphere Background Image - Clearly visible */}
       <div
-        className="fixed inset-0 bg-cover bg-center opacity-10 mix-blend-luminosity pointer-events-none"
+        className="fixed inset-0 bg-cover bg-center opacity-30 pointer-events-none transition-opacity duration-300"
         style={{ backgroundImage: "url('/assets/hero-banquet.jpg')" }}
       />
-      <div className="fixed inset-0 bg-gradient-to-b from-[#040D1E] via-[#040D1E]/95 to-[#020813] pointer-events-none" />
+      <div className="fixed inset-0 bg-gradient-to-b from-[#0B1A30]/85 via-[#0B1A30]/80 to-[#071224]/90 pointer-events-none" />
 
       <Navbar />
 
@@ -42,10 +42,9 @@ export default function RegisterPage() {
       {/* Floating WhatsApp Quick Action */}
       <WhatsAppButton variant="floating" />
 
-      <footer className="border-t border-slate-800 bg-[#020813] py-6 text-center text-xs text-slate-400">
+      <footer className="border-t border-slate-800 bg-[#071224] py-6 text-center text-xs text-slate-400">
         {t("title")} • {t("deptSubtitle")}
       </footer>
     </div>
   );
 }
-

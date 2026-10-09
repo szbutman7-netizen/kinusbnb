@@ -2,14 +2,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --kinus-navy: #0b2545;
-  --kinus-navy-dark: #07192f;
-  --kinus-gold: #c5a869;
-  --kinus-gold-dark: #8c6d2d;
-  --kinus-gold-light: #fbf7ee;
-  --kinus-border: #e2e8f0;
+  --background: #0B1A30;
+  --foreground: #f8fafc;
 }
 
 @theme {
