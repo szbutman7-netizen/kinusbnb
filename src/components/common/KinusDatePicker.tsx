@@ -81,7 +81,7 @@ export function KinusDatePicker({
         aria-haspopup="listbox"
         aria-label={`${label}: ${value ? formatDateDisplay(value) : placeholder}`}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white hover:border-[#E8D8A8]/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all text-start"
+        className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#07142A] text-white hover:border-[#E8D8A8]/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all text-start"
       >
         <div className="flex items-center gap-2.5 truncate">
           <CalendarIcon className="w-4 h-4 text-[#E8D8A8] flex-shrink-0" aria-hidden="true" />

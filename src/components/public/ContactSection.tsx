@@ -80,7 +80,7 @@ export function ContactSection() {
           </p>
         </div>
 
-        <div className="bg-[#102444] border border-[#E8D8A8]/30 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+        <div className="bg-[#102444] border border-[#E8D8A8]/30 rounded-3xl p-5 sm:p-10 shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#E8D8A8]/5 rounded-full blur-3xl pointer-events-none" />
 
           {success && (
@@ -110,7 +110,7 @@ export function ContactSection() {
                   {t("contactNameLabel")} *
                 </label>
                 <div className="relative">
-                  <User className={`absolute top-3 w-4 h-4 text-slate-400 pointer-events-none ${isRtl ? "right-3" : "left-3"}`} />
+                  <User className={`absolute top-3.5 sm:top-3 w-4 h-4 text-slate-400 pointer-events-none ${isRtl ? "right-3" : "left-3"}`} />
                   <input
                     id="contact-name"
                     type="text"
@@ -118,7 +118,7 @@ export function ContactSection() {
                     value={form.name}
                     onChange={handleChange}
                     placeholder={t("contactNamePlaceholder")}
-                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-xs ${
+                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs ${
                       isRtl ? "pr-9 pl-3" : "pl-9 pr-3"
                     }`}
                   />
@@ -130,7 +130,7 @@ export function ContactSection() {
                   {t("contactEmailLabel")} *
                 </label>
                 <div className="relative">
-                  <Mail className={`absolute top-3 w-4 h-4 text-slate-400 pointer-events-none ${isRtl ? "right-3" : "left-3"}`} />
+                  <Mail className={`absolute top-3.5 sm:top-3 w-4 h-4 text-slate-400 pointer-events-none ${isRtl ? "right-3" : "left-3"}`} />
                   <input
                     id="contact-email"
                     type="email"
@@ -138,7 +138,7 @@ export function ContactSection() {
                     value={form.email}
                     onChange={handleChange}
                     placeholder={t("contactEmailPlaceholder")}
-                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-xs ${
+                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs ${
                       isRtl ? "pr-9 pl-3" : "pl-9 pr-3"
                     }`}
                   />
@@ -152,7 +152,7 @@ export function ContactSection() {
                   {t("contactPhoneLabel")}
                 </label>
                 <div className="relative">
-                  <Phone className={`absolute top-3 w-4 h-4 text-slate-400 pointer-events-none ${isRtl ? "right-3" : "left-3"}`} />
+                  <Phone className={`absolute top-3.5 sm:top-3 w-4 h-4 text-slate-400 pointer-events-none ${isRtl ? "right-3" : "left-3"}`} />
                   <input
                     id="contact-phone"
                     type="tel"
@@ -160,7 +160,7 @@ export function ContactSection() {
                     value={form.phone}
                     onChange={handleChange}
                     placeholder={t("contactPhonePlaceholder")}
-                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-xs ${
+                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs ${
                       isRtl ? "pr-9 pl-3" : "pl-9 pr-3"
                     }`}
                   />
@@ -172,7 +172,7 @@ export function ContactSection() {
                   {t("contactSubjectLabel")}
                 </label>
                 <div className="relative">
-                  <MessageSquare className={`absolute top-3 w-4 h-4 text-slate-400 pointer-events-none ${isRtl ? "right-3" : "left-3"}`} />
+                  <MessageSquare className={`absolute top-3.5 sm:top-3 w-4 h-4 text-slate-400 pointer-events-none ${isRtl ? "right-3" : "left-3"}`} />
                   <input
                     id="contact-subject"
                     type="text"
@@ -180,7 +180,7 @@ export function ContactSection() {
                     value={form.subject}
                     onChange={handleChange}
                     placeholder={t("contactSubjectPlaceholder")}
-                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-xs ${
+                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs ${
                       isRtl ? "pr-9 pl-3" : "pl-9 pr-3"
                     }`}
                   />
@@ -199,7 +199,7 @@ export function ContactSection() {
                 onChange={handleChange}
                 rows={4}
                 placeholder={t("contactMessagePlaceholder")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs"
               />
             </div>
 

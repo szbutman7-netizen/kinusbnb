@@ -291,30 +291,30 @@ export function RegistrationForm() {
         {/* Step Indicator with accessibility attributes */}
         <nav
           aria-label="Registration steps"
-          className="mt-6 flex items-center justify-between text-xs font-medium border-t border-slate-700/60 pt-4"
+          className="mt-4 sm:mt-6 flex items-center justify-between text-xs font-medium border-t border-slate-700/60 pt-3 sm:pt-4"
         >
           <div
             aria-current={step === 1 ? "step" : undefined}
-            className={`flex items-center gap-2 ${step >= 1 ? "text-[#E8D8A8] font-bold" : "text-slate-400"}`}
+            className={`flex items-center gap-1.5 sm:gap-2 ${step >= 1 ? "text-[#E8D8A8] font-bold" : "text-slate-400"}`}
           >
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step >= 1 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-300"}`}>1</span>
-            <span>{t("stepLabel1")}</span>
+            <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold flex-shrink-0 ${step >= 1 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-300"}`}>1</span>
+            <span className="text-[11px] sm:text-xs whitespace-nowrap">{t("stepLabel1")}</span>
           </div>
-          <div className="w-12 h-0.5 bg-slate-700" aria-hidden="true" />
+          <div className="w-3 sm:w-12 h-0.5 bg-slate-700 flex-shrink-0" aria-hidden="true" />
           <div
             aria-current={step === 2 ? "step" : undefined}
-            className={`flex items-center gap-2 ${step >= 2 ? "text-[#E8D8A8] font-bold" : "text-slate-400"}`}
+            className={`flex items-center gap-1.5 sm:gap-2 ${step >= 2 ? "text-[#E8D8A8] font-bold" : "text-slate-400"}`}
           >
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step >= 2 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-300"}`}>2</span>
-            <span>{t("stepLabel2")}</span>
+            <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold flex-shrink-0 ${step >= 2 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-300"}`}>2</span>
+            <span className="text-[11px] sm:text-xs whitespace-nowrap">{t("stepLabel2")}</span>
           </div>
-          <div className="w-12 h-0.5 bg-slate-700" aria-hidden="true" />
+          <div className="w-3 sm:w-12 h-0.5 bg-slate-700 flex-shrink-0" aria-hidden="true" />
           <div
             aria-current={step === 3 ? "step" : undefined}
-            className={`flex items-center gap-2 ${step >= 3 ? "text-[#E8D8A8] font-bold" : "text-slate-400"}`}
+            className={`flex items-center gap-1.5 sm:gap-2 ${step >= 3 ? "text-[#E8D8A8] font-bold" : "text-slate-400"}`}
           >
-            <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${step >= 3 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-300"}`}>3</span>
-            <span>{t("stepLabel3")}</span>
+            <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold flex-shrink-0 ${step >= 3 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-300"}`}>3</span>
+            <span className="text-[11px] sm:text-xs whitespace-nowrap">{t("stepLabel3")}</span>
           </div>
         </nav>
       </div>
@@ -324,7 +324,7 @@ export function RegistrationForm() {
         <div
           role="alert"
           aria-live="polite"
-          className="m-6 p-4 bg-red-950/80 border border-red-500/70 rounded-xl flex items-center gap-3 text-red-100 text-xs shadow-md"
+          className="m-4 sm:m-6 p-4 bg-red-950/80 border border-red-500/70 rounded-xl flex items-center gap-3 text-red-100 text-xs shadow-md"
         >
           <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-300" aria-hidden="true" />
           <span>{errorMessage}</span>
@@ -332,7 +332,7 @@ export function RegistrationForm() {
       )}
 
       {/* Form Content */}
-      <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
+      <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-5 sm:space-y-6">
         {step === 1 && (
           <fieldset className="space-y-4">
             <legend className="sr-only">{t("step1Header")}</legend>
@@ -351,11 +351,12 @@ export function RegistrationForm() {
                 id="hebrewName"
                 type="text"
                 name="hebrewName"
+                autoComplete="name"
                 dir="rtl"
                 value={formData.hebrewName}
                 onChange={handleChange}
                 placeholder="הרב מנחם מענדל כהן"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all text-right"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all text-right"
               />
               <span className="text-[10px] text-slate-400 block mt-1">
                 {language === "he" ? "* את שם השליח יש למלא בעברית בלבד" : "* Please fill the Shliach's name in Hebrew only"}
@@ -371,10 +372,11 @@ export function RegistrationForm() {
                   id="email"
                   type="email"
                   name="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder={t("emailPlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all"
                 />
               </div>
 
@@ -386,10 +388,11 @@ export function RegistrationForm() {
                   id="phone"
                   type="tel"
                   name="phone"
+                  autoComplete="tel"
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder={t("phonePlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all"
                 />
               </div>
             </div>
@@ -404,7 +407,7 @@ export function RegistrationForm() {
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
                 >
                   <option value="">{t("countrySelectDefault")}</option>
                   {COUNTRIES.map((c) => {
@@ -431,7 +434,7 @@ export function RegistrationForm() {
                   value={formData.city}
                   onChange={handleChange}
                   placeholder={t("cityPlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all"
                 />
               </div>
             </div>
@@ -447,7 +450,7 @@ export function RegistrationForm() {
                 value={formData.passportOrId}
                 onChange={handleChange}
                 placeholder={t("passportPlaceholder")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs transition-all"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all"
               />
             </div>
           </fieldset>
@@ -494,7 +497,7 @@ export function RegistrationForm() {
                   name="arrivalTime"
                   value={formData.arrivalTime}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
                 />
               </div>
             </div>
@@ -523,7 +526,7 @@ export function RegistrationForm() {
                   name="departureTime"
                   value={formData.departureTime}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
                 />
               </div>
             </div>
@@ -540,7 +543,7 @@ export function RegistrationForm() {
                 onChange={handleChange}
                 placeholder={t("roommatesPlaceholder")}
                 aria-describedby="roommates-help"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
               />
               <p id="roommates-help" className="text-[11px] text-slate-300 mt-1">
                 {t("roommatesHelp")}
@@ -558,7 +561,7 @@ export function RegistrationForm() {
                 onChange={handleChange}
                 rows={3}
                 placeholder={t("specialRequestsPlaceholder")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-xs"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
               />
             </div>
           </fieldset>
@@ -567,9 +570,12 @@ export function RegistrationForm() {
         {step === 3 && (
           <fieldset className="space-y-4">
             <legend className="sr-only">{t("step3Header")}</legend>
-            <h2 className="text-base font-bold text-white border-b border-slate-700 pb-2 flex items-center gap-2">
-              <CreditCard className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
-              {t("step3Header")}
+            <h2 className="text-base font-bold text-[#E8D8A8] border-b border-slate-700 pb-2 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
+                {t("step3Header")}
+              </span>
+              <span className="text-sm font-serif font-bold text-[#E8D8A8]">$180.00 USD</span>
             </h2>
 
             <div className="bg-[#102444] rounded-xl p-4 border border-slate-800">
@@ -606,7 +612,7 @@ export function RegistrationForm() {
                   value={formData.cardNumber}
                   readOnly
                   placeholder="•••• •••• •••• 4242"
-                  className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-xs focus:outline-none"
+                  className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
                 />
               </div>
 
@@ -621,7 +627,7 @@ export function RegistrationForm() {
                     value={formData.cardExp}
                     readOnly
                     placeholder="12/28"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-xs focus:outline-none"
+                    className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
                   />
                 </div>
                 <div>
@@ -634,7 +640,7 @@ export function RegistrationForm() {
                     value={formData.cardCvc}
                     readOnly
                     placeholder="CVC"
-                    className="w-full px-3 py-2 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-xs focus:outline-none"
+                    className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
                   />
                 </div>
               </div>
@@ -650,12 +656,12 @@ export function RegistrationForm() {
         )}
 
         {/* Buttons Controls */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+        <div className="flex items-center justify-between pt-4 border-t border-slate-700 gap-3">
           {step > 1 ? (
             <button
               type="button"
               onClick={() => setStep((step - 1) as any)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-700 text-slate-200 text-xs font-semibold hover:border-[#E8D8A8] hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-full border border-slate-700 text-slate-200 text-xs font-semibold hover:border-[#E8D8A8] hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
             >
               {isRtl ? <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" /> : <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />}
               {t("btnBack")}
@@ -668,7 +674,7 @@ export function RegistrationForm() {
             <button
               type="button"
               onClick={handleNextStep}
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-all shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38]"
+              className="inline-flex items-center gap-1.5 px-6 sm:px-6 py-3 sm:py-2.5 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-all shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38]"
             >
               {t("btnNext")}
               {isRtl ? <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" /> : <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />}
@@ -677,7 +683,7 @@ export function RegistrationForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-all shadow-lg disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38]"
+              className="inline-flex items-center gap-2 px-7 sm:px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-all shadow-lg disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38]"
             >
               {isSubmitting ? (
                 <span>{t("btnSubmitting")}</span>

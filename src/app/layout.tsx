@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Assistant, Playfair_Display } from "next/font/google";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { LanguageProvider } from "@/lib/context/LanguageContext";
@@ -28,6 +28,14 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: "#0B1A30",
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -37,9 +45,9 @@ export default function RootLayout({
     <html
       lang="he"
       dir="rtl"
-      className={`h-full antialiased ${assistant.variable} ${playfair.variable}`}
+      className={`h-full antialiased overflow-x-hidden w-full ${assistant.variable} ${playfair.variable}`}
     >
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans overflow-x-hidden w-full">
         <LanguageProvider>
           <AuthProvider>
             {children}

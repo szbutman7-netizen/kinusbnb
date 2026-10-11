@@ -28,8 +28,8 @@ export default function RegisterPage() {
 
       <Navbar />
 
-      <main className="relative z-10 flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 w-full" id="main-content">
-        <div className="mb-6 flex items-center justify-between">
+      <main className="relative z-10 flex-1 max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-16 w-full" id="main-content">
+        <div className="mb-4 sm:mb-6 flex items-center justify-between">
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 text-xs text-[#E8D8A8] hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] rounded-md px-1 py-0.5"
@@ -48,7 +48,7 @@ export default function RegisterPage() {
       {/* Floating WhatsApp Quick Action */}
       <WhatsAppButton variant="floating" />
 
-      <footer className="border-t border-slate-800 bg-[#071224] py-6 text-center text-xs text-slate-400">
+      <footer className="border-t border-slate-800 bg-[#071224] pt-6 pb-20 sm:pb-6 text-center text-xs text-slate-400">
         {t("title")} • {t("deptSubtitle")}
       </footer>
     </div>
