@@ -26,19 +26,22 @@ export default function RegisterPage() {
       />
       <div className="fixed inset-0 bg-gradient-to-b from-[#0B1A30]/85 via-[#0B1A30]/80 to-[#071224]/90 pointer-events-none" />
 
+      {/* Decorative ambient golden aura */}
+      <div className="fixed top-24 left-1/2 -translate-x-1/2 w-[700px] h-[380px] bg-[#E8D8A8]/6 rounded-full blur-3xl pointer-events-none animate-ambient-pulse" />
+
       <Navbar />
 
-      <main className="relative z-10 flex-1 max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-16 w-full" id="main-content">
+      <main className="relative z-10 flex-1 max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-16 w-full animate-fade-in-up" id="main-content">
         <div className="mb-4 sm:mb-6 flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs text-[#E8D8A8] hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] rounded-md px-1 py-0.5"
+            className="inline-flex items-center gap-1.5 text-xs text-[#E8D8A8] hover:text-white bg-[#102444]/60 hover:bg-[#15305B] border border-[#E8D8A8]/20 px-3 py-1.5 rounded-full transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
           >
             <BackIcon className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{t("backToInfo")}</span>
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-xs text-[#E8D8A8]/80 font-serif">{t("traditionalBh")}</span>
+            <span className="text-xs text-[#E8D8A8]/80 font-serif tracking-widest">{t("traditionalBh")}</span>
           </div>
         </div>
 

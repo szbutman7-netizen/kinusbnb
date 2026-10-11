@@ -80,13 +80,13 @@ export function ContactSection() {
           </p>
         </div>
 
-        <div className="bg-[#102444] border border-[#E8D8A8]/30 rounded-3xl p-5 sm:p-10 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#E8D8A8]/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="glass-panel border-[#E8D8A8]/25 rounded-3xl p-5 sm:p-10 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.6)] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#E8D8A8]/10 rounded-full blur-3xl pointer-events-none animate-ambient-pulse" />
 
           {success && (
             <div
               role="alert"
-              className="mb-6 p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/70 text-emerald-200 text-xs sm:text-sm flex items-center gap-3"
+              className="animate-fade-in-down mb-6 p-4 rounded-xl bg-emerald-950/80 border border-emerald-500/70 text-emerald-200 text-xs sm:text-sm flex items-center gap-3 shadow-lg"
             >
               <CheckCircle className="w-5 h-5 flex-shrink-0 text-emerald-400" />
               <span>{t("contactSuccessAlert")}</span>
@@ -96,7 +96,7 @@ export function ContactSection() {
           {error && (
             <div
               role="alert"
-              className="mb-6 p-4 rounded-xl bg-red-950/80 border border-red-500/70 text-red-200 text-xs sm:text-sm flex items-center gap-3"
+              className="animate-alert-shake mb-6 p-4 rounded-xl bg-red-950/80 border border-red-500/70 text-red-200 text-xs sm:text-sm flex items-center gap-3 shadow-lg"
             >
               <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-400" />
               <span>{error}</span>
@@ -118,7 +118,7 @@ export function ContactSection() {
                     value={form.name}
                     onChange={handleChange}
                     placeholder={t("contactNamePlaceholder")}
-                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs ${
+                    className={`kinus-input w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs ${
                       isRtl ? "pr-9 pl-3" : "pl-9 pr-3"
                     }`}
                   />
@@ -138,7 +138,7 @@ export function ContactSection() {
                     value={form.email}
                     onChange={handleChange}
                     placeholder={t("contactEmailPlaceholder")}
-                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs ${
+                    className={`kinus-input w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs ${
                       isRtl ? "pr-9 pl-3" : "pl-9 pr-3"
                     }`}
                   />
@@ -160,7 +160,7 @@ export function ContactSection() {
                     value={form.phone}
                     onChange={handleChange}
                     placeholder={t("contactPhonePlaceholder")}
-                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs ${
+                    className={`kinus-input w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs ${
                       isRtl ? "pr-9 pl-3" : "pl-9 pr-3"
                     }`}
                   />
@@ -180,7 +180,7 @@ export function ContactSection() {
                     value={form.subject}
                     onChange={handleChange}
                     placeholder={t("contactSubjectPlaceholder")}
-                    className={`w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs ${
+                    className={`kinus-input w-full py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs ${
                       isRtl ? "pr-9 pl-3" : "pl-9 pr-3"
                     }`}
                   />
@@ -199,7 +199,7 @@ export function ContactSection() {
                 onChange={handleChange}
                 rows={4}
                 placeholder={t("contactMessagePlaceholder")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] text-base sm:text-xs"
+                className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
               />
             </div>
 
@@ -211,7 +211,7 @@ export function ContactSection() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] font-bold text-xs hover:bg-white transition-all shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] disabled:opacity-50"
+                className="shimmer-button w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] font-bold text-xs hover:bg-white hover:shadow-[0_0_20px_rgba(232,216,168,0.4)] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] disabled:opacity-50 active:scale-95"
               >
                 {isSubmitting ? (
                   <span>{t("contactSubmittingBtn")}</span>

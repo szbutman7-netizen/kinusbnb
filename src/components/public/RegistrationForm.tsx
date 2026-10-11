@@ -20,7 +20,9 @@ import {
   ArrowLeft, 
   ArrowRight,
   Lock,
-  AlertCircle
+  AlertCircle,
+  Check,
+  Loader2
 } from "lucide-react";
 
 const KINUS_START_DATE = "2026-11-04";
@@ -51,6 +53,7 @@ export function RegistrationForm() {
   const { t, language, isRtl } = useLanguage();
   const { formSettings, isLoaded } = useKinusData();
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -92,6 +95,7 @@ export function RegistrationForm() {
         setErrorMessage(t("valEmailInvalid"));
         return;
       }
+      setDirection("forward");
       setStep(2);
     } else if (step === 2) {
       // Validate dates range if entered
@@ -107,8 +111,15 @@ export function RegistrationForm() {
         setErrorMessage(t("valDepartureBeforeArrival"));
         return;
       }
+      setDirection("forward");
       setStep(3);
     }
+  };
+
+  const handlePrevStep = () => {
+    setErrorMessage("");
+    setDirection("backward");
+    setStep(prev => ((prev - 1) as 1 | 2 | 3));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -185,7 +196,7 @@ export function RegistrationForm() {
     const customMessage = language === "en" ? formSettings.closedMessageEn : formSettings.closedMessageHe;
 
     return (
-      <div className="bg-[#15305B] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden max-w-2xl mx-auto">
+      <div className="glass-panel rounded-3xl shadow-2xl border-[#E8D8A8]/25 overflow-hidden max-w-2xl mx-auto">
         {/* Header Banner */}
         <div className="relative overflow-hidden p-6 sm:p-8 border-b border-[#E8D8A8]/20 text-white">
           <div
@@ -253,20 +264,24 @@ export function RegistrationForm() {
     );
   }
 
+  const stepAnimationClass = direction === "forward"
+    ? (isRtl ? "animate-slide-in-right" : "animate-slide-in-left")
+    : (isRtl ? "animate-slide-in-left" : "animate-slide-in-right");
+
   return (
-    <div className="bg-[#15305B] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden max-w-2xl mx-auto">
+    <div className="glass-panel rounded-3xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] border-[#E8D8A8]/25 overflow-hidden max-w-2xl mx-auto backdrop-blur-xl">
       {/* Header Banner in authentic Kinus styling with atmospheric background */}
       <div className="relative overflow-hidden p-6 sm:p-8 border-b border-[#E8D8A8]/20 text-white">
         {/* Atmosphere Background Image */}
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105 pointer-events-none"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105 pointer-events-none transition-opacity duration-300"
           style={{ backgroundImage: "url('/assets/hero-banquet.jpg')" }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#102444]/85 via-[#15305B]/90 to-[#15305B] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#102444]/90 via-[#15305B]/90 to-[#102444]/95 pointer-events-none" />
 
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="p-1 rounded-full bg-[#E8D8A8]/10 border border-[#E8D8A8]/30 shadow-[0_0_20px_rgba(232,216,168,0.15)] flex-shrink-0">
+            <div className="p-1 rounded-full bg-[#E8D8A8]/10 border border-[#E8D8A8]/30 shadow-[0_0_20px_rgba(232,216,168,0.2)] flex-shrink-0 animate-subtle-float">
               <KinusLogo size={52} variant="emblem" />
             </div>
             <div>
@@ -283,38 +298,96 @@ export function RegistrationForm() {
           </div>
 
           <div className={`hidden sm:block ${isRtl ? "text-left" : "text-right"}`}>
-            <span className="text-2xl font-serif font-bold text-[#E8D8A8] block">$180</span>
+            <span className="text-2xl font-serif font-bold text-[#E8D8A8] block drop-shadow-sm">$180</span>
             <span className="text-[11px] text-slate-300">{t("formPriceLabel")}</span>
           </div>
         </div>
 
-        {/* Step Indicator with accessibility attributes */}
+        {/* Step Indicator with continuous progress bar */}
         <nav
           aria-label="Registration steps"
-          className="mt-4 sm:mt-6 flex items-center justify-between text-xs font-medium border-t border-slate-700/60 pt-3 sm:pt-4"
+          className="mt-5 sm:mt-7 border-t border-slate-700/60 pt-4"
         >
-          <div
-            aria-current={step === 1 ? "step" : undefined}
-            className={`flex items-center gap-1.5 sm:gap-2 ${step >= 1 ? "text-[#E8D8A8] font-bold" : "text-slate-400"}`}
-          >
-            <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold flex-shrink-0 ${step >= 1 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-300"}`}>1</span>
-            <span className="text-[11px] sm:text-xs whitespace-nowrap">{t("stepLabel1")}</span>
-          </div>
-          <div className="w-3 sm:w-12 h-0.5 bg-slate-700 flex-shrink-0" aria-hidden="true" />
-          <div
-            aria-current={step === 2 ? "step" : undefined}
-            className={`flex items-center gap-1.5 sm:gap-2 ${step >= 2 ? "text-[#E8D8A8] font-bold" : "text-slate-400"}`}
-          >
-            <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold flex-shrink-0 ${step >= 2 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-300"}`}>2</span>
-            <span className="text-[11px] sm:text-xs whitespace-nowrap">{t("stepLabel2")}</span>
-          </div>
-          <div className="w-3 sm:w-12 h-0.5 bg-slate-700 flex-shrink-0" aria-hidden="true" />
-          <div
-            aria-current={step === 3 ? "step" : undefined}
-            className={`flex items-center gap-1.5 sm:gap-2 ${step >= 3 ? "text-[#E8D8A8] font-bold" : "text-slate-400"}`}
-          >
-            <span className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[11px] sm:text-xs font-bold flex-shrink-0 ${step >= 3 ? "bg-[#E8D8A8] text-[#07142A]" : "bg-slate-800 text-slate-300"}`}>3</span>
-            <span className="text-[11px] sm:text-xs whitespace-nowrap">{t("stepLabel3")}</span>
+          <div className="relative flex items-center justify-between px-2 sm:px-6">
+            {/* Background track line */}
+            <div className="absolute top-4 inset-x-8 sm:inset-x-14 h-1 bg-slate-800/90 rounded-full" aria-hidden="true" />
+            
+            {/* Animated filled progress line */}
+            <div
+              className="absolute top-4 h-1 bg-gradient-to-r from-[#E8D8A8]/60 via-[#E8D8A8] to-[#E8D8A8] rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(232,216,168,0.5)]"
+              style={{
+                [isRtl ? "right" : "left"]: "2rem",
+                width: step === 1 ? "0%" : step === 2 ? "calc(50% - 2rem)" : "calc(100% - 4rem)"
+              }}
+              aria-hidden="true"
+            />
+
+            {/* Step 1 Node */}
+            <div
+              aria-current={step === 1 ? "step" : undefined}
+              className="relative z-10 flex flex-col items-center"
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                  step > 1
+                    ? "bg-[#E8D8A8] text-[#07142A] shadow-[0_0_15px_rgba(232,216,168,0.5)] scale-100"
+                    : step === 1
+                    ? "bg-[#E8D8A8] text-[#07142A] ring-4 ring-[#E8D8A8]/30 shadow-[0_0_20px_rgba(232,216,168,0.6)] scale-110"
+                    : "bg-slate-800 text-slate-400 border border-slate-700"
+                }`}
+              >
+                {step > 1 ? <Check className="w-4 h-4 stroke-[3]" aria-hidden="true" /> : "1"}
+              </div>
+              <span className={`text-[11px] sm:text-xs mt-1.5 transition-colors duration-200 ${
+                step >= 1 ? "text-[#E8D8A8] font-bold" : "text-slate-400"
+              }`}>
+                {t("stepLabel1")}
+              </span>
+            </div>
+
+            {/* Step 2 Node */}
+            <div
+              aria-current={step === 2 ? "step" : undefined}
+              className="relative z-10 flex flex-col items-center"
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                  step > 2
+                    ? "bg-[#E8D8A8] text-[#07142A] shadow-[0_0_15px_rgba(232,216,168,0.5)] scale-100"
+                    : step === 2
+                    ? "bg-[#E8D8A8] text-[#07142A] ring-4 ring-[#E8D8A8]/30 shadow-[0_0_20px_rgba(232,216,168,0.6)] scale-110"
+                    : "bg-slate-800 text-slate-400 border border-slate-700"
+                }`}
+              >
+                {step > 2 ? <Check className="w-4 h-4 stroke-[3]" aria-hidden="true" /> : "2"}
+              </div>
+              <span className={`text-[11px] sm:text-xs mt-1.5 transition-colors duration-200 ${
+                step >= 2 ? "text-[#E8D8A8] font-bold" : "text-slate-400"
+              }`}>
+                {t("stepLabel2")}
+              </span>
+            </div>
+
+            {/* Step 3 Node */}
+            <div
+              aria-current={step === 3 ? "step" : undefined}
+              className="relative z-10 flex flex-col items-center"
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                  step === 3
+                    ? "bg-[#E8D8A8] text-[#07142A] ring-4 ring-[#E8D8A8]/30 shadow-[0_0_20px_rgba(232,216,168,0.6)] scale-110"
+                    : "bg-slate-800 text-slate-400 border border-slate-700"
+                }`}
+              >
+                3
+              </div>
+              <span className={`text-[11px] sm:text-xs mt-1.5 transition-colors duration-200 ${
+                step >= 3 ? "text-[#E8D8A8] font-bold" : "text-slate-400"
+              }`}>
+                {t("stepLabel3")}
+              </span>
+            </div>
           </div>
         </nav>
       </div>
@@ -324,7 +397,7 @@ export function RegistrationForm() {
         <div
           role="alert"
           aria-live="polite"
-          className="m-4 sm:m-6 p-4 bg-red-950/80 border border-red-500/70 rounded-xl flex items-center gap-3 text-red-100 text-xs shadow-md"
+          className="animate-alert-shake m-4 sm:m-6 p-4 bg-red-950/80 border border-red-500/70 rounded-2xl flex items-center gap-3 text-red-100 text-xs shadow-lg"
         >
           <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-300" aria-hidden="true" />
           <span>{errorMessage}</span>
@@ -334,9 +407,9 @@ export function RegistrationForm() {
       {/* Form Content */}
       <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-5 sm:space-y-6">
         {step === 1 && (
-          <fieldset className="space-y-4">
+          <fieldset key="step-1" className={`space-y-4 ${stepAnimationClass}`}>
             <legend className="sr-only">{t("step1Header")}</legend>
-            <div className="flex items-center justify-between border-b border-slate-700 pb-2">
+            <div className="flex items-center justify-between border-b border-slate-700/80 pb-2">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
                 <User className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
                 {t("step1Header")}
@@ -356,7 +429,7 @@ export function RegistrationForm() {
                 value={formData.hebrewName}
                 onChange={handleChange}
                 placeholder="הרב מנחם מענדל כהן"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all text-right"
+                className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs text-right"
               />
               <span className="text-[10px] text-slate-400 block mt-1">
                 {language === "he" ? "* את שם השליח יש למלא בעברית בלבד" : "* Please fill the Shliach's name in Hebrew only"}
@@ -376,7 +449,7 @@ export function RegistrationForm() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder={t("emailPlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all"
+                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
                 />
               </div>
 
@@ -392,7 +465,7 @@ export function RegistrationForm() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder={t("phonePlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all"
+                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
                 />
               </div>
             </div>
@@ -407,7 +480,7 @@ export function RegistrationForm() {
                   name="country"
                   value={formData.country}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
+                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs"
                 >
                   <option value="">{t("countrySelectDefault")}</option>
                   {COUNTRIES.map((c) => {
@@ -434,7 +507,7 @@ export function RegistrationForm() {
                   value={formData.city}
                   onChange={handleChange}
                   placeholder={t("cityPlaceholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all"
+                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
                 />
               </div>
             </div>
@@ -450,25 +523,25 @@ export function RegistrationForm() {
                 value={formData.passportOrId}
                 onChange={handleChange}
                 placeholder={t("passportPlaceholder")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs transition-all"
+                className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
               />
             </div>
           </fieldset>
         )}
 
         {step === 2 && (
-          <fieldset className="space-y-4">
+          <fieldset key="step-2" className={`space-y-4 ${stepAnimationClass}`}>
             <legend className="sr-only">{t("step2Header")}</legend>
-            <div className="flex items-center justify-between border-b border-slate-700 pb-2">
+            <div className="flex items-center justify-between border-b border-slate-700/80 pb-2">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
                 {t("step2Header")}
               </h2>
             </div>
 
-            <div className="p-3 bg-[#E8D8A8]/10 border border-[#E8D8A8]/20 rounded-xl text-xs text-[#E8D8A8] space-y-1">
+            <div className="p-3.5 bg-[#E8D8A8]/10 border border-[#E8D8A8]/25 rounded-xl text-xs text-[#E8D8A8] space-y-1 backdrop-blur-sm">
               <span className="font-bold block">{t("datesNoticeTitle")}</span>
-              <p className="text-[11px] text-slate-200">
+              <p className="text-[11px] text-slate-200 leading-relaxed font-light">
                 {t("datesNoticeText")}
               </p>
             </div>
@@ -497,7 +570,7 @@ export function RegistrationForm() {
                   name="arrivalTime"
                   value={formData.arrivalTime}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
+                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs"
                 />
               </div>
             </div>
@@ -526,7 +599,7 @@ export function RegistrationForm() {
                   name="departureTime"
                   value={formData.departureTime}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
+                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs"
                 />
               </div>
             </div>
@@ -543,7 +616,7 @@ export function RegistrationForm() {
                 onChange={handleChange}
                 placeholder={t("roommatesPlaceholder")}
                 aria-describedby="roommates-help"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
+                className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
               />
               <p id="roommates-help" className="text-[11px] text-slate-300 mt-1">
                 {t("roommatesHelp")}
@@ -561,16 +634,16 @@ export function RegistrationForm() {
                 onChange={handleChange}
                 rows={3}
                 placeholder={t("specialRequestsPlaceholder")}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#102444] text-white placeholder-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:border-[#E8D8A8] text-base sm:text-xs"
+                className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
               />
             </div>
           </fieldset>
         )}
 
         {step === 3 && (
-          <fieldset className="space-y-4">
+          <fieldset key="step-3" className={`space-y-4 ${stepAnimationClass}`}>
             <legend className="sr-only">{t("step3Header")}</legend>
-            <h2 className="text-base font-bold text-[#E8D8A8] border-b border-slate-700 pb-2 flex items-center justify-between">
+            <h2 className="text-base font-bold text-[#E8D8A8] border-b border-slate-700/80 pb-2 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <CreditCard className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
                 {t("step3Header")}
@@ -578,26 +651,27 @@ export function RegistrationForm() {
               <span className="text-sm font-serif font-bold text-[#E8D8A8]">$180.00 USD</span>
             </h2>
 
-            <div className="bg-[#102444] rounded-xl p-4 border border-slate-800">
-              <div className="flex justify-between items-center pb-3 border-b border-slate-800 text-xs">
+            {/* VIP Pass Summary Card */}
+            <div className="glass-panel rounded-2xl p-4 sm:p-5 border border-[#E8D8A8]/30 shadow-md relative overflow-hidden">
+              <div className="flex justify-between items-center pb-3 border-b border-slate-700/60 text-xs">
                 <span className="text-slate-200 font-medium">{t("feeSummaryLabel")}</span>
-                <span className="font-serif font-bold text-[#E8D8A8] text-base">$180.00 USD</span>
+                <span className="font-serif font-bold text-[#E8D8A8] text-base drop-shadow-sm">$180.00 USD</span>
               </div>
               <div className="flex justify-between items-center pt-3 text-[11px] text-slate-300">
-                <span />
-                <span className="text-emerald-400 font-bold flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
+                <span className="text-slate-400 font-light">{language === "he" ? "כולל אירוח מלא לכל ימי הכינוס" : "Includes full accommodation for all Kinus days"}</span>
+                <span className="text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-500/30">
+                  <ShieldCheck className="w-3.5 h-3.5 animate-pulse" aria-hidden="true" />
                   {t("sslSecuredText")}
                 </span>
               </div>
             </div>
 
             {/* Embedded Stripe Elements Card */}
-            <div className="border border-slate-700 rounded-xl p-4 bg-[#102444] space-y-3">
+            <div className="border border-slate-700/80 rounded-2xl p-4 sm:p-5 bg-[#0B1E38]/80 space-y-3.5 shadow-inner">
               <div className="flex items-center justify-between text-xs text-slate-300 mb-1">
                 <span className="font-semibold text-white">{t("cardDetailsHeader")}</span>
-                <span className="flex items-center gap-1 text-[11px] text-slate-300">
-                  <Lock className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                <span className="flex items-center gap-1.5 text-[11px] text-slate-300 bg-slate-800/80 px-2.5 py-1 rounded-full">
+                  <Lock className="w-3 h-3 text-emerald-400" aria-hidden="true" />
                   {t("stripeEncryptionText")}
                 </span>
               </div>
@@ -612,7 +686,7 @@ export function RegistrationForm() {
                   value={formData.cardNumber}
                   readOnly
                   placeholder="•••• •••• •••• 4242"
-                  className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
                 />
               </div>
 
@@ -627,7 +701,7 @@ export function RegistrationForm() {
                     value={formData.cardExp}
                     readOnly
                     placeholder="12/28"
-                    className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
                   />
                 </div>
                 <div>
@@ -640,7 +714,7 @@ export function RegistrationForm() {
                     value={formData.cardCvc}
                     readOnly
                     placeholder="CVC"
-                    className="w-full px-3 py-2.5 rounded-lg border border-slate-700 bg-slate-900/80 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
                   />
                 </div>
               </div>
@@ -656,12 +730,12 @@ export function RegistrationForm() {
         )}
 
         {/* Buttons Controls */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-700 gap-3">
+        <div className="flex items-center justify-between pt-5 border-t border-slate-700/80 gap-3">
           {step > 1 ? (
             <button
               type="button"
-              onClick={() => setStep((step - 1) as any)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 sm:py-2 rounded-full border border-slate-700 text-slate-200 text-xs font-semibold hover:border-[#E8D8A8] hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
+              onClick={handlePrevStep}
+              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full border border-slate-700/80 bg-[#102444]/60 text-slate-200 text-xs font-semibold hover:border-[#E8D8A8] hover:text-white hover:bg-[#15305B] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] active:scale-95"
             >
               {isRtl ? <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" /> : <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />}
               {t("btnBack")}
@@ -674,7 +748,7 @@ export function RegistrationForm() {
             <button
               type="button"
               onClick={handleNextStep}
-              className="inline-flex items-center gap-1.5 px-6 sm:px-6 py-3 sm:py-2.5 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-all shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38]"
+              className="shimmer-button inline-flex items-center gap-2 px-7 sm:px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white hover:shadow-[0_0_20px_rgba(232,216,168,0.4)] transition-all duration-200 shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38] active:scale-95"
             >
               {t("btnNext")}
               {isRtl ? <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" /> : <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />}
@@ -683,10 +757,13 @@ export function RegistrationForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 px-7 sm:px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white transition-all shadow-lg disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38]"
+              className="shimmer-button inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs sm:text-sm font-bold hover:bg-white hover:shadow-[0_0_25px_rgba(232,216,168,0.5)] transition-all duration-200 shadow-lg disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38] active:scale-95"
             >
               {isSubmitting ? (
-                <span>{t("btnSubmitting")}</span>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                  <span>{t("btnSubmitting")}</span>
+                </>
               ) : (
                 <>
                   <CheckCircle className="w-4 h-4" aria-hidden="true" />
