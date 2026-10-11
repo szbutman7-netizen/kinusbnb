@@ -285,6 +285,9 @@ export const INITIAL_EMAIL_TEMPLATES: EmailTemplate[] = [
   </div>
   
   <p>פרטי הדירה והמיטה המשובצת יישלחו לקראת הכינוס וימתינו לכם בעמדת הקבלה.</p>
+  <div style="text-align: center; margin: 25px 0;">
+    <a href="https://kinusbed.vercel.app/" style="background-color: #1E3A8A; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">כניסה למערכת הכינוס: kinusbed.vercel.app</a>
+  </div>
   <p>בברכת הצלחה רבה בשליחות הקדושה ולהתראות בחצרות קדשנו,</p>
   <p><strong>ועד הכינוס - מחלקת אירוח ולינה</strong></p>
 </div>`,
@@ -311,6 +314,9 @@ export const INITIAL_EMAIL_TEMPLATES: EmailTemplate[] = [
     <p style="margin: 6px 0;"><strong>קוד כניסה / מפתח:</strong> {entry_code}</p>
   </div>
   
+  <div style="text-align: center; margin: 20px 0;">
+    <a href="https://kinusbed.vercel.app/" style="background-color: #1E3A8A; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">מעבר לאתר הרשמי: kinusbed.vercel.app</a>
+  </div>
   <p>אנא שמרו על הסדר והניקיון בדירה למען כלל השלוחים.</p>
   <p>בברכת הצלחה רבה ולהתראות בקרוב,</p>
   <p><strong>ועד הכינוס</strong></p>

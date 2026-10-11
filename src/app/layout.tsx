@@ -19,8 +19,20 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://kinusbed.vercel.app/"),
   title: "כינוס השלוחים העולמי - מערכת רישום ואירוח | International Kinus HaShluchim",
   description: "הרשמה, סליקה ושיבוץ לינה לשלוחי חב\"ד בכינוס השלוחים העולמי - Official Kinus Housing & Registration",
+  alternates: {
+    canonical: "https://kinusbed.vercel.app/",
+  },
+  openGraph: {
+    title: "כינוס השלוחים העולמי - מערכת רישום ואירוח | International Kinus HaShluchim",
+    description: "הרשמה, סליקה ושיבוץ לינה לשלוחי חב\"ד בכינוס השלוחים העולמי",
+    url: "https://kinusbed.vercel.app/",
+    siteName: "Kinus HaShluchim Housing",
+    locale: "he_IL",
+    type: "website",
+  },
   icons: {
     icon: "/assets/kinus-emblem.svg",
     shortcut: "/assets/kinus-emblem.svg",

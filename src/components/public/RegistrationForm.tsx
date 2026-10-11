@@ -160,7 +160,7 @@ export function RegistrationForm() {
             body: JSON.stringify({
               to: newShliach.email,
               subject: language === "he" ? "אישור הרשמה לכינוס השלוחים תשפ״ז" : "Kinus HaShluchim 5787 Registration Confirmation",
-              htmlBody: `<h3>${newShliach.hebrewName},</h3><p>${language === "he" ? "הרשמתכם ללינה בכינוס השלוחים נקלטה בהצלחה!" : "Your Kinus housing registration has been confirmed!"}</p><p>ID: ${newShliach.id}</p><p>Dates: ${newShliach.arrivalDate} - ${newShliach.departureDate}</p>`
+              htmlBody: `<h3>${newShliach.hebrewName},</h3><p>${language === "he" ? "הרשמתכם ללינה בכינוס השלוחים נקלטה בהצלחה!" : "Your Kinus housing registration has been confirmed!"}</p><p>ID: ${newShliach.id}</p><p>Dates: ${newShliach.arrivalDate} - ${newShliach.departureDate}</p><p style="margin-top:12px;"><a href="https://kinusbed.vercel.app/" style="color:#1E3A8A;font-weight:bold;">https://kinusbed.vercel.app/</a></p>`
             })
           });
         } catch (err) {

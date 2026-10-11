@@ -32,6 +32,8 @@ import {
 
 export const DEFAULT_ARRIVAL_DATES = ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
 export const DEFAULT_DEPARTURE_DATES = ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
+export const OFFICIAL_DOMAIN = "https://kinusbed.vercel.app/";
+export const AUTHORIZED_DOMAIN = "kinusbed.vercel.app";
 
 // In-Memory & LocalStorage Cache fallback
 class StoreManager {
@@ -45,7 +47,10 @@ class StoreManager {
   private formSettings: FormSettings = { 
     isOpen: true,
     allowedArrivalDates: [...DEFAULT_ARRIVAL_DATES],
-    allowedDepartureDates: [...DEFAULT_DEPARTURE_DATES]
+    allowedDepartureDates: [...DEFAULT_DEPARTURE_DATES],
+    siteUrl: OFFICIAL_DOMAIN,
+    baseUrl: OFFICIAL_DOMAIN,
+    authorizedDomain: AUTHORIZED_DOMAIN
   };
   
   private listeners: Set<() => void> = new Set();
@@ -81,6 +86,9 @@ class StoreManager {
         closedMessageEn: parsedSettings?.closedMessageEn || "",
         allowedArrivalDates: parsedSettings?.allowedArrivalDates || [...DEFAULT_ARRIVAL_DATES],
         allowedDepartureDates: parsedSettings?.allowedDepartureDates || [...DEFAULT_DEPARTURE_DATES],
+        siteUrl: parsedSettings?.siteUrl || OFFICIAL_DOMAIN,
+        baseUrl: parsedSettings?.baseUrl || OFFICIAL_DOMAIN,
+        authorizedDomain: parsedSettings?.authorizedDomain || AUTHORIZED_DOMAIN,
         updatedAt: parsedSettings?.updatedAt,
         updatedBy: parsedSettings?.updatedBy
       };
@@ -95,7 +103,10 @@ class StoreManager {
       this.formSettings = { 
         isOpen: true,
         allowedArrivalDates: [...DEFAULT_ARRIVAL_DATES],
-        allowedDepartureDates: [...DEFAULT_DEPARTURE_DATES]
+        allowedDepartureDates: [...DEFAULT_DEPARTURE_DATES],
+        siteUrl: OFFICIAL_DOMAIN,
+        baseUrl: OFFICIAL_DOMAIN,
+        authorizedDomain: AUTHORIZED_DOMAIN
       };
     }
   }
@@ -158,6 +169,9 @@ class StoreManager {
     this.formSettings = {
       ...this.formSettings,
       ...settings,
+      siteUrl: settings.siteUrl || this.formSettings.siteUrl || OFFICIAL_DOMAIN,
+      baseUrl: settings.baseUrl || this.formSettings.baseUrl || OFFICIAL_DOMAIN,
+      authorizedDomain: settings.authorizedDomain || this.formSettings.authorizedDomain || AUTHORIZED_DOMAIN,
       updatedAt: new Date().toISOString()
     };
     this.persist();
@@ -165,6 +179,11 @@ class StoreManager {
     try {
       if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
         await setDoc(doc(db, "settings", "registrationForm"), this.formSettings, { merge: true });
+        await setDoc(doc(db, "settings", "system"), {
+          officialDomain: OFFICIAL_DOMAIN,
+          authorizedDomain: AUTHORIZED_DOMAIN,
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
       }
     } catch (e) {
       console.warn("Firestore updateFormSettings fallback to local:", e);

@@ -13,7 +13,10 @@ import {
   ExternalLink, 
   Eye, 
   Clock,
-  Calendar
+  Calendar,
+  Globe,
+  ShieldCheck,
+  Check
 } from "lucide-react";
 import Link from "next/link";
 
@@ -39,6 +42,13 @@ export default function FormSettingsPage() {
   const [allowedDepartureDates, setAllowedDepartureDates] = useState<string[]>([...DEFAULT_DEPARTURE_DATES]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [copiedDomain, setCopiedDomain] = useState(false);
+
+  const handleCopyDomain = () => {
+    navigator.clipboard.writeText("https://kinusbed.vercel.app/");
+    setCopiedDomain(true);
+    setTimeout(() => setCopiedDomain(false), 2500);
+  };
 
   useEffect(() => {
     if (formSettings) {
@@ -137,6 +147,52 @@ export default function FormSettingsPage() {
             צפה בטופס הציבורי
             <ExternalLink className="w-3 h-3 text-slate-400" />
           </Link>
+        </div>
+      </div>
+
+      {/* Official Domain & Authorized Base URL Card */}
+      <div className="bg-gradient-to-r from-blue-900 to-[#102444] rounded-2xl p-6 text-white shadow-md border border-blue-800 flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0 text-[#E8D8A8]">
+            <Globe className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-[#E8D8A8] font-bold uppercase tracking-wider">
+                דומיין המערכת הרשמי
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                <ShieldCheck className="w-3 h-3" />
+                דומיין מורשה ב-Firebase & Vercel
+              </span>
+            </div>
+            <div className="text-xl font-mono font-bold text-white mt-1 select-all" dir="ltr">
+              https://kinusbed.vercel.app/
+            </div>
+            <p className="text-xs text-slate-300 mt-1">
+              כתובת זו מוגדרת כדומיין מורשה עבור התחברות Google, סליקת Stripe, הודעות דוא&quot;ל וכלל קישורי המערכת.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            type="button"
+            onClick={handleCopyDomain}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-xs transition-colors"
+          >
+            {copiedDomain ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <ShieldCheck className="w-3.5 h-3.5 text-[#E8D8A8]" />}
+            <span>{copiedDomain ? "הועתק!" : "העתק כתובת"}</span>
+          </button>
+          <a
+            href="https://kinusbed.vercel.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#E8D8A8] hover:bg-white text-[#0B1A30] font-bold text-xs transition-colors"
+          >
+            <span>פתח אתר</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
         </div>
       </div>
 

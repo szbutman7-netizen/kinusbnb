@@ -12,6 +12,9 @@ describe('StoreManager - Unit Tests', () => {
     expect(settings.isOpen).toBe(true);
     expect(settings.allowedArrivalDates).toEqual(DEFAULT_ARRIVAL_DATES);
     expect(settings.allowedDepartureDates).toEqual(DEFAULT_DEPARTURE_DATES);
+    expect(settings.siteUrl).toBe("https://kinusbed.vercel.app/");
+    expect(settings.baseUrl).toBe("https://kinusbed.vercel.app/");
+    expect(settings.authorizedDomain).toBe("kinusbed.vercel.app");
   });
 
   it('should accurately calculate dashboard stats', () => {

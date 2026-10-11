@@ -174,5 +174,22 @@ service cloud.firestore {
     match /email_templates/{templateId} {
       allow read, write: if isAdmin();
     }
+
+    // =========================================================================
+    // SYSTEM SETTINGS & DOMAIN CONFIGURATION
+    // =========================================================================
+
+    // System and registration form settings (including official domain and active status)
+    match /settings/{settingId} {
+      // Public read access for registration settings & domain verification
+      allow get: if true;
+      allow list, write: if isAdmin();
+    }
+
+    // Public contact inquiries
+    match /contactMessages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
   }
 }

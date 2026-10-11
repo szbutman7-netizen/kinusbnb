@@ -1,0 +1,15 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "authorizedRedirectUris": [
+          "https://kinusbed.vercel.app/__/auth/handler",
+          "https://kinusbed.vercel.app/"
+        ]
+      }
+    }
+  }
+}

@@ -142,6 +142,9 @@ export interface FormSettings {
   closedMessageEn?: string;
   allowedArrivalDates?: string[];
   allowedDepartureDates?: string[];
+  siteUrl?: string;
+  baseUrl?: string;
+  authorizedDomain?: string;
   updatedAt?: string;
   updatedBy?: string;
 }

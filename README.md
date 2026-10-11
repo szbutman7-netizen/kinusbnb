@@ -54,11 +54,11 @@
 ```env
 # Firebase Configuration
 NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=kinus-shluchim.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=kinus-shluchim
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=kinus-shluchim.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
-NEXT_PUBLIC_FIREBASE_APP_ID=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=kinusbnb.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=kinusbnb
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=kinusbnb.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=351392334108
+NEXT_PUBLIC_FIREBASE_APP_ID=1:351392334108:web:...
 
 # Stripe Configuration
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
@@ -68,9 +68,16 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 # Google Apps Script Email Relay
 GOOGLE_APPS_SCRIPT_WEBAPP_URL=https://script.google.com/macros/s/.../exec
 EMAIL_RELAY_API_KEY=KINUS_RELAY_SECRET_KEY_770
+
+# Official Production Domain & Authorized Base URL
+NEXT_PUBLIC_BASE_URL=https://kinusbed.vercel.app/
+NEXT_PUBLIC_SITE_URL=https://kinusbed.vercel.app/
+NEXT_PUBLIC_AUTHORIZED_DOMAIN=kinusbed.vercel.app
 ```
 
-> **הערה:** המערכת כוללת מנגנון Fallback מובנה עם נתוני הדגמה עשירים, כך שכל המסכים פועלים ומציגים נתונים מלאים מיד עם ההרצה, גם לפני חיבור המפתחות החיצוניים!
+> **הערה חשובה לגבי דומיין מורשה (Authorized Domain):** 
+> הדומיין הרשמי של המערכת הוא **`https://kinusbed.vercel.app/`**. 
+> דומיין זה מוגדר ברשימת הדומיינים המורשים (Authorized Domains) ב-Firebase Authentication לצורך התחברות Google Sign-In מאובטחת, וכן ב-Vercel עבור פריסת היישום.
 
 ---
 
@@ -85,18 +92,8 @@ EMAIL_RELAY_API_KEY=KINUS_RELAY_SECRET_KEY_770
 
 ---
 
-## ☁️ שמירה ב-GitHub ופריסה ב-Vercel
+## ☁️ פריסה ב-Vercel
 
-1. **חיבור ל-GitHub:**
-   ```bash
-   git add .
-   git commit -m "Initial Kinus Shluchim System"
-   git remote add origin https://github.com/<username>/<repo-name>.git
-   git push -u origin main
-   ```
-
-2. **פריסה ב-Vercel:**
-   - היכנס ל-[Vercel](https://vercel.com) ולחץ על **Add New Project**.
-   - יבא את המאגר מ-GitHub.
-   - הוסף את משתני הסביבה (מתוך `.env.local`) בלשונית **Environment Variables**.
-   - לחץ **Deploy**.
+- **כתובת הייצור הרשמית:** [https://kinusbed.vercel.app/](https://kinusbed.vercel.app/)
+- **שם הפרויקט ב-Vercel:** `kinusbed` (מוגדר בקובץ `.vercel/project.json`).
+- **הגדרות סביבה:** יש לוודא שמשתנה `NEXT_PUBLIC_BASE_URL` מוגדר ב-Vercel כ-`https://kinusbed.vercel.app/`.
