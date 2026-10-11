@@ -268,6 +268,25 @@ export function RegistrationForm() {
     ? (isRtl ? "animate-slide-in-right" : "animate-slide-in-left")
     : (isRtl ? "animate-slide-in-left" : "animate-slide-in-right");
 
+  // Real-time live validation states
+  const isHebrewNameValid = formData.hebrewName.trim().length > 1 && !/[a-zA-Z]/.test(formData.hebrewName);
+  const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
+  const isPhoneValid = formData.phone.trim().replace(/\D/g, "").length >= 7;
+  const isCountryValid = Boolean(formData.country);
+  const isCityValid = formData.city.trim().length > 1;
+  const isPassportValid = formData.passportOrId.trim().length >= 3;
+
+  const ValidBadge = () => (
+    <div
+      className={`absolute top-1/2 -translate-y-1/2 ${
+        isRtl ? "left-3" : "right-3"
+      } flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/40 shadow-[0_0_10px_rgba(52,211,153,0.35)] animate-fade-in pointer-events-none z-10`}
+      aria-hidden="true"
+    >
+      <Check className="w-3 h-3 stroke-[3]" />
+    </div>
+  );
+
   return (
     <div className="glass-panel rounded-3xl shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] border-[#E8D8A8]/25 overflow-hidden max-w-2xl mx-auto backdrop-blur-xl">
       {/* Header Banner in authentic Kinus styling with atmospheric background */}
@@ -420,17 +439,24 @@ export function RegistrationForm() {
               <label htmlFor="hebrewName" className="block text-xs font-semibold text-slate-200 mb-1">
                 {language === "he" ? "שם השליח (בעברית בלבד)" : "Shliach Full Name (Hebrew only)"}
               </label>
-              <input
-                id="hebrewName"
-                type="text"
-                name="hebrewName"
-                autoComplete="name"
-                dir="rtl"
-                value={formData.hebrewName}
-                onChange={handleChange}
-                placeholder="הרב מנחם מענדל כהן"
-                className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs text-right"
-              />
+              <div className="relative">
+                <input
+                  id="hebrewName"
+                  type="text"
+                  name="hebrewName"
+                  autoComplete="name"
+                  dir="rtl"
+                  value={formData.hebrewName}
+                  onChange={handleChange}
+                  placeholder="הרב מנחם מענדל כהן"
+                  className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                    isHebrewNameValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                  } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs text-right transition-all ${
+                    isHebrewNameValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                  }`}
+                />
+                {isHebrewNameValid && <ValidBadge />}
+              </div>
               <span className="text-[10px] text-slate-400 block mt-1">
                 {language === "he" ? "* את שם השליח יש למלא בעברית בלבד" : "* Please fill the Shliach's name in Hebrew only"}
               </span>
@@ -441,32 +467,46 @@ export function RegistrationForm() {
                 <label htmlFor="email" className="block text-xs font-semibold text-slate-200 mb-1">
                   {t("emailLabel")}
                 </label>
-                <input
-                  id="email"
-                  type="email"
-                  name="email"
-                  autoComplete="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder={t("emailPlaceholder")}
-                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
-                />
+                <div className="relative">
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder={t("emailPlaceholder")}
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      isEmailValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
+                      isEmailValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  />
+                  {isEmailValid && <ValidBadge />}
+                </div>
               </div>
 
               <div>
                 <label htmlFor="phone" className="block text-xs font-semibold text-slate-200 mb-1">
                   {t("phoneLabel")}
                 </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  name="phone"
-                  autoComplete="tel"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder={t("phonePlaceholder")}
-                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
-                />
+                <div className="relative">
+                  <input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    autoComplete="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder={t("phonePlaceholder")}
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      isPhoneValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
+                      isPhoneValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  />
+                  {isPhoneValid && <ValidBadge />}
+                </div>
               </div>
             </div>
 
@@ -475,40 +515,54 @@ export function RegistrationForm() {
                 <label htmlFor="country" className="block text-xs font-semibold text-slate-200 mb-1">
                   {t("countryLabel")}
                 </label>
-                <select
-                  id="country"
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs"
-                >
-                  <option value="">{t("countrySelectDefault")}</option>
-                  {COUNTRIES.map((c) => {
-                    const countryDisplay = language === "en" ? `${c.nameEn} (${c.nameHe})` : `${c.nameHe} (${c.nameEn})`;
-                    const countryValue = language === "en" ? c.nameEn : c.nameHe;
-                    return (
-                      <option key={c.nameEn} value={countryValue}>
-                        {countryDisplay}
-                      </option>
-                    );
-                  })}
-                  <option value="Other">{t("countryOther")}</option>
-                </select>
+                <div className="relative">
+                  <select
+                    id="country"
+                    name="country"
+                    value={formData.country}
+                    onChange={handleChange}
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      isCountryValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs transition-all ${
+                      isCountryValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  >
+                    <option value="">{t("countrySelectDefault")}</option>
+                    {COUNTRIES.map((c) => {
+                      const countryDisplay = language === "en" ? `${c.nameEn} (${c.nameHe})` : `${c.nameHe} (${c.nameEn})`;
+                      const countryValue = language === "en" ? c.nameEn : c.nameHe;
+                      return (
+                        <option key={c.nameEn} value={countryValue}>
+                          {countryDisplay}
+                        </option>
+                      );
+                    })}
+                    <option value="Other">{t("countryOther")}</option>
+                  </select>
+                  {isCountryValid && <ValidBadge />}
+                </div>
               </div>
 
               <div>
                 <label htmlFor="city" className="block text-xs font-semibold text-slate-200 mb-1">
                   {t("cityLabel")}
                 </label>
-                <input
-                  id="city"
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  placeholder={t("cityPlaceholder")}
-                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
-                />
+                <div className="relative">
+                  <input
+                    id="city"
+                    type="text"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    placeholder={t("cityPlaceholder")}
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      isCityValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
+                      isCityValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  />
+                  {isCityValid && <ValidBadge />}
+                </div>
               </div>
             </div>
 
@@ -516,15 +570,22 @@ export function RegistrationForm() {
               <label htmlFor="passportOrId" className="block text-xs font-semibold text-slate-200 mb-1">
                 {t("passportLabel")}
               </label>
-              <input
-                id="passportOrId"
-                type="text"
-                name="passportOrId"
-                value={formData.passportOrId}
-                onChange={handleChange}
-                placeholder={t("passportPlaceholder")}
-                className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
-              />
+              <div className="relative">
+                <input
+                  id="passportOrId"
+                  type="text"
+                  name="passportOrId"
+                  value={formData.passportOrId}
+                  onChange={handleChange}
+                  placeholder={t("passportPlaceholder")}
+                  className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                    isPassportValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                  } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
+                    isPassportValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                  }`}
+                />
+                {isPassportValid && <ValidBadge />}
+              </div>
             </div>
           </fieldset>
         )}
@@ -564,14 +625,21 @@ export function RegistrationForm() {
                 <label htmlFor="arrivalTime" className="block text-xs font-semibold text-slate-200 mb-1">
                   {t("arrivalTimeLabel")}
                 </label>
-                <input
-                  id="arrivalTime"
-                  type="time"
-                  name="arrivalTime"
-                  value={formData.arrivalTime}
-                  onChange={handleChange}
-                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs"
-                />
+                <div className="relative">
+                  <input
+                    id="arrivalTime"
+                    type="time"
+                    name="arrivalTime"
+                    value={formData.arrivalTime}
+                    onChange={handleChange}
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      formData.arrivalTime ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs transition-all ${
+                      formData.arrivalTime ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  />
+                  {Boolean(formData.arrivalTime) && <ValidBadge />}
+                </div>
               </div>
             </div>
 
@@ -593,14 +661,21 @@ export function RegistrationForm() {
                 <label htmlFor="departureTime" className="block text-xs font-semibold text-slate-200 mb-1">
                   {t("departureTimeLabel")}
                 </label>
-                <input
-                  id="departureTime"
-                  type="time"
-                  name="departureTime"
-                  value={formData.departureTime}
-                  onChange={handleChange}
-                  className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs"
-                />
+                <div className="relative">
+                  <input
+                    id="departureTime"
+                    type="time"
+                    name="departureTime"
+                    value={formData.departureTime}
+                    onChange={handleChange}
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      formData.departureTime ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs transition-all ${
+                      formData.departureTime ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  />
+                  {Boolean(formData.departureTime) && <ValidBadge />}
+                </div>
               </div>
             </div>
 

@@ -7,10 +7,10 @@ import { KinusLogo } from "@/components/common/KinusLogo";
 import { WhatsAppButton } from "@/components/common/WhatsAppButton";
 import { ContactSection } from "@/components/public/ContactSection";
 import { useLanguage } from "@/lib/context/LanguageContext";
-import { ShieldCheck, HeartHandshake, MapPin, ArrowLeft, ArrowRight, ChevronDown, Sparkles } from "lucide-react";
+import { ShieldCheck, HeartHandshake, MapPin, ArrowLeft, ArrowRight, ChevronDown } from "lucide-react";
 
 export default function HomePage() {
-  const { t, isRtl } = useLanguage();
+  const { t, isRtl, language } = useLanguage();
   const CtaArrow = isRtl ? ArrowLeft : ArrowRight;
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
@@ -58,8 +58,7 @@ export default function HomePage() {
             </div>
 
             {/* Subtitle / Date Badge */}
-            <div className="animate-fade-in-up delay-100 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-[#E8D8A8]/10 border border-[#E8D8A8]/25 mb-4 sm:mb-5 backdrop-blur-sm">
-              <Sparkles className="w-3.5 h-3.5 text-[#E8D8A8] animate-pulse" aria-hidden="true" />
+            <div className="animate-fade-in-up delay-100 inline-flex items-center px-3.5 sm:px-5 py-1.5 rounded-full bg-[#E8D8A8]/10 border border-[#E8D8A8]/25 mb-4 sm:mb-5 backdrop-blur-sm">
               <span className="text-[11px] sm:text-xs font-semibold tracking-wider text-[#E8D8A8] uppercase">
                 {t("datesBanner")}
               </span>
@@ -101,6 +100,83 @@ export default function HomePage() {
             {/* Fee badge */}
             <div className="animate-fade-in-up delay-400 mt-6 sm:mt-8 inline-block px-4 py-1.5 rounded-full bg-[#102444]/70 border border-[#E8D8A8]/20 backdrop-blur-sm text-xs text-[#E8D8A8] font-medium tracking-wide">
               {t("feeBadge")}
+            </div>
+          </div>
+        </section>
+
+        {/* Atmosphere Image Strip with Ken Burns Effect */}
+        <section className="py-12 sm:py-18 bg-[#091526] border-b border-[#E8D8A8]/15 relative overflow-hidden" aria-label="גלריית אווירה מכינוס השלוחים">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center max-w-xl mx-auto mb-8 sm:mb-12">
+              <span className="text-[11px] sm:text-xs font-bold text-[#E8D8A8] tracking-[0.25em] uppercase block mb-2">
+                {language === "he" ? "רשמי הכינוס" : "Kinus Atmosphere"}
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-serif text-white">
+                {language === "he" ? "אלפי שלוחים בצוותא חדא" : "Thousands of Shluchim Gathered Together"}
+              </h2>
+              <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-[#E8D8A8] to-transparent mx-auto mt-3" aria-hidden="true" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+              {/* Atmosphere Card 1: Grand Banquet */}
+              <div className="group relative aspect-[16/10] sm:aspect-[4/3] rounded-2xl overflow-hidden border border-[#E8D8A8]/20 bg-[#102444] shadow-xl">
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-110"
+                  style={{ backgroundImage: "url('/assets/hero-banquet.jpg')" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071224]/95 via-[#0B1A30]/40 to-transparent pointer-events-none" />
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 text-white z-10 transition-transform duration-300">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#E8D8A8]/20 text-[#E8D8A8] text-[10px] font-semibold mb-1.5 border border-[#E8D8A8]/30">
+                    {language === "he" ? "מעמד הסיום" : "Grand Banquet"}
+                  </span>
+                  <h3 className="text-base sm:text-lg font-serif font-bold text-white group-hover:text-[#E8D8A8] transition-colors">
+                    {language === "he" ? "הבאנקעט העולמי" : "The Grand Banquet"}
+                  </h3>
+                  <p className="text-[11px] text-slate-300 font-light mt-0.5 line-clamp-2">
+                    {language === "he" ? "אלפי שלוחים חוגגים יחד בהתרוממות הרוח" : "Thousands celebrating together in unity"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Atmosphere Card 2: 770 Crowd */}
+              <div className="group relative aspect-[16/10] sm:aspect-[4/3] rounded-2xl overflow-hidden border border-[#E8D8A8]/20 bg-[#102444] shadow-xl">
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-110"
+                  style={{ backgroundImage: "url('/assets/kinus-crowd-main.jpg')" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071224]/95 via-[#0B1A30]/40 to-transparent pointer-events-none" />
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 text-white z-10 transition-transform duration-300">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#E8D8A8]/20 text-[#E8D8A8] text-[10px] font-semibold mb-1.5 border border-[#E8D8A8]/30">
+                    {language === "he" ? "בית חיינו" : "Headquarters"}
+                  </span>
+                  <h3 className="text-base sm:text-lg font-serif font-bold text-white group-hover:text-[#E8D8A8] transition-colors">
+                    {language === "he" ? "תפילות והתוועדויות ב-770" : "Prayers & Farbrengens at 770"}
+                  </h3>
+                  <p className="text-[11px] text-slate-300 font-light mt-0.5 line-clamp-2">
+                    {language === "he" ? "התכנסות השלוחים בסמיכות למשלח" : "Shluchim gathering at 770 Eastern Parkway"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Atmosphere Card 3: Group Photo */}
+              <div className="group relative aspect-[16/10] sm:aspect-[4/3] rounded-2xl overflow-hidden border border-[#E8D8A8]/20 bg-[#102444] shadow-xl">
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out group-hover:scale-110"
+                  style={{ backgroundImage: "url('/assets/kinus-group-crowd.jpg')" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071224]/95 via-[#0B1A30]/40 to-transparent pointer-events-none" />
+                <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 text-white z-10 transition-transform duration-300">
+                  <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#E8D8A8]/20 text-[#E8D8A8] text-[10px] font-semibold mb-1.5 border border-[#E8D8A8]/30">
+                    {language === "he" ? "מסורת הכינוס" : "Annual Tradition"}
+                  </span>
+                  <h3 className="text-base sm:text-lg font-serif font-bold text-white group-hover:text-[#E8D8A8] transition-colors">
+                    {language === "he" ? "התצלום הכללי בחזית 770" : "The Official Group Photo"}
+                  </h3>
+                  <p className="text-[11px] text-slate-300 font-light mt-0.5 line-clamp-2">
+                    {language === "he" ? "שלוחי המלך מכל קצוות תבל" : "Shluchim from every corner of the world"}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
