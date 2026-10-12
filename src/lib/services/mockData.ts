@@ -269,7 +269,6 @@ export const INITIAL_EMAIL_TEMPLATES: EmailTemplate[] = [
     name: "אישור הרשמה וקבלה לתשלום",
     subject: "אישור הרשמה לכינוס השלוחים תשפ״ז",
     htmlContent: `<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-  <div style="text-align: left; font-size: 13px; color: #666;">ב״ה</div>
   <div style="text-align: center; border-bottom: 2px solid #1E3A8A; padding-bottom: 12px; margin-bottom: 20px;">
     <h2 style="color: #1E3A8A; margin: 0;">כינוס השלוחים העולמי</h2>
     <p style="color: #555; margin: 4px 0 0 0;">אישור הרשמה ולינה</p>
@@ -298,7 +297,6 @@ export const INITIAL_EMAIL_TEMPLATES: EmailTemplate[] = [
     name: "הודעת שיבוץ דירה ומיטה",
     subject: "פרטי הדירה והמיטה שלך לכינוס השלוחים",
     htmlContent: `<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-  <div style="text-align: left; font-size: 13px; color: #666;">ב״ה</div>
   <div style="text-align: center; border-bottom: 2px solid #1E3A8A; padding-bottom: 12px; margin-bottom: 20px;">
     <h2 style="color: #1E3A8A; margin: 0;">כינוס השלוחים העולמי</h2>
     <p style="color: #555; margin: 4px 0 0 0;">פרטי שיבוץ לינה</p>

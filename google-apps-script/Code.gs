@@ -40,10 +40,7 @@ function doPost(e) {
       return responseJson({ success: false, error: "Missing recipient (to)" }, 400);
     }
 
-    // הזרקת "ב״ה" בראש המייל אם אינו קיים
-    if (!htmlBody.includes("ב״ה") && !htmlBody.includes("ב&quot;ה")) {
-      htmlBody = '<div dir="rtl" style="text-align: left; font-size: 13px; color: #666; margin-bottom: 10px;">ב״ה</div>' + htmlBody;
-    }
+
 
     // שליחת המייל דרך GmailApp
     GmailApp.sendEmail(to, subject, "", {

@@ -222,9 +222,6 @@ export function RegistrationForm() {
                 </p>
               </div>
             </div>
-            <div className="hidden sm:block text-xs font-serif text-[#E8D8A8]/80">
-              {t("traditionalBh")}
-            </div>
           </div>
         </div>
 

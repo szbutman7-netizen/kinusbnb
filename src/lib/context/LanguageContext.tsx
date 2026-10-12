@@ -24,7 +24,7 @@ export const translations = {
     whatsappButtonText: "פנייה בוואטסאפ",
 
     // Home Page
-    traditionalBh: "ב״ה",
+    traditionalBh: "",
     datesBanner: "כ״ד – כ״ט בחשוון תשפ״ז • 4 – 9 בנובמבר 2026 • ברוקלין, ניו יורק",
     heroTitle: "כינוס השלוחים העולמי",
     heroSubtitle: "מערך אירוח ולינה לשלוחי כ״ק אדמו״ר נשיא דורנו",
@@ -35,7 +35,7 @@ export const translations = {
 
     // Pillars
     pillarsHeaderTag: "הסדרי האירוח",
-    pillarsTitle: "אירוח בכבוד הראוי לשלוחי המלך",
+    pillarsTitle: "אירוח בכבוד הראוי לשלוחים",
     feature1Title: "בסמיכות ל-770",
     feature1Desc: "דירות האירוח ממוקמות ברחבי שכונת קראון הייטס, במרחק הליכה קצר מ-770.",
     feature2Title: "תיאום שותפים לחדר",
@@ -199,7 +199,7 @@ export const translations = {
     whatsappButtonText: "Message on WhatsApp",
 
     // Home Page
-    traditionalBh: 'B"H',
+    traditionalBh: "",
     datesBanner: "24 – 29 Cheshvan 5787 • November 4 – 9, 2026 • Brooklyn, New York",
     heroTitle: "International Kinus HaShluchim",
     heroSubtitle: "Official Hospitality and Housing System for the Rebbe's Shluchim",

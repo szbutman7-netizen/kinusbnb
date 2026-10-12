@@ -41,11 +41,7 @@ export default function HomePage() {
           {/* Decorative floating ambient golden aura */}
           <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[850px] h-[350px] sm:h-[450px] bg-[#E8D8A8]/10 rounded-full blur-3xl pointer-events-none animate-ambient-pulse" />
 
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            {/* Traditional B"H */}
-            <div className={`text-xs text-[#E8D8A8]/80 tracking-widest font-serif mb-4 sm:mb-6 animate-fade-in ${isRtl ? "text-right" : "text-left"}`}>
-              {t("traditionalBh")}
-            </div>
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 pt-4 sm:pt-6">
 
             {/* Official Kinus Emblem with Glowing Halo */}
             <div className="flex justify-center mb-4 sm:mb-6 animate-fade-in-down">

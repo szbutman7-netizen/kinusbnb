@@ -40,9 +40,6 @@ export default function RegisterPage() {
             <BackIcon className="w-3.5 h-3.5" aria-hidden="true" />
             <span>{t("backToInfo")}</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-[#E8D8A8]/80 font-serif tracking-widest">{t("traditionalBh")}</span>
-          </div>
         </div>
 
         <RegistrationForm key={formKey} />

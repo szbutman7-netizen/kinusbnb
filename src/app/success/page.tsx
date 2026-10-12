@@ -74,7 +74,6 @@ function SuccessContent() {
               </span>
             </div>
           </div>
-          <span className="text-xs text-[#E8D8A8] font-serif">{t("traditionalBh")}</span>
         </div>
 
         {/* Card Body */}
