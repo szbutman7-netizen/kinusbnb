@@ -30,8 +30,8 @@ import {
   Baby
 } from "lucide-react";
 
-const KINUS_START_DATE = "2026-11-03";
-const KINUS_END_DATE = "2026-11-10";
+const KINUS_START_DATE = "2026-11-04";
+const KINUS_END_DATE = "2026-11-09";
 
 const INITIAL_FORM_DATA = {
   firstName: "",
@@ -399,9 +399,9 @@ export function RegistrationForm() {
         country: formData.country || (language === "he" ? "לא צוין" : "Not specified"),
         city: formData.city.trim() || (language === "he" ? "לא צוין" : "Not specified"),
         passportOrId: formData.passportOrId.trim(),
-        arrivalDate: formData.arrivalDate || "2026-11-03",
+        arrivalDate: formData.arrivalDate || "2026-11-04",
         arrivalTime: formData.arrivalTime || "12:00",
-        departureDate: formData.departureDate || "2026-11-10",
+        departureDate: formData.departureDate || "2026-11-09",
         departureTime: formData.departureTime || "12:00",
         preferredRoommates: formData.preferredRoommates.trim(),
         specialRequests: formData.specialRequests.trim(),

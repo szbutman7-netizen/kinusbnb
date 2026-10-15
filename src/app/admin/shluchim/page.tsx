@@ -20,7 +20,8 @@ import {
   Unlock,
   MessageSquare,
   X,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Trash2
 } from "lucide-react";
 import { sanitizeForSheet } from "@/lib/utils/sanitize";
 
@@ -41,6 +42,10 @@ export default function ShluchimPage() {
   const [blockReasonInput, setBlockReasonInput] = useState("");
   const [notesShliach, setNotesShliach] = useState<Shliach | null>(null);
   const [notesInput, setNotesInput] = useState("");
+  const [deletingShliach, setDeletingShliach] = useState<Shliach | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmClearDrafts, setConfirmClearDrafts] = useState(false);
+  const [isClearingDrafts, setIsClearingDrafts] = useState(false);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -105,6 +110,34 @@ export default function ShluchimPage() {
       await actions.toggleBlockCheckIn(blockingShliach.id, willBlock, blockReasonInput);
       setBlockingShliach(null);
       setBlockReasonInput("");
+    }
+  };
+
+  const handleDeleteShliach = async () => {
+    if (!deletingShliach) return;
+    setIsDeleting(true);
+    try {
+      await actions.deleteShliach(deletingShliach.id);
+      setDeletingShliach(null);
+    } catch (err) {
+      console.error("Failed to delete shliach:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleClearAllDrafts = async () => {
+    setIsClearingDrafts(true);
+    try {
+      const drafts = shluchim.filter(s => s.registrationStatus === "DRAFT");
+      for (const draft of drafts) {
+        await actions.deleteShliach(draft.id);
+      }
+      setConfirmClearDrafts(false);
+    } catch (err) {
+      console.error("Failed to clear drafts:", err);
+    } finally {
+      setIsClearingDrafts(false);
     }
   };
 
@@ -248,6 +281,17 @@ export default function ShluchimPage() {
           <Clock className="w-3.5 h-3.5" />
           טפסים נטושים / טיוטות ({draftsCount})
         </button>
+
+        {draftsCount > 0 && filterStatus === "DRAFT" && (
+          <button
+            onClick={() => setConfirmClearDrafts(true)}
+            className="mr-auto px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 cursor-pointer shadow-xs active:scale-95"
+            title="מחק את כל הטיוטות והטפסים הנטושים במאגר"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>מחק את כל הטיוטות הנטושות ({draftsCount})</span>
+          </button>
+        )}
       </div>
 
       {/* Search & Filter Toolbar */}
@@ -469,6 +513,16 @@ export default function ShluchimPage() {
                         >
                           {s.blockCheckIn ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
                         </button>
+
+                        {/* Quick Delete Shliach / Draft */}
+                        <button
+                          onClick={() => setDeletingShliach(s)}
+                          title={s.registrationStatus === "DRAFT" ? "מחק טיוטה נטושה זו מהמאגר" : "מחק נרשם זה מהמאגר"}
+                          className="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:text-red-600 hover:bg-red-50 hover:border-red-200 transition-colors cursor-pointer"
+                          aria-label={`מחק את ${s.hebrewName || s.firstName}`}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -580,6 +634,123 @@ export default function ShluchimPage() {
                 }`}
               >
                 {blockingShliach.blockCheckIn ? "הסר חסימה" : "הפעל חסימת קבלה"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Single Shliach / Draft Confirmation Modal */}
+      {deletingShliach && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div className="flex items-center gap-2 text-red-600 font-bold text-base">
+                <Trash2 className="w-5 h-5" />
+                <span>
+                  {deletingShliach.registrationStatus === "DRAFT"
+                    ? "מחיקת טיוטה מהמאגר"
+                    : "מחיקת נרשם מהמערכת"}
+                </span>
+              </div>
+              <button
+                onClick={() => !isDeleting && setDeletingShliach(null)}
+                className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                disabled={isDeleting}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-3.5 bg-red-50/80 rounded-xl border border-red-200 text-slate-800 space-y-1.5">
+              <div className="flex items-center gap-2 font-bold text-sm text-slate-900">
+                <span>{deletingShliach.hebrewName || `${deletingShliach.firstName} ${deletingShliach.lastName}`}</span>
+                {deletingShliach.registrationStatus === "DRAFT" ? (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                    טיוטה
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    נרשם מאומת
+                  </span>
+                )}
+              </div>
+              <div className="text-[11px] text-slate-600 space-y-0.5 pt-1">
+                <div>מקום שליחות: {deletingShliach.city}, {deletingShliach.country}</div>
+                {deletingShliach.email && <div>דוא״ל: {deletingShliach.email}</div>}
+                {deletingShliach.phone && <div>טלפון: {deletingShliach.phone}</div>}
+                {deletingShliach.passportOrId && <div>מזהה/דרכון: {deletingShliach.passportOrId}</div>}
+              </div>
+              {deletingShliach.bedId && (
+                <div className="mt-2 p-2 bg-amber-50 rounded-lg border border-amber-200 text-amber-900 text-[11px] font-medium">
+                  ⚠️ שים לב: שליח זה משובץ ל{deletingShliach.apartmentName || "דירה"} (מיטה {deletingShliach.bedNumber}). מחיקתו תשחרר אוטומטית את המיטה בחזרה למלאי המיטות הפנויות!
+                </div>
+              )}
+            </div>
+
+            <p className="text-slate-600 text-xs leading-relaxed">
+              האם אתה בטוח שברצונך למחוק רשומה זו? פעולה זו היא בלתי הפיכה ותמחק את כל נתוני הרישום לצמיתות.
+            </p>
+
+            <div className="flex justify-end gap-2 pt-2 border-t">
+              <button
+                onClick={() => setDeletingShliach(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 border rounded-xl hover:bg-slate-50 text-slate-700 disabled:opacity-50 cursor-pointer"
+              >
+                ביטול
+              </button>
+              <button
+                onClick={handleDeleteShliach}
+                disabled={isDeleting}
+                className="px-4 py-2 font-bold rounded-xl text-white bg-red-600 hover:bg-red-700 flex items-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isDeleting ? "מוחק..." : "כן, מחק לצמיתות"}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Clear All Drafts Confirmation Modal */}
+      {confirmClearDrafts && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div className="flex items-center gap-2 text-red-600 font-bold text-base">
+                <Trash2 className="w-5 h-5" />
+                <span>מחיקת כל הטיוטות והטפסים הנטושים</span>
+              </div>
+              <button
+                onClick={() => !isClearingDrafts && setConfirmClearDrafts(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                disabled={isClearingDrafts}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-slate-600 text-xs leading-relaxed">
+              פעולה זו תמחק לצמיתות את כל <strong>{draftsCount} הטיוטות הנטושות</strong> מהמאגר.
+              שלוחים שהשלימו את ההרשמה במלואה לא יושפעו כלל.
+            </p>
+
+            <div className="flex justify-end gap-2 pt-2 border-t">
+              <button
+                onClick={() => setConfirmClearDrafts(false)}
+                disabled={isClearingDrafts}
+                className="px-4 py-2 border rounded-xl hover:bg-slate-50 text-slate-700 disabled:opacity-50 cursor-pointer"
+              >
+                ביטול
+              </button>
+              <button
+                onClick={handleClearAllDrafts}
+                disabled={isClearingDrafts}
+                className="px-4 py-2 font-bold rounded-xl text-white bg-red-600 hover:bg-red-700 flex items-center gap-1.5 shadow-sm disabled:opacity-50 cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isClearingDrafts ? "מוחק טיוטות..." : `מחק ${draftsCount} טיוטות`}</span>
               </button>
             </div>
           </div>

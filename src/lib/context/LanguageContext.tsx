@@ -25,7 +25,7 @@ export const translations = {
 
     // Home Page
     traditionalBh: "",
-    datesBanner: "כ״ג – ל׳ בחשוון תשפ״ז • 3 – 10 בנובמבר 2026 • ברוקלין, ניו יורק",
+    datesBanner: "כ״ד – כ״ט בחשוון תשפ״ז • 4 – 9 בנובמבר 2026 • ברוקלין, ניו יורק",
     heroTitle: "כינוס השלוחים העולמי",
     heroSubtitle: "מערך אירוח ולינה במהלך ימי הכינוס",
     heroDescription: "ברוכים הבאים למערכת הרישום והסדרת הלינה לקראת ימי הכינוס. דירות אירוח מרווחות ומסודרות בשכונת קראון הייטס בסמיכות לבית חיינו – 770.",
@@ -46,11 +46,11 @@ export const translations = {
     // FAQ
     faqTitle: "מידע חשוב לקראת ההגעה",
     faq1Q: "מתי ניתן להגיע ולקבל את מפתח הדירה?",
-    faq1A: "עמדת הקבלה תפעל לאורך ימי הכינוס בבניין המוזיאון הסמוך ל770, בהגעתכם יש לגשת לעמדת הקבלה ולהזדהות בשמכם לקבלת המפתח ופרטי החדר.",
+    faq1A: "עמדת הקבלה תפעל לאורך ימי הכינוס בבניין המוזיאון הסמוך ל-770, בהגעתכם יש לגשת לעמדת הקבלה ולהזדהות בשמכם לקבלת המפתח ופרטי החדר.",
     faq2Q: "מה כולל האירוח בדירה?",
     faq2A: "האירוח כולל מיטה מסודרת ומרווחת, כולל כרית ושמיכה, יש להביא מצעים איתכם.",
     faq3Q: "עד מתי ניתן להישאר בדירה?",
-    faq3A: "הדירות נסגרות ביום שלישי בתאריך 10 בנובמבר (ל׳ בחשוון), לא נוכל לספק לינה מעבר לתאריך זה.",
+    faq3A: "הדירות נסגרות ביום שני בתאריך 9 בנובמבר (כ״ט בחשוון), לא נוכל לספק לינה מעבר לתאריך זה.",
 
     // Home Bottom CTA
     bottomCtaTitle: "הבטיחו את מקומכם בימי הכינוס",
@@ -101,7 +101,7 @@ export const translations = {
     // Step 2 Fields
     step2Header: "זמני שהות ובקשות מיוחדות",
     datesNoticeTitle: "תאריכי הכינוס המורשים:",
-    datesNoticeText: "הלינה והאירוח מתקיימים בין התאריכים: 3 – 10 בנובמבר 2026 (כ״ג – ל׳ בחשוון ה׳תשפ״ז).",
+    datesNoticeText: "הלינה והאירוח מתקיימים בין התאריכים: 4 – 9 בנובמבר 2026 (כ״ד – כ״ט בחשוון ה׳תשפ״ז).",
     arrivalDateLabel: "תאריך הגעה משוער",
     dateRangeHint: "",
     arrivalTimeLabel: "שעת הגעה משוערת",
@@ -159,7 +159,7 @@ export const translations = {
     valChildrenNamesRequired: "נא להזין את שמות הילדים המתלווים",
     valPaymentRequired: "נא למלא פרטי אשראי מלאים לתשלום",
     valEmailInvalid: "נא להזין כתובת דוא״ל תקינה",
-    valDatesOutOfRange: "תאריכי הלינה חייבים להיות בטווח הכינוס: 3 עד 10 בנובמבר 2026 (כ״ג – ל׳ בחשוון תשפ״ז)",
+    valDatesOutOfRange: "תאריכי הלינה חייבים להיות בטווח הכינוס: 4 עד 9 בנובמבר 2026 (כ״ד – כ״ט בחשוון תשפ״ז)",
     valDepartureBeforeArrival: "תאריך עזיבה אינו יכול להיות מוקדם מתאריך הגעה",
     valServerSyncError: "שגיאת תקשורת עם שרת הכינוס: הרישום לא נקלט. אנא ודא חיבור תקין לאינטרנט ולחץ שוב על 'בצע תשלום ואשר הרשמה'.",
     submittingOverlayTitle: "מאמת נתונים ושומר את הרישום בשרת...",
@@ -237,7 +237,7 @@ export const translations = {
 
     // Home Page
     traditionalBh: "",
-    datesBanner: "23 – 30 Cheshvan 5787 • November 3 – 10, 2026 • Brooklyn, New York",
+    datesBanner: "24 – 29 Cheshvan 5787 • November 4 – 9, 2026 • Brooklyn, New York",
     heroTitle: "International Conference of Shluchim",
     heroSubtitle: "Hospitality & Housing during the Kinus",
     heroDescription: "Welcome to the registration system for accommodations during the Kinus. Spacious and organized guest apartments located in Crown Heights, within short walking distance of 770.",
@@ -262,7 +262,7 @@ export const translations = {
     faq2Q: "What is included in the apartment accommodations?",
     faq2A: "Accommodations include an orderly and spacious bed, with a pillow and blanket. Please bring your own bed linens.",
     faq3Q: "When is checkout?",
-    faq3A: "Apartments close on Tuesday, November 10 (30 Cheshvan); we cannot provide accommodation beyond this date.",
+    faq3A: "Apartments close on Monday, November 9 (29 Cheshvan); we cannot provide accommodation beyond this date.",
 
     // Home Bottom CTA
     bottomCtaTitle: "Secure Your Place at the Kinus",
@@ -313,7 +313,7 @@ export const translations = {
     // Step 2 Fields
     step2Header: "Dates of Stay & Special Requests",
     datesNoticeTitle: "Authorized Kinus Dates:",
-    datesNoticeText: "Accommodations are provided strictly between: November 3 – 10, 2026 (23 – 30 Cheshvan 5787).",
+    datesNoticeText: "Accommodations are provided strictly between: November 4 – 9, 2026 (24 – 29 Cheshvan 5787).",
     arrivalDateLabel: "Estimated Arrival Date",
     dateRangeHint: "",
     arrivalTimeLabel: "Estimated Arrival Time",
@@ -371,7 +371,7 @@ export const translations = {
     valChildrenNamesRequired: "Please enter accompanying children's names",
     valPaymentRequired: "Please complete all credit card payment fields",
     valEmailInvalid: "Please enter a valid email address",
-    valDatesOutOfRange: "Dates must fall within the Kinus period: November 3 to 10, 2026 (23 – 30 Cheshvan 5787)",
+    valDatesOutOfRange: "Dates must fall within the Kinus period: November 4 to 9, 2026 (24 – 29 Cheshvan 5787)",
     valDepartureBeforeArrival: "Departure date cannot be earlier than arrival date",
     valServerSyncError: "Server communication error: Your registration was not saved. Please check your internet connection and click 'Complete Payment & Confirm' again.",
     submittingOverlayTitle: "Verifying and saving registration to server...",

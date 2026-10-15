@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { AlertCircle } from "lucide-react";
@@ -77,9 +78,9 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="text-center pt-2 space-y-2">
-          <a href="/" className="text-xs text-blue-400 hover:underline block">
+          <Link href="/" className="text-xs text-blue-400 hover:underline block">
             חזרה לדף הראשי
-          </a>
+          </Link>
           <span className="text-[10px] text-slate-500 font-mono block">
             מערכת ניהול {APP_VERSION}
           </span>

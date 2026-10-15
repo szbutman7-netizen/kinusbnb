@@ -329,5 +329,164 @@ describe('StoreManager - Unit Tests', () => {
     expect(allMatching[0].registrationStatus).toBe('COMPLETED');
     expect(allMatching[0].hebrewName).toBe('הרב יוסף קפלן');
   });
+
+  it('should manage form locking and bilingual blocking messages properly', async () => {
+    await dataStore.updateFormSettings({
+      isOpen: false,
+      closedMessageHe: 'ההרשמה לכינוס סגורה כעת',
+      closedMessageEn: 'Kinus registration is currently closed',
+    });
+
+    const settings = dataStore.getFormSettings();
+    expect(settings.isOpen).toBe(false);
+    expect(settings.closedMessageHe).toBe('ההרשמה לכינוס סגורה כעת');
+    expect(settings.closedMessageEn).toBe('Kinus registration is currently closed');
+
+    // Reopen form
+    await dataStore.updateFormSettings({ isOpen: true });
+    expect(dataStore.getFormSettings().isOpen).toBe(true);
+  });
+
+  it('should enforce kinus date ranges between Nov 4 and Nov 9, 2026', () => {
+    expect(DEFAULT_ARRIVAL_DATES).toContain('2026-11-04');
+    expect(DEFAULT_ARRIVAL_DATES).toContain('2026-11-05');
+    expect(DEFAULT_ARRIVAL_DATES).toContain('2026-11-06');
+    expect(DEFAULT_DEPARTURE_DATES).toContain('2026-11-08');
+    expect(DEFAULT_DEPARTURE_DATES).toContain('2026-11-09');
+
+    // Confirm core Kinus dates (Nov 4 - Nov 9) are fully available in allowed dates
+    const coreDates = ['2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08', '2026-11-09'];
+    expect(coreDates.every(d => DEFAULT_ARRIVAL_DATES.includes(d))).toBe(true);
+    expect(coreDates.every(d => DEFAULT_DEPARTURE_DATES.includes(d))).toBe(true);
+  });
+
+  it('should enforce atomic bed assignment, prevent overcapacity, and support release and dismantling', async () => {
+    // 1. Create test apartment with 1 bed
+    const aptId = await dataStore.addApartmentWithBeds({
+      apartmentNumber: 'דירת אימות 101',
+      address: '770 Eastern Parkway',
+      totalBeds: 1,
+      status: 'ACTIVE'
+    }, 1);
+
+    const beds = dataStore.getBeds().filter(b => b.apartmentId === aptId);
+    expect(beds.length).toBe(1);
+    const targetBed = beds[0];
+
+    // 2. Add two shluchim
+    const s1: Shliach = {
+      id: 'shliach-overcap-1',
+      firstName: 'אהרן',
+      lastName: 'כהן',
+      hebrewName: 'אהרן כהן',
+      email: 'aharon@example.com',
+      phone: '0501111111',
+      passportOrId: 'OC-1',
+      city: 'חיפה',
+      country: 'ישראל',
+      arrivalDate: '2026-11-04',
+      departureDate: '2026-11-09',
+      paymentStatus: 'PAID',
+      amountPaid: 30,
+      currency: 'USD',
+      receptionVisible: false,
+      checkedIn: false,
+      blockCheckIn: false,
+      createdAt: new Date().toISOString()
+    };
+    const s2: Shliach = {
+      id: 'shliach-overcap-2',
+      firstName: 'משה',
+      lastName: 'לוי',
+      hebrewName: 'משה לוי',
+      email: 'moshe@example.com',
+      phone: '0502222222',
+      passportOrId: 'OC-2',
+      city: 'באר שבע',
+      country: 'ישראל',
+      arrivalDate: '2026-11-04',
+      departureDate: '2026-11-09',
+      paymentStatus: 'PAID',
+      amountPaid: 30,
+      currency: 'USD',
+      receptionVisible: false,
+      checkedIn: false,
+      blockCheckIn: false,
+      createdAt: new Date().toISOString()
+    };
+    await dataStore.addShliach(s1);
+    await dataStore.addShliach(s2);
+
+    // 3. Assign s1 to targetBed
+    const res1 = await dataStore.assignPlacement(s1.id, targetBed.id, false);
+    expect(res1.success).toBe(true);
+
+    const bedAfterRes1 = dataStore.getBeds().find(b => b.id === targetBed.id);
+    expect(bedAfterRes1?.status).toBe('ASSIGNED');
+    expect(bedAfterRes1?.currentShliachId).toBe(s1.id);
+
+    // 4. Try to assign s2 to SAME bed -> MUST BE PREVENTED (Overcapacity protection)
+    const res2 = await dataStore.assignPlacement(s2.id, targetBed.id, false);
+    expect(res2.success).toBe(false);
+    expect(res2.message).toContain('מיטה זו כבר תפוסה');
+
+    // 5. Unassign s1 -> Bed must become AVAILABLE
+    await dataStore.unassignPlacement(s1.id);
+    const bedAfterUnassign = dataStore.getBeds().find(b => b.id === targetBed.id);
+    expect(bedAfterUnassign?.status).toBe('AVAILABLE');
+    expect(bedAfterUnassign?.currentShliachId).toBeNull();
+
+    // 6. Delete apartment -> Dismantles beds and clears shluchim placements
+    await dataStore.deleteApartment(aptId);
+    const bedsAfterDelete = dataStore.getBeds().filter(b => b.apartmentId === aptId);
+    expect(bedsAfterDelete.length).toBe(0);
+  });
+
+  it('should synchronize reception visibility properly via batch and individual updates', async () => {
+    const aptId = await dataStore.addApartmentWithBeds({
+      apartmentNumber: 'דירת קבלה 202',
+      address: 'Kingston Ave 555',
+      totalBeds: 2,
+      status: 'ACTIVE'
+    }, 2);
+    const beds = dataStore.getBeds().filter(b => b.apartmentId === aptId);
+
+    const shliach: Shliach = {
+      id: 'shliach-reception-sync',
+      firstName: 'זלמן',
+      lastName: 'שניאורסון',
+      hebrewName: 'זלמן שניאורסון',
+      email: 'zalman@example.com',
+      phone: '0503333333',
+      passportOrId: 'REC-1',
+      city: 'קראון הייטס',
+      country: 'ארה"ב',
+      arrivalDate: '2026-11-04',
+      departureDate: '2026-11-09',
+      paymentStatus: 'PAID',
+      amountPaid: 30,
+      currency: 'USD',
+      receptionVisible: false,
+      checkedIn: false,
+      blockCheckIn: false,
+      createdAt: new Date().toISOString()
+    };
+    await dataStore.addShliach(shliach);
+
+    // Initial placement with receptionVisible = false
+    await dataStore.assignPlacement(shliach.id, beds[0].id, false);
+    let currentSh = dataStore.getShluchim().find(s => s.id === shliach.id);
+    expect(currentSh?.receptionVisible).toBe(false);
+
+    // Batch publish placement to reception
+    await dataStore.batchPublishPlacement([shliach.id], true);
+    currentSh = dataStore.getShluchim().find(s => s.id === shliach.id);
+    expect(currentSh?.receptionVisible).toBe(true);
+
+    // Unassign resets receptionVisible to false
+    await dataStore.unassignPlacement(shliach.id);
+    currentSh = dataStore.getShluchim().find(s => s.id === shliach.id);
+    expect(currentSh?.receptionVisible).toBe(false);
+  });
 });
 

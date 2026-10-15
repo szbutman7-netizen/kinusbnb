@@ -86,10 +86,10 @@ export default function ReceptionPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2.5">
             <CheckSquare className="w-6 h-6 text-amber-500" />
-            עמדת קבלה וצ'ק-אין (Reception Desk)
+            עמדת קבלה וצ&apos;ק-אין (Reception Desk)
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            קליטת שלוחים מהירה, איתור מיידי, ביצוע צ'ק-אין, מניעת חסימות והצגת פרטי דירה ושותפים
+            קליטת שלוחים מהירה, איתור מיידי, ביצוע צ&apos;ק-אין, מניעת חסימות והצגת פרטי דירה ושותפים
           </p>
         </div>
       </div>
@@ -201,7 +201,7 @@ export default function ReceptionPage() {
                   onClick={() => handleCheckIn(selectedShliach)}
                   className="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm rounded-xl shadow-lg transition-transform hover:scale-105"
                 >
-                  בצע צ'ק-אין עכשיו
+                  בצע צ&apos;ק-אין עכשיו
                 </button>
               )}
               <button
@@ -330,7 +330,7 @@ export default function ReceptionPage() {
         </div>
       ) : (
         <div className="p-12 text-center bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 text-xs">
-          השתמש בסרגל החיפוש למעלה כדי לאתר שליח ולבצע צ'ק-אין
+          השתמש בסרגל החיפוש למעלה כדי לאתר שליח ולבצע צ&apos;ק-אין
         </div>
       )}
     </div>

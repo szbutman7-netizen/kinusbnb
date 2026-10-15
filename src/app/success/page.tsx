@@ -28,7 +28,7 @@ function SuccessContent() {
     }
 
     const record = dataStore.getShluchim().find(s => s.id === id);
-    if (record && record.paymentStatus === "PAID" && record.registrationStatus === "COMPLETED") {
+    if (record && record.paymentStatus === "PAID" && (record.registrationStatus === "COMPLETED" || !record.registrationStatus)) {
       setShliach(record);
       setIsVerified(true);
       try {
@@ -125,20 +125,37 @@ function SuccessContent() {
 
         {/* Card Body */}
         <div className="p-6 space-y-5 text-white print:text-slate-900 print:bg-white">
-          <div className={`space-y-1 pb-4 border-b border-slate-700/60 print:border-slate-200 ${isRtl ? "text-right" : "text-left"}`}>
-            <span className="text-xs font-semibold text-slate-300 print:text-slate-600">{t("successShliachDetails")}</span>
-            <h2 className="text-xl font-bold text-white print:text-black">
-              {shliach.hebrewName || `${shliach.firstName} ${shliach.lastName}`}
-            </h2>
-            <p className="text-xs text-slate-300 print:text-slate-700 flex items-center gap-1.5 pt-0.5">
-              <MapPin className="w-3.5 h-3.5 text-[#E8D8A8] print:text-slate-700" aria-hidden="true" />
-              <span>{t("successLocationPrefix")}{shliach.city || ""}, {shliach.country || ""}</span>
-            </p>
-            {shliach.passportOrId && (
-              <p className="text-[11px] text-slate-300 print:text-slate-600 font-mono pt-0.5" dir="ltr">
-                {t("successIdPrefix")} {shliach.passportOrId}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-700/60 print:border-slate-200">
+            <div className={`space-y-1 ${isRtl ? "text-right" : "text-left"}`}>
+              <span className="text-xs font-semibold text-slate-300 print:text-slate-600">{t("successShliachDetails")}</span>
+              <h2 className="text-xl font-bold text-white print:text-black">
+                {shliach.hebrewName || `${shliach.firstName} ${shliach.lastName}`}
+              </h2>
+              <p className="text-xs text-slate-300 print:text-slate-700 flex items-center gap-1.5 pt-0.5">
+                <MapPin className="w-3.5 h-3.5 text-[#E8D8A8] print:text-slate-700" aria-hidden="true" />
+                <span>{t("successLocationPrefix")}{shliach.city || ""}, {shliach.country || ""}</span>
               </p>
-            )}
+              {shliach.passportOrId && (
+                <p className="text-[11px] text-slate-300 print:text-slate-600 font-mono pt-0.5" dir="ltr">
+                  {t("successIdPrefix")} {shliach.passportOrId}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col items-center bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm shrink-0 self-center sm:self-auto" data-testid="qr-container">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=4&data=${encodeURIComponent(`https://kinusbed.vercel.app/admin/reception?search=${shliach.passportOrId || shliach.id}`)}`}
+                alt="Registration QR Code"
+                width={100}
+                height={100}
+                className="w-20 h-20 sm:w-24 sm:h-24"
+                data-testid="registration-qr-code"
+              />
+              <span className="text-[9px] text-slate-600 font-mono font-semibold mt-1">
+                {shliach.passportOrId || shliach.id}
+              </span>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
