@@ -125,7 +125,7 @@ function SuccessContent() {
 
         {/* Card Body */}
         <div className="p-6 space-y-5 text-white print:text-slate-900 print:bg-white">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-700/60 print:border-slate-200">
+          <div className="pb-4 border-b border-slate-700/60 print:border-slate-200">
             <div className={`space-y-1 ${isRtl ? "text-right" : "text-left"}`}>
               <span className="text-xs font-semibold text-slate-300 print:text-slate-600">{t("successShliachDetails")}</span>
               <h2 className="text-xl font-bold text-white print:text-black">
@@ -140,21 +140,6 @@ function SuccessContent() {
                   {t("successIdPrefix")} {shliach.passportOrId}
                 </p>
               )}
-            </div>
-
-            <div className="flex flex-col items-center bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm shrink-0 self-center sm:self-auto" data-testid="qr-container">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&margin=4&data=${encodeURIComponent(`https://kinusbed.vercel.app/admin/reception?search=${shliach.passportOrId || shliach.id}`)}`}
-                alt="Registration QR Code"
-                width={100}
-                height={100}
-                className="w-20 h-20 sm:w-24 sm:h-24"
-                data-testid="registration-qr-code"
-              />
-              <span className="text-[9px] text-slate-600 font-mono font-semibold mt-1">
-                {shliach.passportOrId || shliach.id}
-              </span>
             </div>
           </div>
 
@@ -199,13 +184,6 @@ function SuccessContent() {
             </p>
             <p className="text-[11px] leading-relaxed text-amber-100/90 print:text-amber-900 font-light">
               {t("successDisclaimerText")}
-            </p>
-          </div>
-
-          <div className="bg-[#102444]/80 print:bg-slate-50 border border-[#E8D8A8]/20 print:border-slate-300 rounded-xl p-4 text-xs text-slate-200 print:text-slate-800 space-y-1.5">
-            <p className="font-bold text-[#E8D8A8] print:text-slate-900">{t("successArrivalGuideTitle")}</p>
-            <p className="text-[11px] leading-relaxed text-slate-200 print:text-slate-700">
-              {t("successArrivalGuideText")}
             </p>
           </div>
         </div>

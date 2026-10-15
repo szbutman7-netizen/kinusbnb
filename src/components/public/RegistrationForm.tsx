@@ -12,7 +12,7 @@ import { KinusTimePicker } from "@/components/common/KinusTimePicker";
 import { COUNTRIES } from "@/lib/constants/countries";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import { DEFAULT_ARRIVAL_DATES, DEFAULT_DEPARTURE_DATES } from "@/lib/services/dataService";
-import { generateRegistrationConfirmationHtml } from "@/lib/services/emailTemplateHelper";
+import { generateRegistrationConfirmationHtml, renderEmailTemplate } from "@/lib/services/emailTemplateHelper";
 import StripePaymentSection from "./StripePaymentSection";
 import { 
   User, 
@@ -31,8 +31,9 @@ import {
   Baby
 } from "lucide-react";
 
-const KINUS_START_DATE = "2026-11-04";
+const KINUS_START_DATE = "2026-11-03";
 const KINUS_END_DATE = "2026-11-09";
+const ALLOWED_KINUS_DATES = ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
 
 const INITIAL_FORM_DATA = {
   firstName: "",
@@ -428,27 +429,38 @@ export function RegistrationForm() {
       const isEmailEnabled = formSettings?.sendConfirmationEmail ?? true;
       if (newShliach.email && isEmailEnabled) {
         try {
-          const styledHtml = generateRegistrationConfirmationHtml({
-            shliachName: newShliach.hebrewName,
+          const emailData = {
+            shliachName: newShliach.hebrewName || `${newShliach.firstName} ${newShliach.lastName}`,
             city: newShliach.city,
             country: newShliach.country,
             arrivalDate: newShliach.arrivalDate,
             departureDate: newShliach.departureDate,
             registrationId: newShliach.id,
-            totalPrice: newShliach.amountPaid,
+            totalPrice: newShliach.amountPaid || 30,
             specialRequests: newShliach.specialRequests,
             preferredRoommates: newShliach.preferredRoommates,
             childrenNames: newShliach.childrenNames,
             needsChildrenAccommodation: newShliach.needsChildrenAccommodation,
-          });
+          };
+
+          const templates = dataStore.getTemplates();
+          const customTemplate = templates.find((t) => t.id === "template-registration-confirmation");
+
+          const finalSubject = customTemplate?.subject
+            ? renderEmailTemplate(customTemplate.subject, emailData)
+            : "אישור הרשמה לכינוס השלוחים העולמי ה׳תשפ״ז";
+
+          const finalHtml = customTemplate?.htmlContent
+            ? renderEmailTemplate(customTemplate.htmlContent, emailData)
+            : generateRegistrationConfirmationHtml(emailData);
 
           await fetch("/api/email-relay/send", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               to: newShliach.email,
-              subject: "אישור הרשמה לכינוס השלוחים העולמי ה׳תשפ״ז",
-              htmlBody: styledHtml,
+              subject: finalSubject,
+              htmlBody: finalHtml,
             }),
           });
 
@@ -456,8 +468,8 @@ export function RegistrationForm() {
           dataStore.addEmailLog({
             recipientEmail: newShliach.email,
             recipientName: newShliach.hebrewName,
-            subject: "אישור הרשמה לכינוס השלוחים העולמי ה׳תשפ״ז",
-            templateName: "אישור הרשמה וקבלה לתשלום",
+            subject: finalSubject,
+            templateName: customTemplate?.name || "אישור הרשמה וקבלה לתשלום",
             status: "SENT",
           });
         } catch (err: any) {
@@ -521,9 +533,6 @@ export function RegistrationForm() {
                 <h1 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-wide">
                   {t("formTitle")}
                 </h1>
-                <p className="text-slate-200 text-xs mt-0.5 font-light">
-                  {t("formYearSubtitle")}
-                </p>
               </div>
             </div>
           </div>
@@ -607,19 +616,9 @@ export function RegistrationForm() {
               <KinusLogo size={52} variant="emblem" />
             </div>
             <div>
-              {t("formBadge") ? (
-                <span className="text-[#E8D8A8] font-semibold text-xs tracking-widest uppercase block">
-                  {t("formBadge")}
-                </span>
-              ) : null}
               <h1 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-wide">
                 {t("formTitle")}
               </h1>
-              {t("formYearSubtitle") ? (
-                <p className="text-slate-200 text-xs mt-0.5 font-light">
-                  {t("formYearSubtitle")}
-                </p>
-              ) : null}
               {t("formDeadlineNotice") ? (
                 <p className="text-[#E8D8A8] text-xs mt-1 font-medium">
                   {t("formDeadlineNotice")}
@@ -980,7 +979,7 @@ export function RegistrationForm() {
                   required
                   value={formData.arrivalDate}
                   onChange={(val) => setFormData(prev => ({ ...prev, arrivalDate: val }))}
-                  allowedDates={formSettings?.allowedArrivalDates?.length ? formSettings.allowedArrivalDates : DEFAULT_ARRIVAL_DATES}
+                  allowedDates={(formSettings?.allowedArrivalDates?.length ? formSettings.allowedArrivalDates : DEFAULT_ARRIVAL_DATES).filter(d => ALLOWED_KINUS_DATES.includes(d))}
                   placeholder={t("dateSelectPlaceholder")}
                 />
               </div>
@@ -1007,7 +1006,7 @@ export function RegistrationForm() {
                   required
                   value={formData.departureDate}
                   onChange={(val) => setFormData(prev => ({ ...prev, departureDate: val }))}
-                  allowedDates={formSettings?.allowedDepartureDates?.length ? formSettings.allowedDepartureDates : DEFAULT_DEPARTURE_DATES}
+                  allowedDates={(formSettings?.allowedDepartureDates?.length ? formSettings.allowedDepartureDates : DEFAULT_DEPARTURE_DATES).filter(d => ALLOWED_KINUS_DATES.includes(d))}
                   placeholder={t("dateSelectPlaceholder")}
                 />
               </div>

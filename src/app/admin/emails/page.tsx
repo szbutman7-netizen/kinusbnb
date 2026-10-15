@@ -147,6 +147,9 @@ export default function EmailsPage() {
     }
   };
 
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const [saveTemplateSuccess, setSaveTemplateSuccess] = useState(false);
+
   const handleSelectTemplate = (id: string) => {
     setSelectedTemplateId(id);
     const tmpl = templates.find((t) => t.id === id);
@@ -156,14 +159,24 @@ export default function EmailsPage() {
     }
   };
 
-  const handleSaveTemplate = () => {
+  const handleSaveTemplate = async () => {
     if (currentTemplate) {
-      actions.saveTemplate({
-        ...currentTemplate,
-        subject,
-        htmlContent,
-      });
-      alert("התבנית נשמרה בהצלחה!");
+      setIsSavingTemplate(true);
+      setSaveTemplateSuccess(false);
+      try {
+        await actions.saveTemplate({
+          ...currentTemplate,
+          subject,
+          htmlContent,
+        });
+        setSaveTemplateSuccess(true);
+        setTimeout(() => setSaveTemplateSuccess(false), 3500);
+      } catch (err: any) {
+        console.error("Failed to save template:", err);
+        alert("שגיאה בעת שמירת התבנית: " + (err?.message || "נא לנסות שנית"));
+      } finally {
+        setIsSavingTemplate(false);
+      }
     }
   };
 
@@ -475,12 +488,32 @@ export default function EmailsPage() {
               </button>
             </div>
 
-            <button
-              onClick={handleSaveTemplate}
-              className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs"
-            >
-              שמור תבנית
-            </button>
+            <div className="flex items-center gap-2">
+              {saveTemplateSuccess && (
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5" />
+                  נשמר בהצלחה בענן!
+                </span>
+              )}
+              <button
+                type="button"
+                disabled={isSavingTemplate}
+                onClick={handleSaveTemplate}
+                className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer"
+              >
+                {isSavingTemplate ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    שומר תבנית...
+                  </>
+                ) : (
+                  <>
+                    <Check className="w-3.5 h-3.5" />
+                    שמור תבנית
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Subject Field */}

@@ -446,10 +446,20 @@ export default function ShluchimPage() {
                         className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${
                           s.paymentStatus === "PAID"
                             ? "bg-emerald-100 text-emerald-800"
+                            : s.paymentStatus === "REFUNDED"
+                            ? "bg-rose-100 text-rose-800"
+                            : s.paymentStatus === "EXEMPT"
+                            ? "bg-purple-100 text-purple-800"
                             : "bg-amber-100 text-amber-800"
                         }`}
                       >
-                        {s.paymentStatus === "PAID" ? "שולם ($180)" : "ממתין לתשלום"}
+                        {s.paymentStatus === "PAID"
+                          ? `שולם ($${s.amountPaid != null ? s.amountPaid : 30})`
+                          : s.paymentStatus === "REFUNDED"
+                          ? "זוכה (Refunded)"
+                          : s.paymentStatus === "EXEMPT"
+                          ? "פטור מתשלום"
+                          : "ממתין לתשלום"}
                       </span>
                     </td>
 

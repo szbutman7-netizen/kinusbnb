@@ -42,7 +42,7 @@ interface StripeChargeItem {
 }
 
 export default function PaymentsPage() {
-  const { shluchim, isLoaded } = useKinusData();
+  const { shluchim, actions, isLoaded } = useKinusData();
   const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"accommodation" | "all_stripe">("accommodation");
@@ -163,8 +163,8 @@ export default function PaymentsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          paymentIntentId: refundModalItem.paymentIntentId,
-          chargeId: refundModalItem.chargeId,
+          paymentIntentId: refundModalItem.paymentIntentId || undefined,
+          chargeId: !refundModalItem.paymentIntentId ? refundModalItem.chargeId : undefined,
           shliachId: refundModalItem.shliachId,
           amount: Number(refundAmount) || refundModalItem.maxAmount,
           reason: refundReason,
@@ -173,6 +173,21 @@ export default function PaymentsPage() {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Refund failed");
+
+      if (refundModalItem.shliachId) {
+        actions.updateShliach(refundModalItem.shliachId, {
+          paymentStatus: "REFUNDED",
+        });
+      } else if (refundModalItem.paymentIntentId) {
+        const matching = shluchim.find(
+          (s) => s.stripePaymentIntentId === refundModalItem.paymentIntentId
+        );
+        if (matching) {
+          actions.updateShliach(matching.id, {
+            paymentStatus: "REFUNDED",
+          });
+        }
+      }
 
       setRefundFeedback({
         success: true,
@@ -617,8 +632,9 @@ export default function PaymentsPage() {
                                   onClick={() =>
                                     handleOpenRefundModal({
                                       id: c.id,
-                                      chargeId: c.id,
+                                      chargeId: !c.paymentIntentId ? c.id : undefined,
                                       paymentIntentId: c.paymentIntentId || undefined,
+                                      shliachId: (c.metadata?.shliachId as string) || undefined,
                                       name: c.customerName || c.customerEmail || c.id,
                                       maxAmount: c.amount,
                                     })

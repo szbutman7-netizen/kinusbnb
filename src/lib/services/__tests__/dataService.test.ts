@@ -347,17 +347,20 @@ describe('StoreManager - Unit Tests', () => {
     expect(dataStore.getFormSettings().isOpen).toBe(true);
   });
 
-  it('should enforce kinus date ranges between Nov 4 and Nov 9, 2026', () => {
+  it('should enforce kinus date ranges between Tuesday Nov 3 and Monday Nov 9, 2026', () => {
+    expect(DEFAULT_ARRIVAL_DATES).toContain('2026-11-03');
     expect(DEFAULT_ARRIVAL_DATES).toContain('2026-11-04');
     expect(DEFAULT_ARRIVAL_DATES).toContain('2026-11-05');
     expect(DEFAULT_ARRIVAL_DATES).toContain('2026-11-06');
     expect(DEFAULT_DEPARTURE_DATES).toContain('2026-11-08');
     expect(DEFAULT_DEPARTURE_DATES).toContain('2026-11-09');
 
-    // Confirm core Kinus dates (Nov 4 - Nov 9) are fully available in allowed dates
-    const coreDates = ['2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08', '2026-11-09'];
+    // Confirm full Kinus dates (Nov 3 - Nov 9) are fully available in allowed dates
+    const coreDates = ['2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06', '2026-11-07', '2026-11-08', '2026-11-09'];
     expect(coreDates.every(d => DEFAULT_ARRIVAL_DATES.includes(d))).toBe(true);
     expect(coreDates.every(d => DEFAULT_DEPARTURE_DATES.includes(d))).toBe(true);
+    expect(DEFAULT_ARRIVAL_DATES.length).toBe(7);
+    expect(DEFAULT_DEPARTURE_DATES.length).toBe(7);
   });
 
   it('should enforce atomic bed assignment, prevent overcapacity, and support release and dismantling', async () => {

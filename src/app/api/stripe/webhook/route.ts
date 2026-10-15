@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/lib/firebase/config";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { generateRegistrationConfirmationHtml } from "@/lib/services/emailTemplateHelper";
+import { generateRegistrationConfirmationHtml, renderEmailTemplate } from "@/lib/services/emailTemplateHelper";
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -88,15 +88,41 @@ export async function POST(req: Request) {
         // Autonomous confirmation email dispatch
         if (metadata.email) {
           try {
-            const htmlContent = generateRegistrationConfirmationHtml({
+            const emailData = {
               shliachName: metadata.shliachName || "הרב השליח",
               city: metadata.city || "",
               country: metadata.country || "",
               arrivalDate: "2026-11-03",
-              departureDate: "2026-11-10",
+              departureDate: "2026-11-09",
               registrationId: shliachId,
               totalPrice: Number(metadata.amountPaid) || 30,
-            });
+            };
+
+            let customSubject = "אישור הרשמה לכינוס השלוחים העולמי ה׳תשפ״ז";
+            let htmlContent = "";
+
+            try {
+              const tmplSnap = await getDoc(doc(db, "settings", "emailTemplates"));
+              if (tmplSnap.exists()) {
+                const data = tmplSnap.data();
+                const list = data.templates as any[];
+                const customTmpl = Array.isArray(list)
+                  ? list.find((t: any) => t.id === "template-registration-confirmation")
+                  : data["template-registration-confirmation"];
+                if (customTmpl?.htmlContent) {
+                  htmlContent = renderEmailTemplate(customTmpl.htmlContent, emailData);
+                  if (customTmpl.subject) {
+                    customSubject = renderEmailTemplate(customTmpl.subject, emailData);
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn("Could not load custom email template from Firestore in webhook:", err);
+            }
+
+            if (!htmlContent) {
+              htmlContent = generateRegistrationConfirmationHtml(emailData);
+            }
 
             const defaultScriptUrl = "https://script.google.com/macros/s/AKfycbxro-pYisdZbi_3s591yS4MnuX7UMzoAmPM210u1Q7Tli4tABa_0yrJe28tNBRfguE2Aw/exec";
             const scriptUrl = process.env.GOOGLE_APPS_SCRIPT_WEBAPP_URL || defaultScriptUrl;
@@ -108,7 +134,7 @@ export async function POST(req: Request) {
               body: JSON.stringify({
                 apiKey,
                 to: metadata.email,
-                subject: "אישור הרשמה לכינוס השלוחים העולמי ה׳תשפ״ז",
+                subject: customSubject,
                 htmlBody: htmlContent,
               }),
             });

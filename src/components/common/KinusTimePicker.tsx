@@ -242,9 +242,6 @@ export function KinusTimePicker({
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 px-1">
             <div className="flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-[#E8D8A8]" />
-              <span className="text-xs font-bold text-[#E8D8A8]">
-                {isHe ? "גלגל בחירת שעה" : "Time Wheel Picker"}
-              </span>
             </div>
             <span
               dir="ltr"
@@ -368,11 +365,7 @@ export function KinusTimePicker({
           </div>
 
           {/* Footer Controls */}
-          <div className="flex items-center justify-between pt-1 gap-2">
-            <span className="text-[11px] text-slate-400">
-              {isHe ? "קפיצות של 15 דקות" : "15-minute steps"}
-            </span>
-
+          <div className="flex items-center justify-end pt-1 gap-2">
             <button
               type="button"
               onClick={() => {

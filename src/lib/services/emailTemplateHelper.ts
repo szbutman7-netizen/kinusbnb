@@ -12,6 +12,54 @@ export interface RegistrationEmailData {
   needsChildrenAccommodation?: boolean;
 }
 
+export function renderEmailTemplate(
+  templateContent: string,
+  data: RegistrationEmailData & {
+    apartmentName?: string;
+    apartmentAddress?: string;
+    bedNumber?: string | number;
+    entryCode?: string;
+  }
+): string {
+  if (!templateContent) return "";
+  const {
+    shliachName = "",
+    city = "",
+    country = "",
+    arrivalDate = "",
+    departureDate = "",
+    registrationId = "",
+    totalPrice = 30,
+    specialRequests = "",
+    preferredRoommates = "",
+    childrenNames = [],
+    apartmentName = "",
+    apartmentAddress = "",
+    bedNumber = "",
+    entryCode = "",
+  } = data;
+
+  const locationStr = [city, country].filter(Boolean).join(", ") || city || "";
+
+  return templateContent
+    .replace(/{shliach_name}/g, shliachName)
+    .replace(/{city}/g, locationStr)
+    .replace(/{country}/g, country)
+    .replace(/{arrival_date}/g, arrivalDate)
+    .replace(/{departure_date}/g, departureDate)
+    .replace(/{totalPrice}/g, String(totalPrice))
+    .replace(/{amount}/g, String(totalPrice))
+    .replace(/{registrationId}/g, registrationId)
+    .replace(/{specialRequests}/g, specialRequests)
+    .replace(/{preferredRoommates}/g, preferredRoommates)
+    .replace(/{roommates}/g, preferredRoommates)
+    .replace(/{childrenNames}/g, childrenNames.join(", "))
+    .replace(/{apartment_name}/g, apartmentName)
+    .replace(/{apartment_address}/g, apartmentAddress)
+    .replace(/{bed_number}/g, String(bedNumber))
+    .replace(/{entry_code}/g, entryCode);
+}
+
 export function generateRegistrationConfirmationHtml(data: RegistrationEmailData): string {
   const {
     shliachName,

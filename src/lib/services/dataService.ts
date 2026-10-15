@@ -28,8 +28,8 @@ import {
   INITIAL_EMAIL_TEMPLATES 
 } from "./mockData";
 
-export const DEFAULT_ARRIVAL_DATES = ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
-export const DEFAULT_DEPARTURE_DATES = ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
+export const DEFAULT_ARRIVAL_DATES = ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
+export const DEFAULT_DEPARTURE_DATES = ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
 export const OFFICIAL_DOMAIN = "https://kinusbed.vercel.app/";
 export const AUTHORIZED_DOMAIN = "kinusbed.vercel.app";
 
@@ -185,6 +185,22 @@ class StoreManager {
           }
         }, (err) => {
           console.warn("Public settings listener notice (using local cache):", err);
+        });
+
+        const templatesDoc = doc(db, "settings", "emailTemplates");
+        onSnapshot(templatesDoc, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data();
+            if (Array.isArray(data.templates) && data.templates.length > 0) {
+              this.templates = data.templates;
+              if (typeof window !== "undefined") {
+                localStorage.setItem("kinus_templates", JSON.stringify(this.templates));
+              }
+              this.notify();
+            }
+          }
+        }, (err) => {
+          console.warn("Public email templates listener notice (using local cache):", err);
         });
       }
     } catch (e) {
@@ -1506,14 +1522,44 @@ class StoreManager {
     this.persist();
   }
 
-  public saveTemplate(template: EmailTemplate): void {
+  public async saveTemplate(template: EmailTemplate): Promise<void> {
+    const updatedTemplate = {
+      ...template,
+      updatedAt: new Date().toISOString(),
+    };
     const idx = this.templates.findIndex(t => t.id === template.id);
     if (idx !== -1) {
-      this.templates[idx] = { ...template, updatedAt: new Date().toISOString() };
+      this.templates[idx] = updatedTemplate;
     } else {
-      this.templates.push({ ...template, createdAt: new Date().toISOString() });
+      this.templates.push({ ...updatedTemplate, createdAt: new Date().toISOString() });
     }
     this.persist();
+
+    this.logAudit(
+      'UPDATE_SETTINGS',
+      'Settings',
+      `template-${template.id}`,
+      null,
+      updatedTemplate,
+      `עדכון תבנית דוא״ל: ${template.name}`,
+      'עדכון תבנית'
+    );
+
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        await setDoc(
+          doc(db, "settings", "emailTemplates"),
+          {
+            templates: this.templates,
+            [template.id]: updatedTemplate,
+            updatedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+      }
+    } catch (e) {
+      console.warn("Firestore saveTemplate fallback to local:", e);
+    }
   }
 
   // --- User Profiles ---

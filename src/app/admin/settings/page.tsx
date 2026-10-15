@@ -33,7 +33,6 @@ const ALL_POSSIBLE_DATES = [
   { value: "2026-11-07", label: "שבת קודש, כ״ז בחשוון (7 בנובמבר)" },
   { value: "2026-11-08", label: "יום ראשון (באנקעט), כ״ח בחשוון (8 בנובמבר)" },
   { value: "2026-11-09", label: "יום שני, כ״ט בחשוון (9 בנובמבר)" },
-  { value: "2026-11-10", label: "יום שלישי, ל׳ בחשוון (10 בנובמבר)" },
 ];
 
 export default function SystemSettingsPage() {
@@ -67,11 +66,14 @@ export default function SystemSettingsPage() {
       setIsOpen(formSettings.isOpen ?? true);
       setClosedMessageHe(formSettings.closedMessageHe || "");
       setClosedMessageEn(formSettings.closedMessageEn || "");
+      const validVals = ALL_POSSIBLE_DATES.map((d) => d.value);
       if (formSettings.allowedArrivalDates?.length) {
-        setAllowedArrivalDates(formSettings.allowedArrivalDates);
+        const filtered = formSettings.allowedArrivalDates.filter((d) => validVals.includes(d));
+        setAllowedArrivalDates(filtered.length ? filtered : [...DEFAULT_ARRIVAL_DATES]);
       }
       if (formSettings.allowedDepartureDates?.length) {
-        setAllowedDepartureDates(formSettings.allowedDepartureDates);
+        const filtered = formSettings.allowedDepartureDates.filter((d) => validVals.includes(d));
+        setAllowedDepartureDates(filtered.length ? filtered : [...DEFAULT_DEPARTURE_DATES]);
       }
     }
   }, [formSettings]);

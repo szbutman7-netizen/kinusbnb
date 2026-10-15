@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { db } from "@/lib/firebase/config";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeSecret && !stripeSecret.includes("placeholder")
@@ -27,9 +27,14 @@ export async function POST(req: Request) {
       );
     }
 
+    // Stripe allows specifying EITHER payment_intent OR charge, never both.
     const refundParams: Stripe.RefundCreateParams = {};
-    if (paymentIntentId) refundParams.payment_intent = paymentIntentId;
-    if (chargeId) refundParams.charge = chargeId;
+    if (paymentIntentId) {
+      refundParams.payment_intent = paymentIntentId;
+    } else if (chargeId) {
+      refundParams.charge = chargeId;
+    }
+
     if (amount) refundParams.amount = Math.round(Number(amount) * 100); // convert USD to cents
     if (reason && ["duplicate", "fraudulent", "requested_by_customer"].includes(reason)) {
       refundParams.reason = reason as Stripe.RefundCreateParams.Reason;
@@ -39,12 +44,12 @@ export async function POST(req: Request) {
 
     // If shliachId provided or found, update Firestore
     const targetShliachId = shliachId || refund.metadata?.shliachId;
-    if (targetShliachId) {
-      try {
+    try {
+      const now = new Date().toISOString();
+      if (targetShliachId) {
         const shliachRef = doc(db, "shluchim", targetShliachId);
         const snap = await getDoc(shliachRef);
         if (snap.exists()) {
-          const now = new Date().toISOString();
           await updateDoc(shliachRef, {
             paymentStatus: "REFUNDED",
             refundedAt: now,
@@ -53,9 +58,26 @@ export async function POST(req: Request) {
             updatedAt: now,
           });
         }
-      } catch (dbErr) {
-        console.error("Error updating Firestore on refund:", dbErr);
+      } else if (paymentIntentId || refund.payment_intent) {
+        const pi = paymentIntentId || (typeof refund.payment_intent === "string" ? refund.payment_intent : refund.payment_intent?.id);
+        if (pi) {
+          const q = query(collection(db, "shluchim"), where("stripePaymentIntentId", "==", pi));
+          const qSnap = await getDocs(q);
+          if (!qSnap.empty) {
+            for (const d of qSnap.docs) {
+              await updateDoc(d.ref, {
+                paymentStatus: "REFUNDED",
+                refundedAt: now,
+                refundId: refund.id,
+                refundAmount: refund.amount / 100,
+                updatedAt: now,
+              });
+            }
+          }
+        }
       }
+    } catch (dbErr) {
+      console.error("Error updating Firestore on refund:", dbErr);
     }
 
     return NextResponse.json({

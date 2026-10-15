@@ -300,8 +300,22 @@ export default function ReceptionPage() {
               <div className="p-3 bg-slate-50 rounded-xl border flex items-center justify-between">
                 <div>
                   <span className="text-slate-400 block text-[10px]">סטטוס תשלום:</span>
-                  <span className={`font-bold ${selectedShliach.paymentStatus === 'PAID' ? "text-emerald-700" : "text-amber-700"}`}>
-                    {selectedShliach.paymentStatus === 'PAID' ? "שולם ($180)" : "ממתין לתשלום"}
+                  <span className={`font-bold ${
+                    selectedShliach.paymentStatus === 'PAID'
+                      ? "text-emerald-700"
+                      : selectedShliach.paymentStatus === 'REFUNDED'
+                      ? "text-rose-700"
+                      : selectedShliach.paymentStatus === 'EXEMPT'
+                      ? "text-purple-700"
+                      : "text-amber-700"
+                  }`}>
+                    {selectedShliach.paymentStatus === 'PAID'
+                      ? `שולם ($${selectedShliach.amountPaid != null ? selectedShliach.amountPaid : 30})`
+                      : selectedShliach.paymentStatus === 'REFUNDED'
+                      ? "זוכה (Refunded)"
+                      : selectedShliach.paymentStatus === 'EXEMPT'
+                      ? "פטור מתשלום"
+                      : "ממתין לתשלום"}
                   </span>
                 </div>
                 {selectedShliach.checkedIn && (
