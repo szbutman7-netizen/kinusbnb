@@ -160,6 +160,9 @@ export const translations = {
     valEmailInvalid: "נא להזין כתובת דוא״ל תקינה",
     valDatesOutOfRange: "תאריכי הלינה חייבים להיות בטווח הכינוס: 3 עד 10 בנובמבר 2026 (כ״ג – ל׳ בחשוון תשפ״ז)",
     valDepartureBeforeArrival: "תאריך עזיבה אינו יכול להיות מוקדם מתאריך הגעה",
+    valServerSyncError: "שגיאת תקשורת עם שרת הכינוס: הרישום לא נקלט. אנא ודא חיבור תקין לאינטרנט ולחץ שוב על 'בצע תשלום ואשר הרשמה'.",
+    submittingOverlayTitle: "מאמת נתונים ושומר את הרישום בשרת...",
+    submittingOverlayDesc: "הנתונים נשמרים כעת בשרת הכינוס בצורה מאובטחת. אנא אל תסגור את העמוד ואל תרענן את הדפדפן.",
     valGenericError: "אירעה שגיאה בעת ההרשמה, אנא נסו שוב.",
 
     // Success Page
@@ -365,6 +368,9 @@ export const translations = {
     valEmailInvalid: "Please enter a valid email address",
     valDatesOutOfRange: "Dates must fall within the Kinus period: November 3 to 10, 2026 (23 – 30 Cheshvan 5787)",
     valDepartureBeforeArrival: "Departure date cannot be earlier than arrival date",
+    valServerSyncError: "Server communication error: Your registration was not saved. Please check your internet connection and click 'Complete Payment & Confirm' again.",
+    submittingOverlayTitle: "Verifying and saving registration to server...",
+    submittingOverlayDesc: "Your registration is being securely saved to the server. Please do not close or refresh this page.",
     valGenericError: "An error occurred during registration, please try again.",
 
     // Success Page

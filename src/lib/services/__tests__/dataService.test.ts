@@ -276,5 +276,58 @@ describe('StoreManager - Unit Tests', () => {
     expect(conflictRes.success).toBe(false);
     expect(conflictRes.error).toContain('שגיאת התנגשות (Conflict)');
   });
+
+  it('should save draft and merge record by passportOrId upon completion', async () => {
+    // 1. Save draft on Step 1 -> Step 2
+    const draft = await dataStore.saveShliachDraft({
+      firstName: 'יוסף',
+      lastName: 'קפלן',
+      hebrewName: 'יוסף קפלן',
+      passportOrId: 'PASSPORT-ABC-999',
+      phone: '0501239999',
+      email: 'kaplan@example.com',
+      city: 'לונדון',
+      country: 'אנגליה',
+      age: 40,
+    });
+
+    expect(draft.id).toBeDefined();
+    expect(draft.registrationStatus).toBe('DRAFT');
+
+    const drafts = dataStore.getShluchim().filter(s => s.registrationStatus === 'DRAFT');
+    expect(drafts.find(d => d.passportOrId === 'PASSPORT-ABC-999')).toBeDefined();
+
+    // 2. Complete registration with same passportOrId (even with slightly different case/spaces)
+    const completedShliach: Shliach = {
+      id: 'temporary-new-id',
+      firstName: 'יוסף',
+      lastName: 'קפלן',
+      hebrewName: 'הרב יוסף קפלן',
+      passportOrId: ' passport-abc-999 ',
+      phone: '0501239999',
+      email: 'kaplan@example.com',
+      city: 'לונדון',
+      country: 'אנגליה',
+      age: 40,
+      arrivalDate: '2026-11-04',
+      departureDate: '2026-11-09',
+      paymentStatus: 'PAID',
+      amountPaid: 30,
+      currency: 'USD',
+      receptionVisible: false,
+      checkedIn: false,
+      blockCheckIn: false,
+      createdAt: new Date().toISOString()
+    };
+
+    await dataStore.addShliach(completedShliach);
+
+    // Verify it merged into the existing draft record id rather than creating a duplicate
+    const allMatching = dataStore.getShluchim().filter(s => s.passportOrId.trim().toUpperCase() === 'PASSPORT-ABC-999');
+    expect(allMatching.length).toBe(1);
+    expect(allMatching[0].id).toBe(draft.id);
+    expect(allMatching[0].registrationStatus).toBe('COMPLETED');
+    expect(allMatching[0].hebrewName).toBe('הרב יוסף קפלן');
+  });
 });
 

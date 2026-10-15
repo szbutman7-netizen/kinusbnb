@@ -55,6 +55,35 @@ const INITIAL_FORM_DATA = {
   cardCvc: "",
 };
 
+function getEmailSuggestion(email: string): string | null {
+  const clean = email.trim().toLowerCase();
+  const parts = clean.split("@");
+  if (parts.length !== 2) return null;
+  const [local, domain] = parts;
+  if (!local || !domain) return null;
+
+  const TYPO_MAP: Record<string, string> = {
+    "gmai.com": "gmail.com",
+    "gamil.com": "gmail.com",
+    "gmial.com": "gmail.com",
+    "gmaill.com": "gmail.com",
+    "gmaik.com": "gmail.com",
+    "hotmai.com": "hotmail.com",
+    "hotmial.com": "hotmail.com",
+    "hotmaill.com": "hotmail.com",
+    "yaho.com": "yahoo.com",
+    "yahooo.com": "yahoo.com",
+    "outlok.com": "outlook.com",
+    "outloo.com": "outlook.com",
+    "outllok.com": "outlook.com",
+    "iclud.com": "icloud.com",
+    "icoud.com": "icloud.com",
+  };
+
+  const suggestion = TYPO_MAP[domain];
+  return suggestion ? `${local}@${suggestion}` : null;
+}
+
 export function RegistrationForm() {
   const router = useRouter();
   const { t, language, isRtl } = useLanguage();
@@ -65,7 +94,6 @@ export function RegistrationForm() {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [savedShliachId, setSavedShliachId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
   // Ensure state resets to step 1 whenever component mounts
@@ -73,6 +101,20 @@ export function RegistrationForm() {
     setStep(1);
     setIsSubmitting(false);
   }, []);
+
+  // Prevent accidental tab closure or navigation while submission is saving to server
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isSubmitting) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isSubmitting]);
+
+  const suggestedEmail = getEmailSuggestion(formData.email);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -270,6 +312,13 @@ export function RegistrationForm() {
     setIsSubmitting(true);
     setErrorMessage("");
 
+    // Verify online network connection before attempting submission
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      setErrorMessage(t("valServerSyncError"));
+      setIsSubmitting(false);
+      return;
+    }
+
     const cleanCard = formData.cardNumber.replace(/\D/g, "");
     if (!cleanCard || cleanCard.length < 15) {
       setErrorMessage(t("valPaymentRequired"));
@@ -325,7 +374,8 @@ export function RegistrationForm() {
         createdAt: new Date().toISOString(),
       };
 
-      await dataStore.addShliach(newShliach);
+      // Ensure persistence with strict server sync requirement before granting completion
+      await dataStore.addShliach(newShliach, { requireServerSync: true });
 
       // Attempt sending confirmation email via relay if email provided and feature is enabled
       const isEmailEnabled = formSettings?.sendConfirmationEmail ?? true;
@@ -383,7 +433,11 @@ export function RegistrationForm() {
 
       router.push(`/success?id=${shliachId}`);
     } catch (err: any) {
-      setErrorMessage(err.message || t("valGenericError"));
+      if (err?.message === "SERVER_SYNC_FAILED") {
+        setErrorMessage(t("valServerSyncError"));
+      } else {
+        setErrorMessage(err.message || t("valGenericError"));
+      }
       setIsSubmitting(false);
     }
   };
@@ -879,6 +933,22 @@ export function RegistrationForm() {
                   />
                   {isEmailValid && <ValidBadge />}
                 </div>
+                {suggestedEmail && (
+                  <div className="mt-2 p-2.5 rounded-xl bg-amber-500/15 border border-amber-400/35 text-amber-300 text-xs flex items-center justify-between gap-3 animate-fade-in shadow-sm">
+                    <span className="font-medium">
+                      {language === "he"
+                        ? `האם התכוונת ל-${suggestedEmail}?`
+                        : `Did you mean ${suggestedEmail}?`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, email: suggestedEmail }))}
+                      className="px-2.5 py-1 rounded-lg bg-amber-400/25 hover:bg-amber-400/40 text-amber-200 text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap active:scale-95 border border-amber-400/40"
+                    >
+                      {language === "he" ? "תקן לכתובת זו" : "Apply fix"}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </fieldset>
@@ -1257,6 +1327,30 @@ export function RegistrationForm() {
           )}
         </div>
       </form>
+
+      {/* Submitting & Saving Lock Overlay */}
+      {isSubmitting && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("submittingOverlayTitle")}
+          className="fixed inset-0 z-50 bg-[#07142A]/85 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+        >
+          <div className="bg-[#102444] border border-[#E8D8A8]/30 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl text-center space-y-4 animate-scale-up">
+            <div className="w-16 h-16 rounded-full bg-[#E8D8A8]/10 border border-[#E8D8A8]/40 flex items-center justify-center mx-auto text-[#E8D8A8] shadow-[0_0_30px_rgba(232,216,168,0.25)]">
+              <Loader2 className="w-8 h-8 animate-spin" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-base sm:text-lg font-bold text-white font-serif tracking-wide">
+                {t("submittingOverlayTitle")}
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed font-light">
+                {t("submittingOverlayDesc")}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

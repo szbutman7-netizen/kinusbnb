@@ -764,18 +764,25 @@ class StoreManager {
 
     this.persist();
 
-    try {
-      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-        await setDoc(doc(db, "shluchim", savedShliach.id), savedShliach, { merge: true });
+    if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          await setDoc(doc(db, "shluchim", savedShliach.id), savedShliach, { merge: true });
+          break;
+        } catch (e) {
+          if (attempt === 2) {
+            console.warn("Firestore sync fallback for draft after retries:", e);
+          } else {
+            await new Promise(r => setTimeout(r, 400));
+          }
+        }
       }
-    } catch (e) {
-      console.warn("Firestore sync fallback for draft:", e);
     }
 
     return savedShliach;
   }
 
-  public async addShliach(shliach: Shliach): Promise<void> {
+  public async addShliach(shliach: Shliach, options?: { requireServerSync?: boolean }): Promise<void> {
     const cleanId = this.normalizePassportOrId(shliach.passportOrId);
     const existing = cleanId ? this.findShliachByPassportOrId(cleanId) : undefined;
     
@@ -809,13 +816,31 @@ class StoreManager {
       'הוספת נרשם'
     );
 
-    // Firestore attempt
-    try {
-      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-        await setDoc(doc(db, "shluchim", shliach.id), shliach, { merge: true });
+    // Firestore commit with retry logic
+    if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+      let lastError: any = null;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          await setDoc(doc(db, "shluchim", shliach.id), shliach, { merge: true });
+          lastError = null;
+          break;
+        } catch (e) {
+          lastError = e;
+          console.warn(`Firestore sync attempt ${attempt} failed:`, e);
+          if (attempt < 3) {
+            await new Promise(r => setTimeout(r, attempt * 500));
+          }
+        }
       }
-    } catch (e) {
-      console.warn("Firestore sync fallback to local:", e);
+
+      if (lastError) {
+        if (options?.requireServerSync) {
+          console.error("Firestore sync failed completely after 3 attempts during registration submission:", lastError);
+          throw new Error("SERVER_SYNC_FAILED");
+        } else {
+          console.warn("Firestore sync fallback to local store:", lastError);
+        }
+      }
     }
   }
 
