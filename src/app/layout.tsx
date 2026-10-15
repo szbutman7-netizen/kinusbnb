@@ -20,9 +20,12 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kinusbed.vercel.app/"),
-  title: "כינוס השלוחים העולמי - מערכת רישום ואירוח | International Conference of Shluchim",
-  description: "הרשמה, סליקה ושיבוץ לינה לשלוחי חב\"ד בכינוס השלוחים העולמי - Official Kinus Housing & Registration",
+  metadataBase: new URL("https://kinusbed.vercel.app"),
+  title: {
+    default: "כינוס השלוחים העולמי - מערכת רישום ואירוח | International Conference of Shluchim",
+    template: "%s | כינוס השלוחים העולמי",
+  },
+  description: "הרשמה, סליקה ושיבוץ לינה לשלוחי חב\"ד בכינוס השלוחים העולמי תשפ\"ה - Official Kinus Housing & Registration",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -30,20 +33,51 @@ export const metadata: Metadata = {
     title: "כינוס השלוחים",
   },
   alternates: {
-    canonical: "https://kinusbed.vercel.app/",
+    canonical: "https://kinusbed.vercel.app",
   },
   openGraph: {
-    title: "כינוס השלוחים העולמי - מערכת רישום ואירוח | International Conference of Shluchim",
-    description: "הרשמה, סליקה ושיבוץ לינה לשלוחי חב\"ד בכינוס השלוחים העולמי",
-    url: "https://kinusbed.vercel.app/",
-    siteName: "Kinus HaShluchim Housing",
+    title: "כינוס השלוחים העולמי - מערכת רישום ואירוח",
+    description: "הרשמה, סליקה ושיבוץ לינה לשלוחי חב\"ד בכינוס השלוחים העולמי תשפ\"ה • Official Kinus Housing & Registration",
+    url: "https://kinusbed.vercel.app",
+    siteName: "כינוס השלוחים העולמי",
     locale: "he_IL",
     type: "website",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "כינוס השלוחים העולמי - מערכת רישום ואירוח",
+        type: "image/jpeg",
+      },
+      {
+        url: "/og-square.jpg",
+        width: 600,
+        height: 600,
+        alt: "כינוס השלוחים העולמי",
+        type: "image/jpeg",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "כינוס השלוחים העולמי - מערכת רישום ואירוח",
+    description: "הרשמה, סליקה ושיבוץ לינה לשלוחי חב\"ד בכינוס השלוחים העולמי תשפ\"ה",
+    images: ["/og-image.jpg"],
   },
   icons: {
-    icon: "/assets/kinus-emblem.svg",
-    shortcut: "/assets/kinus-emblem.svg",
-    apple: "/assets/kinus-emblem.svg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/assets/kinus-emblem.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+  },
+  other: {
+    "image_src": "https://kinusbed.vercel.app/og-image.jpg",
   },
 };
 
