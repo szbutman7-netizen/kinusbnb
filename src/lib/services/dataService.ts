@@ -114,19 +114,33 @@ class StoreManager {
         localStorage.setItem("kinus_users", JSON.stringify(this.users));
       }
 
-      this.templates = storedTemplates ? JSON.parse(storedTemplates) : [...INITIAL_EMAIL_TEMPLATES];
+      try {
+        const parsedTemplates = storedTemplates ? JSON.parse(storedTemplates) : null;
+        this.templates = Array.isArray(parsedTemplates) && parsedTemplates.length > 0
+          ? parsedTemplates
+          : [...INITIAL_EMAIL_TEMPLATES];
+      } catch {
+        this.templates = [...INITIAL_EMAIL_TEMPLATES];
+      }
+
       // Ensure default registration confirmation template is always updated to the latest luxury design
       const regTmplIdx = this.templates.findIndex(t => t.id === "template-registration-confirmation");
       const defaultRegTmpl = INITIAL_EMAIL_TEMPLATES.find(t => t.id === "template-registration-confirmation");
       if (defaultRegTmpl) {
         if (regTmplIdx === -1) {
           this.templates.unshift(defaultRegTmpl);
-        } else if (!this.templates[regTmplIdx].htmlContent.includes("https://kinusbed.vercel.app/assets/kinus-emblem.svg")) {
-          // If stored template is the old design, upgrade it to the new design
+        } else if (!this.templates[regTmplIdx]?.htmlContent?.includes("https://kinusbed.vercel.app/assets/kinus-emblem.svg")) {
+          // If stored template is the old design or invalid, upgrade it to the new design
           this.templates[regTmplIdx] = { ...defaultRegTmpl };
         }
       }
-      this.emailLogs = storedLogs ? JSON.parse(storedLogs) : [];
+
+      try {
+        const parsedLogs = storedLogs ? JSON.parse(storedLogs) : [];
+        this.emailLogs = Array.isArray(parsedLogs) ? parsedLogs : [];
+      } catch {
+        this.emailLogs = [];
+      }
       this.contactMessages = storedMessages ? JSON.parse(storedMessages) : [];
       
       const parsedSettings = storedFormSettings ? JSON.parse(storedFormSettings) : null;
@@ -191,8 +205,19 @@ class StoreManager {
         onSnapshot(templatesDoc, (snap) => {
           if (snap.exists()) {
             const data = snap.data();
+            let loadedTemplates: EmailTemplate[] = [];
             if (Array.isArray(data.templates) && data.templates.length > 0) {
-              this.templates = data.templates;
+              loadedTemplates = data.templates;
+            } else if (data) {
+              const candidateTemplates = Object.values(data).filter(
+                (v): v is EmailTemplate => !!v && typeof v === "object" && typeof (v as any).id === "string" && typeof (v as any).htmlContent === "string"
+              );
+              if (candidateTemplates.length > 0) {
+                loadedTemplates = candidateTemplates;
+              }
+            }
+            if (loadedTemplates.length > 0) {
+              this.templates = loadedTemplates;
               if (typeof window !== "undefined") {
                 localStorage.setItem("kinus_templates", JSON.stringify(this.templates));
               }

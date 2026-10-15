@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useKinusData } from "@/lib/hooks/useKinusData";
 import { EmailTemplate, Shliach } from "@/types";
+import { INITIAL_EMAIL_TEMPLATES } from "@/lib/services/mockData";
 import { 
   Mail, 
   Send, 
@@ -24,31 +25,45 @@ import { escapeHtml } from "@/lib/utils/sanitize";
 export default function EmailsPage() {
   const { templates, emailLogs, shluchim, formSettings, actions, isLoaded } = useKinusData();
 
+  // Safely fallback to initial templates if empty or loading
+  const safeTemplates = Array.isArray(templates) && templates.length > 0 
+    ? templates 
+    : INITIAL_EMAIL_TEMPLATES;
+
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
     "template-registration-confirmation"
   );
 
-  const currentTemplate = templates.find((t) => t.id === selectedTemplateId) || templates[0];
+  const currentTemplate = safeTemplates.find((t) => t.id === selectedTemplateId) || safeTemplates[0];
 
-  const [subject, setSubject] = useState(currentTemplate?.subject || "");
-  const [htmlContent, setHtmlContent] = useState(currentTemplate?.htmlContent || "");
+  const [subject, setSubject] = useState<string>(currentTemplate?.subject || "");
+  const [htmlContent, setHtmlContent] = useState<string>(currentTemplate?.htmlContent || "");
   const [recipientFilter, setRecipientFilter] = useState<"ALL" | "PLACED" | "UNPLACED" | "PAID">("ALL");
   const [isSending, setIsSending] = useState(false);
   const [sendProgress, setSendProgress] = useState<{ current: number; total: number } | null>(null);
   const [previewTab, setPreviewTab] = useState<"CODE" | "PREVIEW">("PREVIEW");
   const [remainingDailyQuota, setRemainingDailyQuota] = useState(1485);
 
-  // Sync state whenever templates are loaded or selectedTemplateId changes
-  useEffect(() => {
-    if (currentTemplate) {
-      setSubject(currentTemplate.subject);
-      setHtmlContent(currentTemplate.htmlContent);
-    }
-  }, [selectedTemplateId, currentTemplate?.subject, currentTemplate?.htmlContent]);
-
   // Auto-send confirmation toggle
   const [autoEmailEnabled, setAutoEmailEnabled] = useState(formSettings?.sendConfirmationEmail ?? true);
   const [isSavingToggle, setIsSavingToggle] = useState(false);
+
+  // Test email state
+  const [testEmailAddress, setTestEmailAddress] = useState("");
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  // Save template state (must be at top level to obey React Hook Rules)
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const [saveTemplateSuccess, setSaveTemplateSuccess] = useState(false);
+
+  // Sync state whenever templates are loaded or selectedTemplateId changes
+  useEffect(() => {
+    if (currentTemplate) {
+      setSubject(currentTemplate.subject || "");
+      setHtmlContent(currentTemplate.htmlContent || "");
+    }
+  }, [selectedTemplateId, currentTemplate?.subject, currentTemplate?.htmlContent]);
 
   useEffect(() => {
     if (formSettings?.sendConfirmationEmail !== undefined) {
@@ -56,13 +71,8 @@ export default function EmailsPage() {
     }
   }, [formSettings?.sendConfirmationEmail]);
 
-  // Test email state
-  const [testEmailAddress, setTestEmailAddress] = useState("");
-  const [isSendingTest, setIsSendingTest] = useState(false);
-  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
-
   if (!isLoaded) {
-    return <div className="p-8 text-center text-slate-500">טוען ממשק מיילים...</div>;
+    return <div className="p-8 text-center text-slate-500 font-medium">טוען ממשק מיילים...</div>;
   }
 
   const handleToggleAutoEmail = async () => {
@@ -80,6 +90,8 @@ export default function EmailsPage() {
     }
   };
 
+  const safeHtml = typeof htmlContent === "string" ? htmlContent : (currentTemplate?.htmlContent || "");
+
   const handleSendTestEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!testEmailAddress || !testEmailAddress.includes("@")) {
@@ -90,7 +102,7 @@ export default function EmailsPage() {
     setIsSendingTest(true);
     setTestResult(null);
 
-    const testHtml = htmlContent
+    const testHtml = safeHtml
       .replace(/{shliach_name}/g, "הרב ישראל מאיר לאו")
       .replace(/{city}/g, "תל אביב - יפו")
       .replace(/{apartment_name}/g, "דירה 1 - מונטגומרי 740")
@@ -147,15 +159,12 @@ export default function EmailsPage() {
     }
   };
 
-  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
-  const [saveTemplateSuccess, setSaveTemplateSuccess] = useState(false);
-
   const handleSelectTemplate = (id: string) => {
     setSelectedTemplateId(id);
-    const tmpl = templates.find((t) => t.id === id);
+    const tmpl = safeTemplates.find((t) => t.id === id);
     if (tmpl) {
-      setSubject(tmpl.subject);
-      setHtmlContent(tmpl.htmlContent);
+      setSubject(tmpl.subject || "");
+      setHtmlContent(tmpl.htmlContent || "");
     }
   };
 
@@ -167,7 +176,7 @@ export default function EmailsPage() {
         await actions.saveTemplate({
           ...currentTemplate,
           subject,
-          htmlContent,
+          htmlContent: safeHtml,
         });
         setSaveTemplateSuccess(true);
         setTimeout(() => setSaveTemplateSuccess(false), 3500);
@@ -180,9 +189,10 @@ export default function EmailsPage() {
     }
   };
 
-  // Target Recipients
-  const targetRecipients = shluchim.filter((s) => {
-    if (!s.email) return false;
+  // Safe recipients list
+  const safeShluchim = Array.isArray(shluchim) ? shluchim : [];
+  const targetRecipients = safeShluchim.filter((s) => {
+    if (!s || !s.email) return false;
     if (recipientFilter === "PLACED") return !!s.bedId;
     if (recipientFilter === "UNPLACED") return !s.bedId;
     if (recipientFilter === "PAID") return s.paymentStatus === "PAID";
@@ -190,8 +200,17 @@ export default function EmailsPage() {
   });
 
   // Render HTML preview with replacement for first recipient or sample
-  const sampleShliach = targetRecipients[0] || shluchim[0];
-  const renderedPreview = htmlContent
+  const sampleShliach = targetRecipients[0] || safeShluchim[0] || {
+    hebrewName: "הרב מנחם מענדל",
+    city: "פריז",
+    apartmentName: "דירה 1 - מונטגומרי 740",
+    apartmentAddress: "740 Montgomery St, Brooklyn",
+    bedNumber: 1,
+    arrivalDate: "03/11",
+    departureDate: "10/11",
+  };
+
+  const renderedPreview = safeHtml
     .replace(/{shliach_name}/g, escapeHtml(sampleShliach?.hebrewName || "הרב מנחם מענדל"))
     .replace(/{city}/g, escapeHtml(sampleShliach?.city || "פריז"))
     .replace(/{apartment_name}/g, escapeHtml(sampleShliach?.apartmentName || "דירה 1 - מונטגומרי 740"))
@@ -219,39 +238,39 @@ export default function EmailsPage() {
     for (let i = 0; i < targetRecipients.length; i += CHUNK_SIZE) {
       const chunk = targetRecipients.slice(i, i + CHUNK_SIZE);
 
-      for (const shliach of chunk) {
-        const personalizedHtml = htmlContent
-          .replace(/{shliach_name}/g, escapeHtml(shliach.hebrewName || `${shliach.firstName} ${shliach.lastName}`))
-          .replace(/{city}/g, escapeHtml(shliach.city))
-          .replace(/{apartment_name}/g, escapeHtml(shliach.apartmentName || "דירת אירוח"))
-          .replace(/{apartment_address}/g, escapeHtml(shliach.apartmentAddress || ""))
-          .replace(/{bed_number}/g, escapeHtml(String(shliach.bedNumber || "")))
-          .replace(/{arrival_date}/g, escapeHtml(shliach.arrivalDate))
-          .replace(/{departure_date}/g, escapeHtml(shliach.departureDate));
+      for (const s of chunk) {
+        const personalizedHtml = safeHtml
+          .replace(/{shliach_name}/g, escapeHtml(s.hebrewName || `${s.firstName || ""} ${s.lastName || ""}`.trim()))
+          .replace(/{city}/g, escapeHtml(s.city || ""))
+          .replace(/{apartment_name}/g, escapeHtml(s.apartmentName || "דירת אירוח"))
+          .replace(/{apartment_address}/g, escapeHtml(s.apartmentAddress || ""))
+          .replace(/{bed_number}/g, escapeHtml(String(s.bedNumber || "")))
+          .replace(/{arrival_date}/g, escapeHtml(s.arrivalDate || ""))
+          .replace(/{departure_date}/g, escapeHtml(s.departureDate || ""));
 
         try {
           const res = await fetch("/api/email-relay/send", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              to: shliach.email,
+              to: s.email,
               subject: subject,
               htmlBody: personalizedHtml,
             }),
           });
 
-          const data = await res.json();
+          await res.json();
           actions.addEmailLog({
-            recipientEmail: shliach.email,
-            recipientName: shliach.hebrewName,
+            recipientEmail: s.email,
+            recipientName: s.hebrewName || `${s.firstName || ""} ${s.lastName || ""}`.trim(),
             subject: subject,
             templateName: currentTemplate?.name,
             status: "SENT",
           });
         } catch (err: any) {
           actions.addEmailLog({
-            recipientEmail: shliach.email,
-            recipientName: shliach.hebrewName,
+            recipientEmail: s.email,
+            recipientName: s.hebrewName || `${s.firstName || ""} ${s.lastName || ""}`.trim(),
             subject: subject,
             templateName: currentTemplate?.name,
             status: "FAILED",
@@ -274,6 +293,8 @@ export default function EmailsPage() {
     setSendProgress(null);
     alert(`שליחת ${sentCount} מיילים הסתיימה בהצלחה!`);
   };
+
+  const safeLogs = Array.isArray(emailLogs) ? emailLogs : [];
 
   return (
     <div className="space-y-6">
@@ -381,7 +402,7 @@ export default function EmailsPage() {
               <button
                 type="submit"
                 disabled={isSendingTest || !testEmailAddress.trim()}
-                className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+                className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
               >
                 {isSendingTest ? (
                   <>
@@ -402,17 +423,17 @@ export default function EmailsPage() {
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3 text-xs">
             <h3 className="font-bold text-slate-900 text-sm">בחר תבנית מייל</h3>
             <div className="space-y-2">
-              {templates.map((tmpl) => (
+              {safeTemplates.map((tmpl) => (
                 <button
                   key={tmpl.id}
                   onClick={() => handleSelectTemplate(tmpl.id)}
-                  className={`w-full p-3 rounded-xl border text-right transition-all ${
+                  className={`w-full p-3 rounded-xl border text-right transition-all cursor-pointer ${
                     selectedTemplateId === tmpl.id
                       ? "bg-blue-50 border-blue-400 font-bold text-blue-950"
                       : "border-slate-200 hover:bg-slate-50 text-slate-700"
                   }`}
                 >
-                  <span className="block">{tmpl.name}</span>
+                  <span className="block">{tmpl.name || tmpl.id}</span>
                   <span className="text-[10px] text-slate-400 font-normal">{tmpl.subject}</span>
                 </button>
               ))}
@@ -432,10 +453,10 @@ export default function EmailsPage() {
                 onChange={(e) => setRecipientFilter(e.target.value as any)}
                 className="w-full p-2.5 border rounded-xl bg-white"
               >
-                <option value="ALL">כל השלוחים הרשומים ({shluchim.length})</option>
-                <option value="PLACED">שלוחים ששובצו בלבד ({shluchim.filter(s => !!s.bedId).length})</option>
-                <option value="UNPLACED">שלוחים שטרם שובצו ({shluchim.filter(s => !s.bedId).length})</option>
-                <option value="PAID">שלוחים ששילמו בלבד ({shluchim.filter(s => s.paymentStatus === 'PAID').length})</option>
+                <option value="ALL">כל השלוחים הרשומים ({safeShluchim.length})</option>
+                <option value="PLACED">שלוחים ששובצו בלבד ({safeShluchim.filter(s => !!s?.bedId).length})</option>
+                <option value="UNPLACED">שלוחים שטרם שובצו ({safeShluchim.filter(s => !s?.bedId).length})</option>
+                <option value="PAID">שלוחים ששילמו בלבד ({safeShluchim.filter(s => s?.paymentStatus === 'PAID').length})</option>
               </select>
             </div>
 
@@ -447,7 +468,7 @@ export default function EmailsPage() {
             <button
               onClick={handleSendEmails}
               disabled={isSending || targetRecipients.length === 0}
-              className="w-full py-3 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-md transition-all disabled:opacity-40"
+              className="w-full py-3 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-md transition-all disabled:opacity-40 cursor-pointer"
             >
               {isSending ? (
                 <>
@@ -470,7 +491,7 @@ export default function EmailsPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPreviewTab("PREVIEW")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer ${
                   previewTab === "PREVIEW" ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-700"
                 }`}
               >
@@ -479,7 +500,7 @@ export default function EmailsPage() {
               </button>
               <button
                 onClick={() => setPreviewTab("CODE")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer ${
                   previewTab === "CODE" ? "bg-blue-900 text-white" : "bg-slate-100 text-slate-700"
                 }`}
               >
@@ -551,7 +572,7 @@ export default function EmailsPage() {
                 בלוק HTML מלא
               </label>
               <textarea
-                value={htmlContent}
+                value={safeHtml}
                 onChange={(e) => setHtmlContent(e.target.value)}
                 rows={16}
                 dir="ltr"
@@ -576,7 +597,7 @@ export default function EmailsPage() {
           יומן שליחות אחרונות (Email Logs)
         </h3>
 
-        {emailLogs.length === 0 ? (
+        {safeLogs.length === 0 ? (
           <div className="py-6 text-center text-slate-400 text-xs">
             טרם נשלחו מיילים במערכת
           </div>
@@ -593,21 +614,34 @@ export default function EmailsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {emailLogs.slice(0, 10).map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-50">
-                    <td className="p-3 font-bold text-slate-900">{log.recipientName}</td>
-                    <td className="p-3 font-mono text-[11px] text-slate-600">{log.recipientEmail}</td>
-                    <td className="p-3 text-slate-700">{log.subject}</td>
-                    <td className="p-3 text-slate-500 text-[11px]">{log.sentAt.replace("T", " ").slice(0, 16)}</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        log.status === "SENT" ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
-                      }`}>
-                        {log.status === "SENT" ? "נשלח בהצלחה" : "נכשל"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {safeLogs.slice(0, 15).map((log) => {
+                  let formattedDate = "";
+                  try {
+                    if (typeof log?.sentAt === "string") {
+                      formattedDate = log.sentAt.replace("T", " ").slice(0, 16);
+                    } else if (log?.sentAt) {
+                      formattedDate = new Date(log.sentAt).toLocaleString("he-IL");
+                    }
+                  } catch {
+                    formattedDate = "";
+                  }
+
+                  return (
+                    <tr key={log.id || `${log.recipientEmail}-${Math.random()}`} className="hover:bg-slate-50">
+                      <td className="p-3 font-bold text-slate-900">{log.recipientName || "—"}</td>
+                      <td className="p-3 font-mono text-[11px] text-slate-600">{log.recipientEmail || "—"}</td>
+                      <td className="p-3 text-slate-700">{log.subject || "—"}</td>
+                      <td className="p-3 text-slate-500 text-[11px]">{formattedDate}</td>
+                      <td className="p-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          log.status === "SENT" ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
+                        }`}>
+                          {log.status === "SENT" ? "נשלח בהצלחה" : "נכשל"}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
