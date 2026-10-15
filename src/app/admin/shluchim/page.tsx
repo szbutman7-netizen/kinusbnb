@@ -107,6 +107,84 @@ export default function ShluchimPage() {
     }
   };
 
+  const handleExportCSV = () => {
+    if (!shluchim || shluchim.length === 0) return;
+    const headers = [
+      "מזהה",
+      "סטטוס רישום",
+      "שם מלא (עברית)",
+      "שם פרטי (אנגלית)",
+      "שם משפחה (אנגלית)",
+      "גיל",
+      "תעודת זהות / דרכון",
+      "עיר",
+      "מדינה",
+      "טלפון",
+      "אימייל",
+      "תאריך הגעה",
+      "שעת הגעה",
+      "תאריך עזיבה",
+      "שעת עזיבה",
+      "סטטוס תשלום",
+      "סכום ששולם ($)",
+      "שותפים מבוקשים",
+      "בקשות מיוחדות",
+      "לינת ילדים",
+      "שמות ילדים",
+      "דירה משובצת",
+      "מיטה משובצת",
+      "צ'ק-אין בוצע?",
+      "זמן רישום",
+    ];
+
+    const rows = filteredShluchim.map((s) => [
+      s.id,
+      s.registrationStatus === "DRAFT" ? "טופס נטוש / טיוטה" : "הושלם",
+      s.hebrewName || "",
+      s.firstName || "",
+      s.lastName || "",
+      s.age || "",
+      s.passportOrId || "",
+      s.city || "",
+      s.country || "",
+      s.phone || "",
+      s.email || "",
+      s.arrivalDate || "",
+      s.arrivalTime || "",
+      s.departureDate || "",
+      s.departureTime || "",
+      s.paymentStatus || "",
+      s.amountPaid || 0,
+      s.preferredRoommates || "",
+      s.specialRequests || "",
+      s.needsChildrenAccommodation ? "כן" : "לא",
+      (s.childrenNames || []).join(", "),
+      s.apartmentName || "",
+      s.bedNumber || "",
+      s.checkedIn ? "כן" : "לא",
+      s.createdAt || "",
+    ]);
+
+    const csvContent =
+      "\uFEFF" +
+      [
+        headers.join(","),
+        ...rows.map((row) =>
+          row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
+        ),
+      ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `shluchim_export_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -120,8 +198,16 @@ export default function ShluchimPage() {
             חיפוש חכם, ניהול תשלומים, מעקב קליטה, חסימות הגעה והערות מנהל
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 text-xs font-bold hover:bg-emerald-100 transition-all shadow-xs cursor-pointer active:scale-95"
+            title="הורד קובץ גיליון אקסל / CSV עם כל השלוחים המסוננים"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
+            <span>ייצוא לאקסל / Sheets</span>
+          </button>
+          <span className="text-xs font-bold text-slate-700 bg-slate-100 px-3.5 py-2 rounded-xl border">
             {filteredShluchim.length} מתוך {shluchim.length} שלוחים
           </span>
         </div>
