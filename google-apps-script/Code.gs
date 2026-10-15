@@ -20,6 +20,7 @@
  */
 
 const SECRET_API_KEY = "KINUS_RELAY_SECRET_KEY_770";
+const DEFAULT_SPREADSHEET_ID = "1sUD4p-e84Edhu86KT0IiemlOuhiFknq9pfr1TygkllU";
 
 // כותרות העמודות בגיליון
 const SHEET_HEADERS = [
@@ -112,13 +113,18 @@ function doPost(e) {
  */
 function syncShliachToSheet(shliach, spreadsheetId) {
   let ss;
-  if (spreadsheetId) {
-    ss = SpreadsheetApp.openById(spreadsheetId);
+  const targetId = spreadsheetId || DEFAULT_SPREADSHEET_ID;
+  if (targetId) {
+    try {
+      ss = SpreadsheetApp.openById(targetId);
+    } catch (err) {
+      console.warn("Could not open by ID, trying getActiveSpreadsheet:", err);
+      ss = SpreadsheetApp.getActiveSpreadsheet();
+    }
   } else {
     try {
       ss = SpreadsheetApp.getActiveSpreadsheet();
     } catch (e) {
-      // אם הסקריפט לא מקושר ישירות לגיליון ולא סופק ID
       throw new Error("No active spreadsheet found. Please bind script to sheet or provide spreadsheetId.");
     }
   }
