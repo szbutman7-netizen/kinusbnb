@@ -30,13 +30,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         console.error("Failed to parse saved user", e);
       }
-    } else {
-      // Default dev super admin for instant smooth demo access
-      const defaultUser = dataStore.getUsers()[0];
-      if (defaultUser) {
-        setUser(defaultUser);
-        localStorage.setItem("kinus_auth_user", JSON.stringify(defaultUser));
-      }
     }
     setIsLoading(false);
   }, []);
@@ -53,7 +46,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Check Whitelist
       const registeredUsers = dataStore.getUsers();
-      const matched = registeredUsers.find(u => u.email.toLowerCase() === email && u.isActive);
+      let matched = registeredUsers.find(u => u.email.toLowerCase() === email && u.isActive);
+
+      // Failsafe: primary administrator szbutman7@gmail.com is always authorized as SUPER_ADMIN
+      if (!matched && email === "szbutman7@gmail.com") {
+        const ownerUser: UserProfile = {
+          id: "user-szbutman7",
+          email: "szbutman7@gmail.com",
+          displayName: result.user.displayName || "זלמן בוטמן (מנהל ראשי)",
+          role: "SUPER_ADMIN",
+          isActive: true,
+          screenAccess: {
+            shluchim: "EDIT",
+            apartments: "EDIT",
+            placement: "EDIT",
+            reception: "EDIT",
+            emails: "EDIT",
+            users: "EDIT",
+          }
+        };
+        await dataStore.addUser(ownerUser);
+        matched = ownerUser;
+      }
 
       if (!matched) {
         await fbSignOut(auth);
@@ -63,8 +77,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
       }
 
+      // Sync display name if user has one in Google account
+      if (result.user.displayName && matched.email === "szbutman7@gmail.com" && matched.displayName !== result.user.displayName) {
+        matched.displayName = result.user.displayName;
+      }
+
       // Update lastLogin
-      dataStore.updateUser(matched.id, { lastLoginAt: new Date().toISOString() });
+      await dataStore.updateUser(matched.id, { 
+        displayName: matched.displayName,
+        lastLoginAt: new Date().toISOString() 
+      });
       setUser(matched);
       localStorage.setItem("kinus_auth_user", JSON.stringify(matched));
       return { success: true, message: `ברוך הבא, ${matched.displayName}` };

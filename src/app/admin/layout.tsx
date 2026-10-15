@@ -20,6 +20,7 @@ import {
   MessageSquare
 } from "lucide-react";
 import { useState } from "react";
+import { KinusLogo } from "@/components/common/KinusLogo";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -62,9 +63,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar for Desktop */}
       <aside className="hidden md:flex md:w-64 flex-col bg-slate-900 text-white border-l border-slate-800">
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-600 text-amber-300 font-black text-xl flex items-center justify-center shadow-md">
-            770
-          </div>
+          <KinusLogo size={40} variant="emblem" className="shrink-0" />
           <div>
             <h1 className="font-bold text-sm tracking-tight text-white">
               כינוס השלוחים
@@ -134,9 +133,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Mobile Header */}
       <header className="md:hidden bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 text-amber-300 font-bold flex items-center justify-center text-sm">
-            770
-          </div>
+          <KinusLogo size={32} variant="emblem" className="shrink-0" />
           <span className="font-bold text-sm">כינוס השלוחים - ניהול</span>
         </div>
         <button

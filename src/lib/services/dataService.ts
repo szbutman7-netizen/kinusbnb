@@ -74,7 +74,42 @@ class StoreManager {
       this.shluchim = storedShluchim ? JSON.parse(storedShluchim) : INITIAL_SHLUCHIM;
       this.apartments = storedApts ? JSON.parse(storedApts) : INITIAL_APARTMENTS;
       this.beds = storedBeds ? JSON.parse(storedBeds) : INITIAL_BEDS;
-      this.users = storedUsers ? JSON.parse(storedUsers) : INITIAL_USERS;
+      this.users = storedUsers ? JSON.parse(storedUsers) : [...INITIAL_USERS];
+
+      // Failsafe: ensure primary super admin szbutman7@gmail.com is always present and active
+      const primaryEmail = "szbutman7@gmail.com";
+      const existingSuper = this.users.find(u => u.email.toLowerCase() === primaryEmail);
+      if (!existingSuper) {
+        this.users.unshift({
+          id: "user-szbutman7",
+          email: primaryEmail,
+          displayName: "זלמן בוטמן (מנהל ראשי)",
+          role: "SUPER_ADMIN",
+          isActive: true,
+          screenAccess: {
+            shluchim: "EDIT",
+            apartments: "EDIT",
+            placement: "EDIT",
+            reception: "EDIT",
+            emails: "EDIT",
+            users: "EDIT",
+          }
+        });
+        localStorage.setItem("kinus_users", JSON.stringify(this.users));
+      } else if (existingSuper.role !== "SUPER_ADMIN" || !existingSuper.isActive) {
+        existingSuper.role = "SUPER_ADMIN";
+        existingSuper.isActive = true;
+        existingSuper.screenAccess = {
+          shluchim: "EDIT",
+          apartments: "EDIT",
+          placement: "EDIT",
+          reception: "EDIT",
+          emails: "EDIT",
+          users: "EDIT",
+        };
+        localStorage.setItem("kinus_users", JSON.stringify(this.users));
+      }
+
       this.templates = storedTemplates ? JSON.parse(storedTemplates) : INITIAL_EMAIL_TEMPLATES;
       this.emailLogs = storedLogs ? JSON.parse(storedLogs) : [];
       this.contactMessages = storedMessages ? JSON.parse(storedMessages) : [];
@@ -459,22 +494,46 @@ class StoreManager {
   }
 
   // --- User Profiles ---
-  public addUser(user: UserProfile): void {
+  public async addUser(user: UserProfile): Promise<void> {
     this.users.push(user);
     this.persist();
+
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        await setDoc(doc(db, "users", user.id), user);
+      }
+    } catch (e) {
+      console.warn("Firestore addUser fallback:", e);
+    }
   }
 
-  public updateUser(id: string, updates: Partial<UserProfile>): void {
+  public async updateUser(id: string, updates: Partial<UserProfile>): Promise<void> {
     const idx = this.users.findIndex(u => u.id === id);
     if (idx !== -1) {
       this.users[idx] = { ...this.users[idx], ...updates };
       this.persist();
+
+      try {
+        if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+          await updateDoc(doc(db, "users", id), updates);
+        }
+      } catch (e) {
+        console.warn("Firestore updateUser fallback:", e);
+      }
     }
   }
 
-  public deleteUser(id: string): void {
+  public async deleteUser(id: string): Promise<void> {
     this.users = this.users.filter(u => u.id !== id);
     this.persist();
+
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        await deleteDoc(doc(db, "users", id));
+      }
+    } catch (e) {
+      console.warn("Firestore deleteUser fallback:", e);
+    }
   }
 
   // --- Contact Messages ---

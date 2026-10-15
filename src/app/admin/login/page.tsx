@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
-import { Shield, Sparkles, LogIn, Lock, CheckCircle, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { KinusLogo } from "@/components/common/KinusLogo";
 import { APP_VERSION } from "@/version";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { loginWithGoogle, loginAsDemoUser, user } = useAuth();
+  const { loginWithGoogle } = useAuth();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,17 +26,12 @@ export default function AdminLoginPage() {
     }
   };
 
-  const handleDemoLogin = (role: "SUPER_ADMIN" | "HOUSING_MANAGER" | "RECEPTION_STAFF") => {
-    loginAsDemoUser(role);
-    router.push("/admin");
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-900 px-4 py-12" dir="rtl">
       <div className="max-w-md w-full space-y-8 bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-blue-600 text-amber-300 flex items-center justify-center font-black text-2xl mx-auto shadow-lg mb-4">
-            770
+          <div className="flex justify-center mb-4">
+            <KinusLogo size={80} variant="emblem" className="drop-shadow-2xl" />
           </div>
           <h2 className="text-2xl font-black text-white">
             כניסת צוות וניהול הכינוס
@@ -56,7 +52,7 @@ export default function AdminLoginPage() {
           <button
             onClick={handleGoogleLogin}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-slate-100 transition-all shadow-md disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-white text-slate-900 font-bold text-sm hover:bg-slate-100 transition-all shadow-md disabled:opacity-50 cursor-pointer"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -78,52 +74,6 @@ export default function AdminLoginPage() {
             </svg>
             {loading ? "מתחבר..." : "התחברות באמצעות חשבון Google"}
           </button>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-700" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-slate-800 text-slate-400">
-                או התחברות מהירה לפי תפקיד לבדיקה:
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-2.5">
-            <button
-              onClick={() => handleDemoLogin("SUPER_ADMIN")}
-              className="w-full py-2.5 px-3 bg-slate-700/80 hover:bg-slate-700 border border-slate-600 rounded-xl text-xs font-semibold text-white flex items-center justify-between transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-amber-400" />
-                מנהל על (SUPER ADMIN)
-              </span>
-              <span className="text-[11px] text-slate-400">כל ההרשאות</span>
-            </button>
-
-            <button
-              onClick={() => handleDemoLogin("HOUSING_MANAGER")}
-              className="w-full py-2.5 px-3 bg-slate-700/80 hover:bg-slate-700 border border-slate-600 rounded-xl text-xs font-semibold text-white flex items-center justify-between transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-blue-400" />
-                מנהל שיבוץ ודירות (HOUSING)
-              </span>
-              <span className="text-[11px] text-slate-400">דירות, נרשמים, שיבוץ</span>
-            </button>
-
-            <button
-              onClick={() => handleDemoLogin("RECEPTION_STAFF")}
-              className="w-full py-2.5 px-3 bg-slate-700/80 hover:bg-slate-700 border border-slate-600 rounded-xl text-xs font-semibold text-white flex items-center justify-between transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-emerald-400" />
-                דייל עמדת קבלה (RECEPTION)
-              </span>
-              <span className="text-[11px] text-slate-400">קבלה וצ'ק-אין בלבד</span>
-            </button>
-          </div>
         </div>
 
         <div className="text-center pt-2 space-y-2">

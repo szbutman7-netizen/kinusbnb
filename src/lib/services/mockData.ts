@@ -217,6 +217,21 @@ export const INITIAL_BEDS: Bed[] = [
 
 export const INITIAL_USERS: UserProfile[] = [
   {
+    id: "user-szbutman7",
+    email: "szbutman7@gmail.com",
+    displayName: "זלמן בוטמן (מנהל ראשי)",
+    role: "SUPER_ADMIN",
+    isActive: true,
+    screenAccess: {
+      shluchim: "EDIT",
+      apartments: "EDIT",
+      placement: "EDIT",
+      reception: "EDIT",
+      emails: "EDIT",
+      users: "EDIT",
+    }
+  },
+  {
     id: "user-superadmin",
     email: "admin@kinus.org",
     displayName: "מנהל ראשי",
