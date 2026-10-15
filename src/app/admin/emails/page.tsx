@@ -234,6 +234,8 @@ export default function EmailsPage() {
 
     const CHUNK_SIZE = 25;
     let sentCount = 0;
+    let successCount = 0;
+    let failedCount = 0;
 
     for (let i = 0; i < targetRecipients.length; i += CHUNK_SIZE) {
       const chunk = targetRecipients.slice(i, i + CHUNK_SIZE);
@@ -259,7 +261,11 @@ export default function EmailsPage() {
             }),
           });
 
-          await res.json();
+          const data = await res.json();
+          if (!res.ok || (data && data.success === false) || data?.error) {
+            throw new Error(data?.error || `שגיאת שרת: ${res.status}`);
+          }
+
           actions.addEmailLog({
             recipientEmail: s.email,
             recipientName: s.hebrewName || `${s.firstName || ""} ${s.lastName || ""}`.trim(),
@@ -267,7 +273,9 @@ export default function EmailsPage() {
             templateName: currentTemplate?.name,
             status: "SENT",
           });
+          successCount++;
         } catch (err: any) {
+          failedCount++;
           actions.addEmailLog({
             recipientEmail: s.email,
             recipientName: s.hebrewName || `${s.firstName || ""} ${s.lastName || ""}`.trim(),
@@ -288,10 +296,14 @@ export default function EmailsPage() {
       }
     }
 
-    setRemainingDailyQuota((q) => Math.max(0, q - sentCount));
+    setRemainingDailyQuota((q) => Math.max(0, q - successCount));
     setIsSending(false);
     setSendProgress(null);
-    alert(`שליחת ${sentCount} מיילים הסתיימה בהצלחה!`);
+    if (failedCount === 0) {
+      alert(`שליחת ${successCount} מיילים הסתיימה בהצלחה!`);
+    } else {
+      alert(`סיכום שליחה:\n✓ ${successCount} מיילים נשלחו בהצלחה.\n⚠️ ${failedCount} מיילים נכשלו. פרטי השגיאות נשמרו ביומן המיילים שלמטה.`);
+    }
   };
 
   const safeLogs = Array.isArray(emailLogs) ? emailLogs : [];

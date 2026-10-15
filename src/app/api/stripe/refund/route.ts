@@ -10,6 +10,17 @@ const stripe = stripeSecret && !stripeSecret.includes("placeholder")
 
 export async function POST(req: Request) {
   try {
+    const authHeader = req.headers.get("authorization");
+    const referer = req.headers.get("referer");
+
+    // Require authorization or valid admin session referer
+    if (!authHeader && (!referer || !referer.includes("/admin/payments"))) {
+      return NextResponse.json(
+        { error: "Unauthorized: admin privileges required to process refunds" },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const { paymentIntentId, chargeId, amount, reason, shliachId } = body;
 

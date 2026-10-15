@@ -4,7 +4,9 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { UserProfile, ScreenPermissions, ScreenAccessLevel } from "@/types";
 import { dataStore } from "@/lib/services/dataService";
 import { signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "firebase/auth";
-import { auth, googleProvider } from "@/lib/firebase/config";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, googleProvider, db } from "@/lib/firebase/config";
+import { INITIAL_USERS } from "@/lib/services/mockData";
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -26,12 +28,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
         if (fbUser && fbUser.email) {
           const email = fbUser.email.toLowerCase();
-          const registeredUsers = dataStore.getUsers();
-          let matched = registeredUsers.find(u => u.email.toLowerCase() === email && u.isActive);
-
-          if (!matched && email === "szbutman7@gmail.com") {
-            const ownerUser: UserProfile = {
-              id: "user-szbutman7",
+          
+          let matched: UserProfile | null = null;
+          if (email === "szbutman7@gmail.com") {
+            matched = {
+              id: fbUser.uid || "user-szbutman7",
               email: "szbutman7@gmail.com",
               displayName: fbUser.displayName || "זלמן בוטמן (מנהל ראשי)",
               role: "SUPER_ADMIN",
@@ -43,10 +44,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 reception: "EDIT",
                 emails: "EDIT",
                 users: "EDIT",
+                audit: "EDIT",
               }
             };
-            await dataStore.addUser(ownerUser);
-            matched = ownerUser;
+          } else {
+            // Check Firestore for user profile
+            try {
+              if (db) {
+                const userSnap = await getDoc(doc(db, "users", fbUser.uid));
+                if (userSnap.exists()) {
+                  const data = userSnap.data() as UserProfile;
+                  if (data.isActive) matched = { ...data, id: fbUser.uid };
+                }
+              }
+            } catch (err) {
+              console.warn("Firestore user profile check fallback:", err);
+            }
+
+            // Fallback: check INITIAL_USERS
+            if (!matched) {
+              const fromInitial = INITIAL_USERS.find(u => u.email.toLowerCase() === email && u.isActive);
+              if (fromInitial) {
+                matched = { ...fromInitial, id: fbUser.uid };
+              }
+            }
           }
 
           if (matched) {
@@ -101,14 +122,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, message: "לא התקבל אימייל מחשבון Google" };
       }
 
-      // Check Whitelist
-      const registeredUsers = dataStore.getUsers();
-      let matched = registeredUsers.find(u => u.email.toLowerCase() === email && u.isActive);
-
-      // Failsafe: primary administrator szbutman7@gmail.com is always authorized as SUPER_ADMIN
-      if (!matched && email === "szbutman7@gmail.com") {
-        const ownerUser: UserProfile = {
-          id: "user-szbutman7",
+      // Check Whitelist against Firestore and INITIAL_USERS (prevent localStorage spoofing)
+      let matched: UserProfile | null = null;
+      if (email === "szbutman7@gmail.com") {
+        matched = {
+          id: result.user.uid || "user-szbutman7",
           email: "szbutman7@gmail.com",
           displayName: result.user.displayName || "זלמן בוטמן (מנהל ראשי)",
           role: "SUPER_ADMIN",
@@ -120,10 +138,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             reception: "EDIT",
             emails: "EDIT",
             users: "EDIT",
+            audit: "EDIT",
           }
         };
-        await dataStore.addUser(ownerUser);
-        matched = ownerUser;
+        try {
+          if (db && result.user.uid) {
+            await setDoc(doc(db, "users", result.user.uid), matched, { merge: true });
+          }
+        } catch (e) {
+          console.warn("Could not sync owner user to firestore:", e);
+        }
+      } else {
+        // Query Firestore /users/{uid}
+        try {
+          if (db) {
+            const userSnap = await getDoc(doc(db, "users", result.user.uid));
+            if (userSnap.exists()) {
+              const data = userSnap.data() as UserProfile;
+              if (data.isActive) matched = { ...data, id: result.user.uid };
+            }
+          }
+        } catch (err) {
+          console.warn("Firestore user profile check in loginWithGoogle fallback:", err);
+        }
+
+        // Fallback: INITIAL_USERS
+        if (!matched) {
+          const fromInitial = INITIAL_USERS.find(u => u.email.toLowerCase() === email && u.isActive);
+          if (fromInitial) {
+            matched = { ...fromInitial, id: result.user.uid };
+            try {
+              if (db && result.user.uid) {
+                await setDoc(doc(db, "users", result.user.uid), matched, { merge: true });
+              }
+            } catch (e) {
+              // ignore
+            }
+          }
+        }
       }
 
       if (!matched) {

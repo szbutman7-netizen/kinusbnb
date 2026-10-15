@@ -241,24 +241,20 @@ class StoreManager {
 
       // 1. Shluchim collection
       const unsubShluchim = onSnapshot(collection(db, "shluchim"), (snapshot) => {
-        if (!snapshot.empty) {
-          const cloudShluchim: Shliach[] = [];
-          snapshot.forEach((docSnap) => {
-            const d = docSnap.data();
-            cloudShluchim.push({
-              ...(d as any),
-              id: docSnap.id,
-            } as Shliach);
-          });
-          if (cloudShluchim.length > 0) {
-            this.shluchim = cloudShluchim;
-            this.isFirebaseConnected = true;
-            if (typeof window !== "undefined") {
-              localStorage.setItem("kinus_shluchim", JSON.stringify(this.shluchim));
-            }
-            this.notify();
-          }
+        const cloudShluchim: Shliach[] = [];
+        snapshot.forEach((docSnap) => {
+          const d = docSnap.data();
+          cloudShluchim.push({
+            ...(d as any),
+            id: docSnap.id,
+          } as Shliach);
+        });
+        this.shluchim = cloudShluchim;
+        this.isFirebaseConnected = true;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("kinus_shluchim", JSON.stringify(this.shluchim));
         }
+        this.notify();
       }, (err) => {
         console.warn("Firestore staff shluchim sync notice:", err);
       });
@@ -266,22 +262,18 @@ class StoreManager {
 
       // 2. Apartments collection
       const unsubApts = onSnapshot(collection(db, "apartments"), (snapshot) => {
-        if (!snapshot.empty) {
-          const cloudApts: Apartment[] = [];
-          snapshot.forEach((docSnap) => {
-            cloudApts.push({
-              ...(docSnap.data() as any),
-              id: docSnap.id,
-            } as Apartment);
-          });
-          if (cloudApts.length > 0) {
-            this.apartments = cloudApts;
-            if (typeof window !== "undefined") {
-              localStorage.setItem("kinus_apartments", JSON.stringify(this.apartments));
-            }
-            this.notify();
-          }
+        const cloudApts: Apartment[] = [];
+        snapshot.forEach((docSnap) => {
+          cloudApts.push({
+            ...(docSnap.data() as any),
+            id: docSnap.id,
+          } as Apartment);
+        });
+        this.apartments = cloudApts;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("kinus_apartments", JSON.stringify(this.apartments));
         }
+        this.notify();
       }, (err) => {
         console.warn("Firestore staff apartments sync notice:", err);
       });
@@ -289,22 +281,18 @@ class StoreManager {
 
       // 3. Beds collection
       const unsubBeds = onSnapshot(collection(db, "beds"), (snapshot) => {
-        if (!snapshot.empty) {
-          const cloudBeds: Bed[] = [];
-          snapshot.forEach((docSnap) => {
-            cloudBeds.push({
-              ...(docSnap.data() as any),
-              id: docSnap.id,
-            } as Bed);
-          });
-          if (cloudBeds.length > 0) {
-            this.beds = cloudBeds;
-            if (typeof window !== "undefined") {
-              localStorage.setItem("kinus_beds", JSON.stringify(this.beds));
-            }
-            this.notify();
-          }
+        const cloudBeds: Bed[] = [];
+        snapshot.forEach((docSnap) => {
+          cloudBeds.push({
+            ...(docSnap.data() as any),
+            id: docSnap.id,
+          } as Bed);
+        });
+        this.beds = cloudBeds;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("kinus_beds", JSON.stringify(this.beds));
         }
+        this.notify();
       }, (err) => {
         console.warn("Firestore staff beds sync notice:", err);
       });
@@ -312,22 +300,18 @@ class StoreManager {
 
       // 4. Contact messages collection
       const unsubMsgs = onSnapshot(collection(db, "contactMessages"), (snapshot) => {
-        if (!snapshot.empty) {
-          const cloudMsgs: ContactMessage[] = [];
-          snapshot.forEach((docSnap) => {
-            cloudMsgs.push({
-              ...(docSnap.data() as any),
-              id: docSnap.id,
-            } as ContactMessage);
-          });
-          if (cloudMsgs.length > 0) {
-            this.contactMessages = cloudMsgs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            if (typeof window !== "undefined") {
-              localStorage.setItem("kinus_contact_messages", JSON.stringify(this.contactMessages));
-            }
-            this.notify();
-          }
+        const cloudMsgs: ContactMessage[] = [];
+        snapshot.forEach((docSnap) => {
+          cloudMsgs.push({
+            ...(docSnap.data() as any),
+            id: docSnap.id,
+          } as ContactMessage);
+        });
+        this.contactMessages = cloudMsgs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        if (typeof window !== "undefined") {
+          localStorage.setItem("kinus_contact_messages", JSON.stringify(this.contactMessages));
         }
+        this.notify();
       }, (err) => {
         console.warn("Firestore staff messages sync notice:", err);
       });
@@ -335,22 +319,18 @@ class StoreManager {
 
       // 5. Audit log collection
       const unsubAudit = onSnapshot(collection(db, "auditLog"), (snapshot) => {
-        if (!snapshot.empty) {
-          const cloudLogs: AuditLogEntry[] = [];
-          snapshot.forEach((docSnap) => {
-            cloudLogs.push({
-              ...(docSnap.data() as any),
-              id: docSnap.id,
-            } as AuditLogEntry);
-          });
-          if (cloudLogs.length > 0) {
-            this.auditLogs = cloudLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-            if (typeof window !== "undefined") {
-              localStorage.setItem("kinus_audit_logs", JSON.stringify(this.auditLogs));
-            }
-            this.notify();
-          }
+        const cloudLogs: AuditLogEntry[] = [];
+        snapshot.forEach((docSnap) => {
+          cloudLogs.push({
+            ...(docSnap.data() as any),
+            id: docSnap.id,
+          } as AuditLogEntry);
+        });
+        this.auditLogs = cloudLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        if (typeof window !== "undefined") {
+          localStorage.setItem("kinus_audit_logs", JSON.stringify(this.auditLogs));
         }
+        this.notify();
       }, (err) => {
         console.warn("Firestore staff audit log sync notice:", err);
       });
@@ -1306,6 +1286,7 @@ class StoreManager {
       await this.unassignPlacement(sh.id);
     }
 
+    const affectedBeds = this.beds.filter(b => b.apartmentId === id);
     this.apartments = this.apartments.filter(a => a.id !== id);
     this.beds = this.beds.filter(b => b.apartmentId !== id);
     this.persist();
@@ -1320,6 +1301,20 @@ class StoreManager {
         `מחיקת דירה: ${apt.apartmentNumber}`,
         'מחיקת דירה'
       );
+    }
+
+    // Firestore deletion for apartment and its beds
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        const batch = writeBatch(db);
+        batch.delete(doc(db, "apartments", id));
+        for (const bed of affectedBeds) {
+          batch.delete(doc(db, "beds", bed.id));
+        }
+        await batch.commit();
+      }
+    } catch (e) {
+      console.warn("Firestore deleteApartment fallback:", e);
     }
   }
 
@@ -1403,8 +1398,11 @@ class StoreManager {
         });
         await batch.commit();
       }
-    } catch (e) {
+    } catch (e: any) {
       console.warn("Firestore assignPlacement batch update fallback:", e);
+      if (e?.code === "permission-denied") {
+        return { success: false, message: "שגיאת הרשאה: אין לך הרשאות שיבוץ בענן. פנה למנהל המערכת." };
+      }
     }
 
     this.logAudit(

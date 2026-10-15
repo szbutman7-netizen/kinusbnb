@@ -92,10 +92,10 @@ export async function POST(req: Request) {
               shliachName: metadata.shliachName || "הרב השליח",
               city: metadata.city || "",
               country: metadata.country || "",
-              arrivalDate: "2026-11-03",
-              departureDate: "2026-11-09",
+              arrivalDate: metadata.arrivalDate || "2026-11-04",
+              departureDate: metadata.departureDate || "2026-11-09",
               registrationId: shliachId,
-              totalPrice: Number(metadata.amountPaid) || 30,
+              totalPrice: Number(metadata.amountPaid) || (paymentIntent.amount / 100),
             };
 
             let customSubject = "אישור הרשמה לכינוס השלוחים העולמי ה׳תשפ״ז";

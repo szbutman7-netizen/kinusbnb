@@ -189,8 +189,8 @@ service cloud.firestore {
         isAdmin()
       );
 
-      // Get (single document): Allowed for authenticated admins OR public guest retrieving own registration record
-      allow get: if isAdmin() || true;
+      // Get (single document): Restricted strictly to authenticated admins
+      allow get: if isAdmin();
 
       // List (querying the entire collection): Restricted strictly to authenticated admins
       allow list: if isAdmin();
@@ -266,9 +266,16 @@ service cloud.firestore {
       allow list, write: if isAdmin();
     }
 
+    function isValidContactMessage(data) {
+      return isNonEmptyString(data.name, 100) &&
+             isValidEmail(data.email) &&
+             isNonEmptyString(data.message, 2000) &&
+             isOptionalString(data, 'phone', 30);
+    }
+
     // Public contact inquiries
     match /contactMessages/{messageId} {
-      allow create: if true;
+      allow create: if isValidContactMessage(request.resource.data);
       allow read, update, delete: if isAdmin();
     }
   }

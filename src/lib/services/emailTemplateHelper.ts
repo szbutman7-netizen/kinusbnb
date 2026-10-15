@@ -1,3 +1,5 @@
+import { sanitizeTextForEmail } from "@/lib/utils/sanitize";
+
 export interface RegistrationEmailData {
   shliachName: string;
   city: string;
@@ -42,22 +44,22 @@ export function renderEmailTemplate(
   const locationStr = [city, country].filter(Boolean).join(", ") || city || "";
 
   return templateContent
-    .replace(/{shliach_name}/g, shliachName)
-    .replace(/{city}/g, locationStr)
-    .replace(/{country}/g, country)
-    .replace(/{arrival_date}/g, arrivalDate)
-    .replace(/{departure_date}/g, departureDate)
+    .replace(/{shliach_name}/g, sanitizeTextForEmail(shliachName))
+    .replace(/{city}/g, sanitizeTextForEmail(locationStr))
+    .replace(/{country}/g, sanitizeTextForEmail(country))
+    .replace(/{arrival_date}/g, sanitizeTextForEmail(arrivalDate))
+    .replace(/{departure_date}/g, sanitizeTextForEmail(departureDate))
     .replace(/{totalPrice}/g, String(totalPrice))
     .replace(/{amount}/g, String(totalPrice))
-    .replace(/{registrationId}/g, registrationId)
-    .replace(/{specialRequests}/g, specialRequests)
-    .replace(/{preferredRoommates}/g, preferredRoommates)
-    .replace(/{roommates}/g, preferredRoommates)
-    .replace(/{childrenNames}/g, childrenNames.join(", "))
-    .replace(/{apartment_name}/g, apartmentName)
-    .replace(/{apartment_address}/g, apartmentAddress)
+    .replace(/{registrationId}/g, sanitizeTextForEmail(registrationId))
+    .replace(/{specialRequests}/g, sanitizeTextForEmail(specialRequests))
+    .replace(/{preferredRoommates}/g, sanitizeTextForEmail(preferredRoommates))
+    .replace(/{roommates}/g, sanitizeTextForEmail(preferredRoommates))
+    .replace(/{childrenNames}/g, childrenNames.map((c) => sanitizeTextForEmail(c)).join(", "))
+    .replace(/{apartment_name}/g, sanitizeTextForEmail(apartmentName))
+    .replace(/{apartment_address}/g, sanitizeTextForEmail(apartmentAddress))
     .replace(/{bed_number}/g, String(bedNumber))
-    .replace(/{entry_code}/g, entryCode);
+    .replace(/{entry_code}/g, sanitizeTextForEmail(entryCode));
 }
 
 export function generateRegistrationConfirmationHtml(data: RegistrationEmailData): string {
@@ -80,31 +82,38 @@ export function generateRegistrationConfirmationHtml(data: RegistrationEmailData
   const supportEmail = "contact@kinus.org";
   const portalUrl = "https://kinusbed.vercel.app/";
 
-  const childrenRows = needsChildrenAccommodation && childrenNames.length > 0
+  const safeName = sanitizeTextForEmail(shliachName || "הרב השליח");
+  const safeLocation = sanitizeTextForEmail(locationStr);
+  const safeRoommates = sanitizeTextForEmail(preferredRoommates);
+  const safeRequests = sanitizeTextForEmail(specialRequests);
+  const safeRegId = sanitizeTextForEmail(registrationId);
+  const safeChildren = childrenNames.map((c) => sanitizeTextForEmail(c)).join(", ");
+
+  const childrenRows = needsChildrenAccommodation && safeChildren
     ? `<tr>
         <td style="padding: 10px 14px; color: #64748b; font-size: 13px; border-bottom: 1px solid #f1f5f9; width: 35%;">ילדים נלווים:</td>
-        <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${childrenNames.join(", ")}</td>
+        <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${safeChildren}</td>
       </tr>`
     : "";
 
-  const roommatesRow = preferredRoommates
+  const roommatesRow = safeRoommates
     ? `<tr>
         <td style="padding: 10px 14px; color: #64748b; font-size: 13px; border-bottom: 1px solid #f1f5f9; width: 35%;">שותפים מבוקשים:</td>
-        <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${preferredRoommates}</td>
+        <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${safeRoommates}</td>
       </tr>`
     : "";
 
-  const requestsRow = specialRequests
+  const requestsRow = safeRequests
     ? `<tr>
         <td style="padding: 10px 14px; color: #64748b; font-size: 13px; border-bottom: 1px solid #f1f5f9; width: 35%;">בקשות מיוחדות:</td>
-        <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${specialRequests}</td>
+        <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${safeRequests}</td>
       </tr>`
     : "";
 
-  const regIdRow = registrationId
+  const regIdRow = safeRegId
     ? `<tr>
         <td style="padding: 10px 14px; color: #64748b; font-size: 13px; border-bottom: 1px solid #f1f5f9; width: 35%;">מספר סימוכין:</td>
-        <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 700; font-family: monospace; border-bottom: 1px solid #f1f5f9;">${registrationId}</td>
+        <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 700; font-family: monospace; border-bottom: 1px solid #f1f5f9;">${safeRegId}</td>
       </tr>`
     : "";
 
@@ -155,9 +164,9 @@ export function generateRegistrationConfirmationHtml(data: RegistrationEmailData
           
           <!-- Greeting -->
           <p style="margin: 0 0 16px 0; font-size: 16px; color: #0B1A30;">
-            שלום עליכם כבוד הרב <strong style="color: #0B1A30; font-size: 17px;">${shliachName}</strong> שי׳,
+            שלום עליכם כבוד הרב <strong style="color: #0B1A30; font-size: 17px;">${safeName}</strong> שי׳,
             <br>
-            <span style="font-size: 14px; color: #64748b;">שליח כ״ק אדמו״ר ב${locationStr}</span>
+            <span style="font-size: 14px; color: #64748b;">שליח כ״ק אדמו״ר ב${safeLocation}</span>
           </p>
 
           <p style="margin: 0 0 20px 0; color: #334155;">
@@ -174,11 +183,11 @@ export function generateRegistrationConfirmationHtml(data: RegistrationEmailData
                 ${regIdRow}
                 <tr>
                   <td style="padding: 10px 14px; color: #64748b; font-size: 13px; border-bottom: 1px solid #f1f5f9; width: 35%;">שם השליח:</td>
-                  <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 700; border-bottom: 1px solid #f1f5f9;">${shliachName}</td>
+                  <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 700; border-bottom: 1px solid #f1f5f9;">${safeName}</td>
                 </tr>
                 <tr>
                   <td style="padding: 10px 14px; color: #64748b; font-size: 13px; border-bottom: 1px solid #f1f5f9;">מקום שליחות:</td>
-                  <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${locationStr}</td>
+                  <td style="padding: 10px 14px; color: #0f172a; font-size: 13px; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${safeLocation}</td>
                 </tr>
                 <tr>
                   <td style="padding: 10px 14px; color: #64748b; font-size: 13px; border-bottom: 1px solid #f1f5f9;">מועדי שהות:</td>

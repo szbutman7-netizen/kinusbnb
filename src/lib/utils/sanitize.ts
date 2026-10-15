@@ -12,6 +12,18 @@ export function escapeHtml(str: unknown): string {
     .replace(/'/g, "&#039;");
 }
 
+export function sanitizeTextForEmail(str: unknown): string {
+  if (str === null || str === undefined) return "";
+  const text = String(str).trim();
+  if (!text) return "";
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/\r\n|\r|\n/g, "<br />");
+}
+
 export function sanitizeForSheet(value: unknown): string {
   if (value === null || value === undefined) return "";
   let str = String(value).trim();

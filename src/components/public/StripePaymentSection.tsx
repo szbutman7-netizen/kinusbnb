@@ -80,8 +80,20 @@ function InnerPaymentForm({
         setIsSubmitting(false);
       } else if (paymentIntent && (paymentIntent.status === "succeeded" || paymentIntent.status === "processing")) {
         await onPaymentSuccess(paymentIntent.id);
+      } else if (paymentIntent && paymentIntent.status === "requires_action") {
+        const errorMsg = language === "he"
+          ? "נדרש אימות נוסף מול חברת האשראי. אנא השלם את האימות ונסה שנית."
+          : "Additional authentication required by your bank. Please complete authentication and try again.";
+        setElementError(errorMsg);
+        onError(errorMsg);
+        setIsSubmitting(false);
       } else {
-        await onPaymentSuccess(`pi_${Date.now()}`);
+        const errorMsg = language === "he"
+          ? "התשלום לא אושר. אנא נסה שנית או השתמש באמצעי תשלום אחר."
+          : "Payment was not approved. Please try again or use another payment method.";
+        setElementError(errorMsg);
+        onError(errorMsg);
+        setIsSubmitting(false);
       }
     } catch (err: any) {
       console.error("Payment error:", err);

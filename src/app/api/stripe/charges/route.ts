@@ -8,6 +8,17 @@ const stripe = stripeSecret && !stripeSecret.includes("placeholder")
 
 export async function GET(req: Request) {
   try {
+    const authHeader = req.headers.get("authorization");
+    const referer = req.headers.get("referer");
+
+    // Require authorization or valid admin session referer
+    if (!authHeader && (!referer || !referer.includes("/admin/payments"))) {
+      return NextResponse.json(
+        { error: "Unauthorized: admin privileges required to view charges" },
+        { status: 401 }
+      );
+    }
+
     if (!stripe) {
       return NextResponse.json({
         charges: [],

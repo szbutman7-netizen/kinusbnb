@@ -15,6 +15,20 @@ export async function POST(req: Request) {
       );
     }
 
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (typeof to !== "string" || !emailRegex.test(to.trim()) || to.length > 120) {
+      return NextResponse.json({ error: "Invalid recipient email address" }, { status: 400 });
+    }
+
+    // Payload size guards
+    if (typeof subject !== "string" || subject.length > 250) {
+      return NextResponse.json({ error: "Subject exceeds maximum allowed length" }, { status: 400 });
+    }
+    if (typeof htmlBody !== "string" || htmlBody.length > 200000) {
+      return NextResponse.json({ error: "Email body exceeds maximum allowed size" }, { status: 400 });
+    }
+
     if (!scriptUrl) {
       // Development mock mode: simulate successful relay
       console.log(`[Email Relay Mock] Sending email to: ${to}, Subject: ${subject}`);
