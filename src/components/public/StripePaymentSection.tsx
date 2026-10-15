@@ -30,6 +30,7 @@ interface StripePaymentSectionProps {
 
 function InnerPaymentForm({
   amount,
+  shliachId,
   isSubmitting,
   setIsSubmitting,
   onPaymentSuccess,
@@ -38,6 +39,7 @@ function InnerPaymentForm({
   t,
 }: {
   amount: number;
+  shliachId?: string;
   isSubmitting: boolean;
   setIsSubmitting: (val: boolean) => void;
   onPaymentSuccess: (paymentIntentId: string) => Promise<void>;
@@ -68,9 +70,16 @@ function InnerPaymentForm({
         return;
       }
 
+      const returnUrl = typeof window !== "undefined"
+        ? `${window.location.origin}/success${shliachId ? `?id=${encodeURIComponent(shliachId)}` : ""}`
+        : "https://kinusbed.vercel.app/success";
+
       const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         redirect: "if_required",
+        confirmParams: {
+          return_url: returnUrl,
+        },
       });
 
       if (error) {
@@ -287,6 +296,7 @@ export default function StripePaymentSection(props: StripePaymentSectionProps) {
     <Elements stripe={stripePromise} options={options}>
       <InnerPaymentForm
         amount={props.amount}
+        shliachId={props.shliachDetails?.id}
         isSubmitting={props.isSubmitting}
         setIsSubmitting={props.setIsSubmitting}
         onPaymentSuccess={props.onPaymentSuccess}

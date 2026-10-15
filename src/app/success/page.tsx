@@ -12,39 +12,101 @@ import { WhatsAppButton } from "@/components/common/WhatsAppButton";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import { CheckCircle2, Printer, ArrowRight, ArrowLeft, ShieldCheck, MapPin, AlertTriangle, Loader2 } from "lucide-react";
 
+import { db } from "@/lib/firebase/config";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+
 function SuccessContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const redirectStatus = searchParams.get("redirect_status");
+  const paymentIntentId = searchParams.get("payment_intent");
   const { t, isRtl, language } = useLanguage();
   const [shliach, setShliach] = useState<Shliach | null>(null);
   const [loading, setLoading] = useState(true);
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    if (!id) {
-      setLoading(false);
-      setIsVerified(false);
-      return;
+    let isCancelled = false;
+
+    async function verifyRegistration() {
+      if (!id) {
+        setLoading(false);
+        setIsVerified(false);
+        return;
+      }
+
+      // 1. Check local cache first
+      const record = dataStore.getShluchim().find(s => s.id === id);
+      if (record && record.paymentStatus === "PAID" && (record.registrationStatus === "COMPLETED" || !record.registrationStatus)) {
+        if (!isCancelled) {
+          setShliach(record);
+          setIsVerified(true);
+          setLoading(false);
+          try {
+            confetti({
+              particleCount: 80,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
+          } catch (e) {
+            // ignore
+          }
+        }
+        return;
+      }
+
+      // 2. Direct Firestore fallback (ideal for 3DS redirects or async webhook updates)
+      try {
+        const snap = await getDoc(doc(db, "shluchim", id));
+        if (snap.exists() && !isCancelled) {
+          const docData = snap.data() as Shliach;
+          const isSuccessfulPayment = docData.paymentStatus === "PAID" || redirectStatus === "succeeded";
+
+          if (isSuccessfulPayment) {
+            if (redirectStatus === "succeeded" && docData.paymentStatus !== "PAID") {
+              const now = new Date().toISOString();
+              await updateDoc(doc(db, "shluchim", id), {
+                paymentStatus: "PAID",
+                registrationStatus: "COMPLETED",
+                stripePaymentIntentId: paymentIntentId || docData.stripePaymentIntentId || "",
+                paidAt: now,
+                updatedAt: now,
+              }).catch(console.warn);
+              docData.paymentStatus = "PAID";
+              docData.registrationStatus = "COMPLETED";
+            }
+
+            setShliach(docData);
+            setIsVerified(true);
+            setLoading(false);
+            try {
+              confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 }
+              });
+            } catch (e) {
+              // ignore
+            }
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Could not query Firestore directly on success page:", err);
+      }
+
+      if (!isCancelled) {
+        setIsVerified(false);
+        setLoading(false);
+      }
     }
 
-    const record = dataStore.getShluchim().find(s => s.id === id);
-    if (record && record.paymentStatus === "PAID" && (record.registrationStatus === "COMPLETED" || !record.registrationStatus)) {
-      setShliach(record);
-      setIsVerified(true);
-      try {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      } catch (e) {
-        // ignore
-      }
-    } else {
-      setIsVerified(false);
-    }
-    setLoading(false);
-  }, [id]);
+    verifyRegistration();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [id, redirectStatus, paymentIntentId]);
 
   const handlePrint = () => {
     if (typeof window !== "undefined") {
