@@ -7,24 +7,41 @@ const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: "2025-01-27
 
 export async function POST(req: Request) {
   try {
-    const { amount = 30, currency = "usd", shliachDetails } = await req.json();
+    const body = await req.json();
+    const { shliachDetails, childrenCount = 0 } = body;
+
+    // Strict server-side fee calculation
+    const baseFee = 30;
+    const validatedChildrenCount = shliachDetails?.needsChildrenAccommodation
+      ? Math.max(0, Number(childrenCount) || (shliachDetails.childrenNames?.length || 0))
+      : 0;
+    const calculatedAmount = baseFee + (validatedChildrenCount * 30); // in USD
+
+    const shliachId = shliachDetails?.id || `shliach-${Date.now()}`;
+    const shliachName = shliachDetails?.hebrewName || `${shliachDetails?.firstName || ""} ${shliachDetails?.lastName || ""}`.trim() || "הרב השליח";
 
     if (stripe) {
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // cents
-        currency,
+        amount: Math.round(calculatedAmount * 100), // cents
+        currency: "usd",
         automatic_payment_methods: { enabled: true },
         metadata: {
-          shliachName: `${shliachDetails?.firstName} ${shliachDetails?.lastName}`,
-          email: shliachDetails?.email || "",
+          shliachId,
+          shliachName,
+          email: shliachDetails?.email?.trim()?.toLowerCase() || "",
           city: shliachDetails?.city || "",
+          country: shliachDetails?.country || "",
           passportOrId: shliachDetails?.passportOrId || "",
+          amountPaid: String(calculatedAmount),
+          childrenCount: String(validatedChildrenCount),
         },
       });
 
       return NextResponse.json({
         clientSecret: paymentIntent.client_secret,
-        paymentIntentId: paymentIntent.id
+        paymentIntentId: paymentIntent.id,
+        amount: calculatedAmount,
+        currency: "usd",
       });
     }
 
@@ -33,7 +50,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       clientSecret: mockClientSecret,
       paymentIntentId: `pi_mock_${Date.now()}`,
-      demoMode: true
+      amount: calculatedAmount,
+      currency: "usd",
+      demoMode: true,
     });
   } catch (error: any) {
     console.error("Error creating payment intent:", error);

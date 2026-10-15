@@ -10,31 +10,40 @@ import { Navbar } from "@/components/layout/Navbar";
 import { KinusLogo } from "@/components/common/KinusLogo";
 import { WhatsAppButton } from "@/components/common/WhatsAppButton";
 import { useLanguage } from "@/lib/context/LanguageContext";
-import { CheckCircle2, Printer, ArrowRight, ArrowLeft, ShieldCheck, MapPin } from "lucide-react";
+import { CheckCircle2, Printer, ArrowRight, ArrowLeft, ShieldCheck, MapPin, AlertTriangle, Loader2 } from "lucide-react";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   const { t, isRtl, language } = useLanguage();
   const [shliach, setShliach] = useState<Shliach | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    } catch (e) {
-      // ignore
+    if (!id) {
+      setLoading(false);
+      setIsVerified(false);
+      return;
     }
 
-    if (id) {
-      const found = dataStore.getShluchim().find(s => s.id === id);
-      if (found) {
-        setShliach(found);
+    const record = dataStore.getShluchim().find(s => s.id === id);
+    if (record && record.paymentStatus === "PAID" && record.registrationStatus === "COMPLETED") {
+      setShliach(record);
+      setIsVerified(true);
+      try {
+        confetti({
+          particleCount: 80,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (e) {
+        // ignore
       }
+    } else {
+      setIsVerified(false);
     }
+    setLoading(false);
   }, [id]);
 
   const handlePrint = () => {
@@ -44,6 +53,44 @@ function SuccessContent() {
   };
 
   const BackHomeIcon = isRtl ? ArrowRight : ArrowLeft;
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-slate-300 space-y-3">
+        <Loader2 className="w-8 h-8 animate-spin text-[#E8D8A8]" />
+        <p className="text-sm font-medium">{t("loadingReceipt") || "טוען אישור הרשמה..."}</p>
+      </div>
+    );
+  }
+
+  // CONFIRMATION GATE: Deny access if no valid, paid registration exists
+  if (!isVerified || !shliach) {
+    return (
+      <div className="max-w-lg mx-auto py-16 text-center space-y-6">
+        <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center mx-auto shadow-lg">
+          <AlertTriangle className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold font-serif text-white">
+            {language === "he" ? "לא נמצא אישור הרשמה תקף" : "Valid Registration Not Found"}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-light">
+            {language === "he"
+              ? "לא זוהה תשלום מאומת עבור מזהה זה, או שטרם הושלמה ההרשמה במערכת. במידה וחויבתם, אנא פנו למוקד התמיכה בוואטסאפ."
+              : "No verified payment was found for this ID. If you were charged, please contact our support desk on WhatsApp."}
+          </p>
+        </div>
+        <div className="pt-2 flex justify-center gap-3">
+          <Link
+            href="/register"
+            className="px-6 py-2.5 rounded-full bg-[#E8D8A8] text-[#0B1A30] text-xs font-bold hover:bg-white transition-all shadow-md"
+          >
+            {language === "he" ? "חזרה לטופס הרשמה" : "Return to Registration"}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-xl mx-auto py-8">
@@ -81,14 +128,14 @@ function SuccessContent() {
           <div className={`space-y-1 pb-4 border-b border-slate-700/60 print:border-slate-200 ${isRtl ? "text-right" : "text-left"}`}>
             <span className="text-xs font-semibold text-slate-300 print:text-slate-600">{t("successShliachDetails")}</span>
             <h2 className="text-xl font-bold text-white print:text-black">
-              {shliach?.hebrewName || t("successDefaultShliachName")}
+              {shliach.hebrewName || `${shliach.firstName} ${shliach.lastName}`}
             </h2>
             <p className="text-xs text-slate-300 print:text-slate-700 flex items-center gap-1.5 pt-0.5">
               <MapPin className="w-3.5 h-3.5 text-[#E8D8A8] print:text-slate-700" aria-hidden="true" />
-              <span>{t("successLocationPrefix")}{shliach?.city || ""}, {shliach?.country || ""}</span>
+              <span>{t("successLocationPrefix")}{shliach.city || ""}, {shliach.country || ""}</span>
             </p>
-            {shliach?.passportOrId && (
-              <p className="text-[11px] text-slate-300 print:text-slate-600 font-mono pt-0.5">
+            {shliach.passportOrId && (
+              <p className="text-[11px] text-slate-300 print:text-slate-600 font-mono pt-0.5" dir="ltr">
                 {t("successIdPrefix")} {shliach.passportOrId}
               </p>
             )}
@@ -97,8 +144,8 @@ function SuccessContent() {
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="p-3 bg-[#102444] print:bg-slate-50 rounded-xl border border-slate-700/80 print:border-slate-300">
               <span className="text-slate-300 print:text-slate-600 block mb-1 text-[11px]">{t("successStayDates")}</span>
-              <span className="font-bold text-white print:text-black block">
-                {shliach?.arrivalDate || "2026-11-03"} - {shliach?.departureDate || "2026-11-10"}
+              <span className="font-bold text-white print:text-black block" dir="ltr">
+                {shliach.arrivalDate || "2026-11-03"} - {shliach.departureDate || "2026-11-10"}
               </span>
             </div>
 
@@ -108,14 +155,14 @@ function SuccessContent() {
                 <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
                 <span>
                   {language === "he"
-                    ? `שולם ($${shliach?.amountPaid ?? 30}) ב-Stripe`
-                    : `Paid ($${shliach?.amountPaid ?? 30}) via Stripe`}
+                    ? `שולם ($${shliach.amountPaid ?? 30}) ב-Stripe`
+                    : `Paid ($${shliach.amountPaid ?? 30}) via Stripe`}
                 </span>
               </span>
             </div>
           </div>
 
-          {shliach?.needsChildrenAccommodation && shliach.childrenNames && shliach.childrenNames.length > 0 && (
+          {shliach.needsChildrenAccommodation && shliach.childrenNames && shliach.childrenNames.length > 0 && (
             <div className="p-3.5 bg-[#102444] print:bg-slate-50 rounded-xl border border-[#E8D8A8]/30 print:border-slate-300 text-xs text-white print:text-slate-900 space-y-1.5">
               <span className="font-bold text-[#E8D8A8] print:text-slate-800 block">
                 {language === "he"
@@ -182,4 +229,3 @@ export default function SuccessPage() {
     </div>
   );
 }
-

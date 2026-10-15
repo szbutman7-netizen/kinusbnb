@@ -18,7 +18,8 @@ import {
   X,
   Sliders,
   MessageSquare,
-  History
+  History,
+  CreditCard
 } from "lucide-react";
 import { useState } from "react";
 import { KinusLogo } from "@/components/common/KinusLogo";
@@ -53,6 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "פניות הציבור", href: "/admin/messages", icon: MessageSquare, access: true },
     { label: "דירות ומיטות", href: "/admin/apartments", icon: Building2, access: hasAccess("apartments") },
     { label: "מאגר נרשמים", href: "/admin/shluchim", icon: Users, access: hasAccess("shluchim") },
+    { label: "ניהול חיובים", href: "/admin/payments", icon: CreditCard, access: user.role === "SUPER_ADMIN" || user.role === "ADMIN" || hasAccess("payments") || hasAccess("shluchim") },
     { label: "מסך שיבוץ", href: "/admin/placement", icon: Layers, access: hasAccess("placement") },
     { label: "עמדת קבלה", href: "/admin/reception", icon: CheckSquare, access: hasAccess("reception") },
     { label: "שליחת מיילים", href: "/admin/emails", icon: Mail, access: hasAccess("emails") },

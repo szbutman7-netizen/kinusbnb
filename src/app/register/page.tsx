@@ -11,11 +11,6 @@ import { ArrowRight, ArrowLeft } from "lucide-react";
 export default function RegisterPage() {
   const { t, isRtl } = useLanguage();
   const BackIcon = isRtl ? ArrowRight : ArrowLeft;
-  const [formKey, setFormKey] = useState(0);
-
-  useEffect(() => {
-    setFormKey(Date.now());
-  }, []);
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#0B1A30] text-slate-100 font-sans selection:bg-[#E8D8A8] selection:text-[#0B1A30]">
@@ -42,7 +37,7 @@ export default function RegisterPage() {
           </Link>
         </div>
 
-        <RegistrationForm key={formKey} />
+        <RegistrationForm />
       </main>
 
       {/* Floating WhatsApp Quick Action */}

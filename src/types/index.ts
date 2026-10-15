@@ -1,4 +1,4 @@
-export type PaymentStatus = 'PAID' | 'PENDING' | 'EXEMPT' | 'FAILED';
+export type PaymentStatus = 'PAID' | 'PENDING' | 'EXEMPT' | 'FAILED' | 'REFUNDED';
 export type BedStatus = 'AVAILABLE' | 'ASSIGNED' | 'RESERVED';
 export type ApartmentStatus = 'ACTIVE' | 'MAINTENANCE' | 'CLOSED';
 
@@ -15,6 +15,7 @@ export interface ScreenPermissions {
   settings?: ScreenAccessLevel;
   messages?: ScreenAccessLevel;
   audit?: ScreenAccessLevel;
+  payments?: ScreenAccessLevel;
 }
 
 export interface UserProfile {

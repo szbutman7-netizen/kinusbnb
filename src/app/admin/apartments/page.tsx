@@ -35,7 +35,7 @@ export default function ApartmentsPage() {
   const [formTotalBeds, setFormTotalBeds] = useState(6);
   const [formManagerName, setFormManagerName] = useState("");
   const [formManagerPhone, setFormManagerPhone] = useState("");
-  const [formScheduledClosure, setFormScheduledClosure] = useState("2026-11-24");
+  const [formScheduledClosure, setFormScheduledClosure] = useState("2026-11-10");
 
   if (!isLoaded) {
     return <div className="p-8 text-center text-slate-500">טוען נתוני דירות ומיטות...</div>;

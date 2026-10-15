@@ -12,6 +12,7 @@ import { COUNTRIES } from "@/lib/constants/countries";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import { DEFAULT_ARRIVAL_DATES, DEFAULT_DEPARTURE_DATES } from "@/lib/services/dataService";
 import { generateRegistrationConfirmationHtml } from "@/lib/services/emailTemplateHelper";
+import StripePaymentSection from "./StripePaymentSection";
 import { 
   User, 
   Calendar, 
@@ -96,11 +97,51 @@ export function RegistrationForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
-  // Ensure state resets to step 1 whenever component mounts
+  // Restore draft state and synchronize with browser history
   useEffect(() => {
-    setStep(1);
+    try {
+      const savedDraft = sessionStorage.getItem("kinus_registration_draft");
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        setFormData(prev => ({ ...prev, ...parsed }));
+      }
+      const params = new URLSearchParams(window.location.search);
+      const urlStep = Number(params.get("step"));
+      const savedStep = Number(sessionStorage.getItem("kinus_registration_step"));
+      const initialStep = (urlStep >= 1 && urlStep <= 3 ? urlStep : (savedStep >= 1 && savedStep <= 3 ? savedStep : 1)) as 1 | 2 | 3;
+      setStep(initialStep);
+    } catch {
+      // ignore
+    }
     setIsSubmitting(false);
+
+    const handlePopState = () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const s = Number(params.get("step")) || 1;
+        if (s >= 1 && s <= 3) {
+          setStep(s as 1 | 2 | 3);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
+
+  const goToStep = (newStep: 1 | 2 | 3, dir: "forward" | "backward" = "forward") => {
+    setDirection(dir);
+    setStep(newStep);
+    try {
+      sessionStorage.setItem("kinus_registration_step", String(newStep));
+      const url = new URL(window.location.href);
+      url.searchParams.set("step", String(newStep));
+      window.history.pushState({ step: newStep }, "", url.toString());
+    } catch {
+      // ignore
+    }
+  };
 
   // Prevent accidental tab closure or navigation while submission is saving to server
   useEffect(() => {
@@ -119,7 +160,7 @@ export function RegistrationForm() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
-    // Date range restrictions: must be between 2026-11-04 and 2026-11-09
+    // Date range restrictions: must be between 2026-11-03 and 2026-11-10
     if ((name === "arrivalDate" || name === "departureDate") && value) {
       if (value < KINUS_START_DATE || value > KINUS_END_DATE) {
         setErrorMessage(t("valDatesOutOfRange"));
@@ -128,14 +169,28 @@ export function RegistrationForm() {
     }
 
     setErrorMessage("");
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      try {
+        sessionStorage.setItem("kinus_registration_draft", JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
   };
 
   const handleChildNameChange = (index: number, val: string) => {
     setFormData(prev => {
       const updated = [...prev.childrenNames];
       updated[index] = val;
-      return { ...prev, childrenNames: updated };
+      const res = { ...prev, childrenNames: updated };
+      try {
+        sessionStorage.setItem("kinus_registration_draft", JSON.stringify(res));
+      } catch {
+        // ignore
+      }
+      return res;
     });
   };
 
@@ -175,9 +230,13 @@ export function RegistrationForm() {
         setErrorMessage(t("valHebrewNameRequired"));
         return;
       }
-      const nameParts = formData.hebrewName.trim().split(/\s+/);
-      const inferredFirstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(" ") : nameParts[0] || "";
-      const inferredLastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
+      const nameParts = formData.hebrewName.trim().split(/\s+/).filter(Boolean);
+      if (nameParts.length < 2) {
+        setErrorMessage(t("valFullNameIncomplete"));
+        return;
+      }
+      const inferredFirstName = nameParts.slice(0, -1).join(" ");
+      const inferredLastName = nameParts[nameParts.length - 1];
 
       const ageNum = Number(formData.age);
       if (!formData.age || isNaN(ageNum) || ageNum < 18 || ageNum > 120) {
@@ -233,8 +292,7 @@ export function RegistrationForm() {
         setIsSavingDraft(false);
       }
 
-      setDirection("forward");
-      setStep(2);
+      goToStep(2, "forward");
     } else if (step === 2) {
       if (!formData.arrivalDate) {
         setErrorMessage(t("valArrivalRequired"));
@@ -288,52 +346,47 @@ export function RegistrationForm() {
         console.warn("Draft step 2 update notice:", err);
       }
 
-      setDirection("forward");
-      setStep(3);
+      goToStep(3, "forward");
     }
   };
 
   const handlePrevStep = () => {
     setErrorMessage("");
-    setDirection("backward");
-    setStep(prev => ((prev - 1) as 1 | 2 | 3));
+    const prevStep = Math.max(1, step - 1) as 1 | 2 | 3;
+    goToStep(prevStep, "backward");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setErrorMessage("");
 
     // Verify online network connection before attempting submission
     if (typeof navigator !== "undefined" && !navigator.onLine) {
       setErrorMessage(t("valServerSyncError"));
-      setIsSubmitting(false);
       return;
     }
 
-    const cleanCard = formData.cardNumber.replace(/\D/g, "");
-    if (!cleanCard || cleanCard.length < 15) {
-      setErrorMessage(t("valPaymentRequired"));
-      setIsSubmitting(false);
+    const displayName = formData.hebrewName.trim() || t("successDefaultShliachName");
+    const nameParts = displayName.split(/\s+/).filter(Boolean);
+    if (nameParts.length < 2) {
+      setErrorMessage(t("valFullNameIncomplete"));
       return;
     }
-    if (!formData.cardExp.trim() || !formData.cardExp.includes("/")) {
-      setErrorMessage(t("valPaymentRequired"));
-      setIsSubmitting(false);
-      return;
-    }
-    if (!formData.cardCvc.trim() || formData.cardCvc.trim().length < 3) {
-      setErrorMessage(t("valPaymentRequired"));
-      setIsSubmitting(false);
-      return;
-    }
+
+    // Trigger Stripe Elements payment verification & confirmation
+    window.dispatchEvent(new CustomEvent("stripe-submit-trigger"));
+  };
+
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
+    setIsSubmitting(true);
+    setErrorMessage("");
 
     try {
       const shliachId = savedShliachId || ("shliach-" + Date.now());
       const displayName = formData.hebrewName.trim() || t("successDefaultShliachName");
-      const nameParts = displayName.split(/\s+/);
-      const inferredFirstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(" ") : nameParts[0] || "";
-      const inferredLastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
+      const nameParts = displayName.split(/\s+/).filter(Boolean);
+      const inferredFirstName = nameParts.slice(0, -1).join(" ");
+      const inferredLastName = nameParts[nameParts.length - 1];
 
       const newShliach: Shliach = {
         id: shliachId,
@@ -363,6 +416,7 @@ export function RegistrationForm() {
         checkedIn: false,
         blockCheckIn: false,
         registrationStatus: 'COMPLETED',
+        stripePaymentIntentId: paymentIntentId,
         createdAt: new Date().toISOString(),
       };
 
@@ -419,6 +473,12 @@ export function RegistrationForm() {
       }
 
       // Reset form state so subsequent visits start clean at Step 1
+      try {
+        sessionStorage.removeItem("kinus_registration_draft");
+        sessionStorage.removeItem("kinus_registration_step");
+      } catch {
+        // ignore
+      }
       setFormData(INITIAL_FORM_DATA);
       setStep(1);
       setIsSubmitting(false);
@@ -509,7 +569,8 @@ export function RegistrationForm() {
     : (isRtl ? "animate-slide-in-left" : "animate-slide-in-right");
 
   // Real-time live validation states
-  const isHebrewNameValid = formData.hebrewName.trim().length > 1 && !/[a-zA-Z]/.test(formData.hebrewName);
+  const namePartsForValidation = formData.hebrewName.trim().split(/\s+/).filter(Boolean);
+  const isHebrewNameValid = namePartsForValidation.length >= 2 && /^[\u0590-\u05FFa-zA-Z\s'"\-\.\u05F3\u05F4]+$/.test(formData.hebrewName.trim());
   const isAgeValid = !isNaN(Number(formData.age)) && Number(formData.age) >= 18 && Number(formData.age) <= 120;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
   const isPhoneValid = formData.phone.trim().replace(/\D/g, "").length >= 7;
@@ -684,14 +745,14 @@ export function RegistrationForm() {
                 {t("step1Header")}
               </h2>
               <span className="text-[11px] text-[#E8D8A8] font-medium">
-                * {language === "he" ? "כל השדות הינם שדות חובה" : "All fields are mandatory"}
+                {t("mandatoryNotice")}
               </span>
             </div>
 
             {/* Hebrew Name */}
             <div>
               <label htmlFor="hebrewName" className="block text-xs font-semibold text-slate-200 mb-1">
-                {language === "he" ? "שם מלא (בעברית)" : "Full Name (in Hebrew)"} <span className="text-amber-400">*</span>
+                {t("hebrewNameLabel")} <span className="text-amber-400">*</span>
               </label>
               <div className="relative">
                 <input
@@ -699,10 +760,10 @@ export function RegistrationForm() {
                   type="text"
                   name="hebrewName"
                   autoComplete="name"
-                  dir="rtl"
+                  dir="auto"
                   value={formData.hebrewName}
                   onChange={handleChange}
-                  placeholder="הרב מנחם מענדל כהן"
+                  placeholder={t("hebrewNamePlaceholder")}
                   required
                   className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
                     isHebrewNameValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
@@ -1149,66 +1210,28 @@ export function RegistrationForm() {
               </div>
             </div>
 
-            {/* Embedded Stripe Elements Card */}
-            <div className="border border-slate-700/80 rounded-2xl p-4 sm:p-5 bg-[#0B1E38]/80 space-y-3.5 shadow-inner">
-              <div className="flex items-center justify-between text-xs text-slate-300 mb-1">
-                <span className="font-semibold text-white">{t("cardDetailsHeader")}</span>
-                <span className="flex items-center gap-1.5 text-[11px] text-slate-300 bg-slate-800/80 px-2.5 py-1 rounded-full">
-                  <Lock className="w-3 h-3 text-emerald-400" aria-hidden="true" />
-                  {t("stripeEncryptionText")}
-                </span>
-              </div>
-
-              <div>
-                <label htmlFor="cardNumber" className="block text-[11px] text-slate-300 mb-1 font-medium">
-                  {t("cardNumberLabel")}
-                </label>
-                <input
-                  id="cardNumber"
-                  type="text"
-                  value={formData.cardNumber}
-                  readOnly
-                  placeholder="•••• •••• •••• 4242"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="cardExp" className="block text-[11px] text-slate-300 mb-1 font-medium">
-                    {t("cardExpLabel")}
-                  </label>
-                  <input
-                    id="cardExp"
-                    type="text"
-                    value={formData.cardExp}
-                    readOnly
-                    placeholder="12/28"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="cardCvc" className="block text-[11px] text-slate-300 mb-1 font-medium">
-                    {t("cardCvcLabel")}
-                  </label>
-                  <input
-                    id="cardCvc"
-                    type="text"
-                    value={formData.cardCvc}
-                    readOnly
-                    placeholder="CVC"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700/80 bg-slate-900/90 text-slate-200 font-mono text-base sm:text-xs focus:outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2 text-[11px] text-slate-300 pt-1">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" aria-hidden="true" />
-              <span>
-                {t("stripeNoticeText")}
-              </span>
-            </div>
+            {/* Embedded Real Stripe Elements Integration */}
+            <StripePaymentSection
+              amount={totalPrice}
+              shliachDetails={{
+                id: savedShliachId || `shliach-${Date.now()}`,
+                hebrewName: formData.hebrewName.trim(),
+                email: formData.email.trim().toLowerCase(),
+                phone: formData.phone.trim(),
+                country: formData.country,
+                city: formData.city.trim(),
+                passportOrId: formData.passportOrId.trim(),
+                needsChildrenAccommodation: formData.needsChildrenAccommodation,
+                childrenNames: validChildren,
+              }}
+              childrenCount={childrenCount}
+              isSubmitting={isSubmitting}
+              setIsSubmitting={setIsSubmitting}
+              onPaymentSuccess={handlePaymentSuccess}
+              onError={(err) => setErrorMessage(err)}
+              language={language}
+              t={t}
+            />
           </fieldset>
         )}
 
@@ -1237,7 +1260,7 @@ export function RegistrationForm() {
               {isSavingDraft ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
-                  <span>{language === "he" ? "שומר פרטים..." : "Saving..."}</span>
+                  <span>{t("savingData")}</span>
                 </>
               ) : (
                 <>

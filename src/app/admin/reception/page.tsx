@@ -54,6 +54,12 @@ export default function ReceptionPage() {
       alert("שליח זה בסטטוס 'טופס נטוש (טיוטה)' וטרם השלים את הרישום. יש להפנות למשרד להסדרת הרישום והתשלום.");
       return;
     }
+    if (shliach.paymentStatus !== 'PAID') {
+      const confirmUnpaid = window.confirm(
+        `⚠️ שימו לב: השליח ${shliach.hebrewName || `${shliach.firstName} ${shliach.lastName}`} טרם שילם את דמי הרישום (סטטוס: ${shliach.paymentStatus === 'EXEMPT' ? 'פטור' : 'טרם שולם'}).\n\nהאם לאשר קליטה וצ'ק-אין בכל זאת?`
+      );
+      if (!confirmUnpaid) return;
+    }
     const result = await actions.checkInShliach(shliach.id, staffName);
     if (!result.success) {
       alert(result.message);
@@ -120,6 +126,15 @@ export default function ReceptionPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
+                  {s.paymentStatus !== 'PAID' ? (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                      טרם שולם
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      שולם
+                    </span>
+                  )}
                   {s.blockCheckIn && (
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-800">
                       חסום
@@ -157,6 +172,15 @@ export default function ReceptionPage() {
                 <span className="px-2 py-0.5 rounded bg-white/20 text-white text-[11px] font-bold">
                   {selectedShliach.passportOrId ? `דרכון/ת״ז: ${selectedShliach.passportOrId}` : selectedShliach.id}
                 </span>
+                {selectedShliach.paymentStatus !== 'PAID' ? (
+                  <span className="px-2 py-0.5 rounded bg-amber-400 text-slate-950 text-[11px] font-black">
+                    ⚠️ טרם שולם ($30)
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/90 text-white text-[11px] font-bold">
+                    ✓ שולם
+                  </span>
+                )}
                 {selectedShliach.checkedIn && (
                   <span className="px-2 py-0.5 rounded bg-white text-emerald-800 text-[11px] font-bold">
                     ✓ נקלט בעמדה

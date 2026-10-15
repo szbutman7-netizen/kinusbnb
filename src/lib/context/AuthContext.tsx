@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { UserProfile, ScreenPermissions, ScreenAccessLevel } from "@/types";
 import { dataStore } from "@/lib/services/dataService";
-import { signInWithPopup, signOut as fbSignOut } from "firebase/auth";
+import { signInWithPopup, signOut as fbSignOut, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase/config";
 
 interface AuthContextType {
@@ -22,16 +22,73 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check session in localStorage
-    const savedUser = localStorage.getItem("kinus_auth_user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        console.error("Failed to parse saved user", e);
+    if (auth) {
+      const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+        if (fbUser && fbUser.email) {
+          const email = fbUser.email.toLowerCase();
+          const registeredUsers = dataStore.getUsers();
+          let matched = registeredUsers.find(u => u.email.toLowerCase() === email && u.isActive);
+
+          if (!matched && email === "szbutman7@gmail.com") {
+            const ownerUser: UserProfile = {
+              id: "user-szbutman7",
+              email: "szbutman7@gmail.com",
+              displayName: fbUser.displayName || "זלמן בוטמן (מנהל ראשי)",
+              role: "SUPER_ADMIN",
+              isActive: true,
+              screenAccess: {
+                shluchim: "EDIT",
+                apartments: "EDIT",
+                placement: "EDIT",
+                reception: "EDIT",
+                emails: "EDIT",
+                users: "EDIT",
+              }
+            };
+            await dataStore.addUser(ownerUser);
+            matched = ownerUser;
+          }
+
+          if (matched) {
+            setUser(matched);
+            localStorage.setItem("kinus_auth_user", JSON.stringify(matched));
+            dataStore.startStaffSync();
+          } else {
+            setUser(null);
+            localStorage.removeItem("kinus_auth_user");
+            dataStore.stopStaffSync();
+          }
+        } else {
+          // No active Firebase session
+          const savedUser = localStorage.getItem("kinus_auth_user");
+          if (savedUser && !process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+            try {
+              setUser(JSON.parse(savedUser));
+            } catch {
+              setUser(null);
+              localStorage.removeItem("kinus_auth_user");
+            }
+          } else {
+            setUser(null);
+            localStorage.removeItem("kinus_auth_user");
+            dataStore.stopStaffSync();
+          }
+        }
+        setIsLoading(false);
+      });
+
+      return () => unsubscribe();
+    } else {
+      const savedUser = localStorage.getItem("kinus_auth_user");
+      if (savedUser) {
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch {
+          setUser(null);
+        }
       }
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const loginWithGoogle = async (): Promise<{ success: boolean; message: string }> => {
@@ -112,6 +169,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       // ignore
     }
+    dataStore.stopStaffSync();
     setUser(null);
     localStorage.removeItem("kinus_auth_user");
   };

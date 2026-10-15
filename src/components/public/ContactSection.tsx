@@ -32,15 +32,15 @@ export function ContactSection() {
     setError("");
     
     if (!form.name.trim()) {
-      setError(language === "he" ? "נא להזין שם מלא" : "Please enter your name");
+      setError(t("valHebrewNameRequired"));
       return;
     }
     if (!form.email.trim() || !form.email.includes("@")) {
-      setError(language === "he" ? "נא להזין כתובת דוא״ל תקינה" : "Please enter a valid email address");
+      setError(t("valEmailInvalid"));
       return;
     }
     if (!form.message.trim()) {
-      setError(language === "he" ? "נא להזין את תוכן הפנייה" : "Please enter your message");
+      setError(t("valMessageRequired"));
       return;
     }
 

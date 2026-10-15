@@ -54,10 +54,12 @@ class StoreManager {
   
   private listeners: Set<() => void> = new Set();
   private isFirebaseConnected = false;
+  private staffUnsubscribers: (() => void)[] = [];
+  private isStaffSyncActive = false;
 
   constructor() {
     this.initData();
-    this.initFirestoreSync();
+    this.initPublicSettingsSync();
   }
 
   private initData() {
@@ -161,37 +163,172 @@ class StoreManager {
     }
   }
 
-  private initFirestoreSync() {
+  private initPublicSettingsSync() {
     if (typeof window === "undefined") return;
     try {
       if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-        const shluchimCol = collection(db, "shluchim");
-        onSnapshot(shluchimCol, (snapshot) => {
-          if (!snapshot.empty) {
-            const cloudShluchim: Shliach[] = [];
-            snapshot.forEach((docSnap) => {
-              const d = docSnap.data();
-              cloudShluchim.push({
-                ...(d as any),
-                id: docSnap.id,
-              } as Shliach);
-            });
-            if (cloudShluchim.length > 0) {
-              this.shluchim = cloudShluchim;
-              this.isFirebaseConnected = true;
-              if (typeof window !== "undefined") {
-                localStorage.setItem("kinus_shluchim", JSON.stringify(this.shluchim));
-              }
-              this.notify();
+        const settingsDoc = doc(db, "settings", "registrationForm");
+        onSnapshot(settingsDoc, (snap) => {
+          if (snap.exists()) {
+            const data = snap.data() as Partial<FormSettings>;
+            this.formSettings = {
+              ...this.formSettings,
+              ...data,
+              siteUrl: data.siteUrl || this.formSettings.siteUrl || OFFICIAL_DOMAIN,
+              baseUrl: data.baseUrl || this.formSettings.baseUrl || OFFICIAL_DOMAIN,
+              authorizedDomain: data.authorizedDomain || this.formSettings.authorizedDomain || AUTHORIZED_DOMAIN
+            };
+            if (typeof window !== "undefined") {
+              localStorage.setItem("kinus_form_settings", JSON.stringify(this.formSettings));
             }
+            this.notify();
           }
         }, (err) => {
-          console.warn("Firestore shluchim real-time sync notice (using local cache):", err);
+          console.warn("Public settings listener notice (using local cache):", err);
         });
       }
     } catch (e) {
-      console.warn("Firestore sync init exception:", e);
+      console.warn("Public settings sync init exception:", e);
     }
+  }
+
+  public startStaffSync() {
+    if (typeof window === "undefined" || this.isStaffSyncActive) return;
+    try {
+      if (!process.env.NEXT_PUBLIC_FIREBASE_API_KEY) return;
+      this.isStaffSyncActive = true;
+
+      // 1. Shluchim collection
+      const unsubShluchim = onSnapshot(collection(db, "shluchim"), (snapshot) => {
+        if (!snapshot.empty) {
+          const cloudShluchim: Shliach[] = [];
+          snapshot.forEach((docSnap) => {
+            const d = docSnap.data();
+            cloudShluchim.push({
+              ...(d as any),
+              id: docSnap.id,
+            } as Shliach);
+          });
+          if (cloudShluchim.length > 0) {
+            this.shluchim = cloudShluchim;
+            this.isFirebaseConnected = true;
+            if (typeof window !== "undefined") {
+              localStorage.setItem("kinus_shluchim", JSON.stringify(this.shluchim));
+            }
+            this.notify();
+          }
+        }
+      }, (err) => {
+        console.warn("Firestore staff shluchim sync notice:", err);
+      });
+      this.staffUnsubscribers.push(unsubShluchim);
+
+      // 2. Apartments collection
+      const unsubApts = onSnapshot(collection(db, "apartments"), (snapshot) => {
+        if (!snapshot.empty) {
+          const cloudApts: Apartment[] = [];
+          snapshot.forEach((docSnap) => {
+            cloudApts.push({
+              ...(docSnap.data() as any),
+              id: docSnap.id,
+            } as Apartment);
+          });
+          if (cloudApts.length > 0) {
+            this.apartments = cloudApts;
+            if (typeof window !== "undefined") {
+              localStorage.setItem("kinus_apartments", JSON.stringify(this.apartments));
+            }
+            this.notify();
+          }
+        }
+      }, (err) => {
+        console.warn("Firestore staff apartments sync notice:", err);
+      });
+      this.staffUnsubscribers.push(unsubApts);
+
+      // 3. Beds collection
+      const unsubBeds = onSnapshot(collection(db, "beds"), (snapshot) => {
+        if (!snapshot.empty) {
+          const cloudBeds: Bed[] = [];
+          snapshot.forEach((docSnap) => {
+            cloudBeds.push({
+              ...(docSnap.data() as any),
+              id: docSnap.id,
+            } as Bed);
+          });
+          if (cloudBeds.length > 0) {
+            this.beds = cloudBeds;
+            if (typeof window !== "undefined") {
+              localStorage.setItem("kinus_beds", JSON.stringify(this.beds));
+            }
+            this.notify();
+          }
+        }
+      }, (err) => {
+        console.warn("Firestore staff beds sync notice:", err);
+      });
+      this.staffUnsubscribers.push(unsubBeds);
+
+      // 4. Contact messages collection
+      const unsubMsgs = onSnapshot(collection(db, "contactMessages"), (snapshot) => {
+        if (!snapshot.empty) {
+          const cloudMsgs: ContactMessage[] = [];
+          snapshot.forEach((docSnap) => {
+            cloudMsgs.push({
+              ...(docSnap.data() as any),
+              id: docSnap.id,
+            } as ContactMessage);
+          });
+          if (cloudMsgs.length > 0) {
+            this.contactMessages = cloudMsgs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            if (typeof window !== "undefined") {
+              localStorage.setItem("kinus_contact_messages", JSON.stringify(this.contactMessages));
+            }
+            this.notify();
+          }
+        }
+      }, (err) => {
+        console.warn("Firestore staff messages sync notice:", err);
+      });
+      this.staffUnsubscribers.push(unsubMsgs);
+
+      // 5. Audit log collection
+      const unsubAudit = onSnapshot(collection(db, "auditLog"), (snapshot) => {
+        if (!snapshot.empty) {
+          const cloudLogs: AuditLogEntry[] = [];
+          snapshot.forEach((docSnap) => {
+            cloudLogs.push({
+              ...(docSnap.data() as any),
+              id: docSnap.id,
+            } as AuditLogEntry);
+          });
+          if (cloudLogs.length > 0) {
+            this.auditLogs = cloudLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            if (typeof window !== "undefined") {
+              localStorage.setItem("kinus_audit_logs", JSON.stringify(this.auditLogs));
+            }
+            this.notify();
+          }
+        }
+      }, (err) => {
+        console.warn("Firestore staff audit log sync notice:", err);
+      });
+      this.staffUnsubscribers.push(unsubAudit);
+    } catch (e) {
+      console.warn("Staff sync init exception:", e);
+    }
+  }
+
+  public stopStaffSync() {
+    this.staffUnsubscribers.forEach((unsub) => {
+      try {
+        unsub();
+      } catch (e) {
+        // ignore
+      }
+    });
+    this.staffUnsubscribers = [];
+    this.isStaffSyncActive = false;
   }
 
   public normalizePassportOrId(val?: string): string {
@@ -929,8 +1066,17 @@ class StoreManager {
     }
   }
 
+  private async hashPasscode(passcode: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(passcode);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
   public async resetAllData(passcode: string): Promise<{ success: boolean; message: string }> {
-    if (passcode !== "7676") {
+    const hashed = await this.hashPasscode(passcode);
+    if (hashed !== "accceffe127e0f027a72ee4a3517fcadb8ec4b60c21a3418b5b9c5d1d53c2138") {
       return { success: false, message: "קוד ניהול שגוי. הפעולה בוטלה." };
     }
 
@@ -1189,6 +1335,37 @@ class StoreManager {
 
     this.persist();
 
+    // Firestore batch update for real-time multi-staff sync
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        const batch = writeBatch(db);
+        batch.update(doc(db, "beds", bed.id), {
+          status: 'ASSIGNED',
+          currentShliachId: shliach.id,
+          currentShliachName: `${shliach.firstName} ${shliach.lastName}`
+        });
+        if (before.bedId && before.bedId !== bed.id) {
+          batch.update(doc(db, "beds", before.bedId), {
+            status: 'AVAILABLE',
+            currentShliachId: null,
+            currentShliachName: null
+          });
+        }
+        batch.update(doc(db, "shluchim", shliach.id), {
+          apartmentId: bed.apartmentId,
+          apartmentName: aptName,
+          apartmentAddress: aptAddress,
+          bedId: bed.id,
+          bedNumber: bed.bedNumber,
+          receptionVisible: receptionVisible,
+          updatedAt: new Date().toISOString()
+        });
+        await batch.commit();
+      }
+    } catch (e) {
+      console.warn("Firestore assignPlacement batch update fallback:", e);
+    }
+
     this.logAudit(
       'ASSIGN_PLACEMENT',
       'Shliach',
@@ -1231,6 +1408,32 @@ class StoreManager {
     shliach.receptionVisible = false;
 
     this.persist();
+
+    // Firestore batch update for real-time multi-staff sync
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        const batch = writeBatch(db);
+        if (before.bedId) {
+          batch.update(doc(db, "beds", before.bedId), {
+            status: 'AVAILABLE',
+            currentShliachId: null,
+            currentShliachName: null
+          });
+        }
+        batch.update(doc(db, "shluchim", shliach.id), {
+          apartmentId: null,
+          apartmentName: null,
+          apartmentAddress: null,
+          bedId: null,
+          bedNumber: null,
+          receptionVisible: false,
+          updatedAt: new Date().toISOString()
+        });
+        await batch.commit();
+      }
+    } catch (e) {
+      console.warn("Firestore unassignPlacement batch update fallback:", e);
+    }
 
     if (before.bedId) {
       this.logAudit(

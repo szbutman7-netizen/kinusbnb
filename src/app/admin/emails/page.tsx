@@ -19,6 +19,7 @@ import {
   FlaskConical,
   Check
 } from "lucide-react";
+import { escapeHtml } from "@/lib/utils/sanitize";
 
 export default function EmailsPage() {
   const { templates, emailLogs, shluchim, formSettings, actions, isLoaded } = useKinusData();
@@ -178,14 +179,14 @@ export default function EmailsPage() {
   // Render HTML preview with replacement for first recipient or sample
   const sampleShliach = targetRecipients[0] || shluchim[0];
   const renderedPreview = htmlContent
-    .replace(/{shliach_name}/g, sampleShliach?.hebrewName || "הרב מנחם מענדל")
-    .replace(/{city}/g, sampleShliach?.city || "פריז")
-    .replace(/{apartment_name}/g, sampleShliach?.apartmentName || "דירה 1 - מונטגומרי 740")
-    .replace(/{apartment_address}/g, sampleShliach?.apartmentAddress || "740 Montgomery St, Brooklyn")
-    .replace(/{bed_number}/g, String(sampleShliach?.bedNumber || "1"))
+    .replace(/{shliach_name}/g, escapeHtml(sampleShliach?.hebrewName || "הרב מנחם מענדל"))
+    .replace(/{city}/g, escapeHtml(sampleShliach?.city || "פריז"))
+    .replace(/{apartment_name}/g, escapeHtml(sampleShliach?.apartmentName || "דירה 1 - מונטגומרי 740"))
+    .replace(/{apartment_address}/g, escapeHtml(sampleShliach?.apartmentAddress || "740 Montgomery St, Brooklyn"))
+    .replace(/{bed_number}/g, escapeHtml(String(sampleShliach?.bedNumber || "1")))
     .replace(/{entry_code}/g, "קוד כניסה: 7701#")
-    .replace(/{arrival_date}/g, sampleShliach?.arrivalDate || "18/11")
-    .replace(/{departure_date}/g, sampleShliach?.departureDate || "23/11");
+    .replace(/{arrival_date}/g, escapeHtml(sampleShliach?.arrivalDate || "03/11"))
+    .replace(/{departure_date}/g, escapeHtml(sampleShliach?.departureDate || "10/11"));
 
   // Send batch of emails via Apps Script Relay
   const handleSendEmails = async () => {
@@ -207,13 +208,13 @@ export default function EmailsPage() {
 
       for (const shliach of chunk) {
         const personalizedHtml = htmlContent
-          .replace(/{shliach_name}/g, shliach.hebrewName || `${shliach.firstName} ${shliach.lastName}`)
-          .replace(/{city}/g, shliach.city)
-          .replace(/{apartment_name}/g, shliach.apartmentName || "דירת אירוח")
-          .replace(/{apartment_address}/g, shliach.apartmentAddress || "")
-          .replace(/{bed_number}/g, String(shliach.bedNumber || ""))
-          .replace(/{arrival_date}/g, shliach.arrivalDate)
-          .replace(/{departure_date}/g, shliach.departureDate);
+          .replace(/{shliach_name}/g, escapeHtml(shliach.hebrewName || `${shliach.firstName} ${shliach.lastName}`))
+          .replace(/{city}/g, escapeHtml(shliach.city))
+          .replace(/{apartment_name}/g, escapeHtml(shliach.apartmentName || "דירת אירוח"))
+          .replace(/{apartment_address}/g, escapeHtml(shliach.apartmentAddress || ""))
+          .replace(/{bed_number}/g, escapeHtml(String(shliach.bedNumber || "")))
+          .replace(/{arrival_date}/g, escapeHtml(shliach.arrivalDate))
+          .replace(/{departure_date}/g, escapeHtml(shliach.departureDate));
 
         try {
           const res = await fetch("/api/email-relay/send", {

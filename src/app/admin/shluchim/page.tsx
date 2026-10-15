@@ -22,6 +22,7 @@ import {
   X,
   FileSpreadsheet
 } from "lucide-react";
+import { sanitizeForSheet } from "@/lib/utils/sanitize";
 
 export default function ShluchimPage() {
   const { shluchim, actions, isLoaded } = useKinusData();
@@ -170,7 +171,7 @@ export default function ShluchimPage() {
       [
         headers.join(","),
         ...rows.map((row) =>
-          row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
+          row.map((cell) => `"${sanitizeForSheet(cell).replace(/"/g, '""')}"`).join(",")
         ),
       ].join("\n");
 

@@ -156,29 +156,38 @@ function syncShliachToSheet(shliach, spreadsheetId) {
     }
   }
 
+  function cleanSheetCell(val) {
+    if (val === null || val === undefined) return "";
+    var str = String(val).trim();
+    if (/^[=+@\-\t\r]/.test(str)) {
+      return "'" + str;
+    }
+    return str;
+  }
+
   // הכנת ערכי השורה
   const rowData = [
-    shliach.id || "",
+    cleanSheetCell(shliach.id),
     shliach.registrationStatus === "DRAFT" ? "טופס נטוש / טיוטה" : "הושלם",
-    shliach.hebrewName || "",
-    shliach.firstName || "",
-    shliach.lastName || "",
+    cleanSheetCell(shliach.hebrewName),
+    cleanSheetCell(shliach.firstName),
+    cleanSheetCell(shliach.lastName),
     shliach.age || "",
-    shliach.passportOrId || "",
-    shliach.city || "",
-    shliach.country || "",
-    shliach.phone || "",
-    shliach.email || "",
-    shliach.arrivalDate || "",
-    shliach.arrivalTime || "",
-    shliach.departureDate || "",
-    shliach.departureTime || "",
-    shliach.paymentStatus || "",
-    shliach.amountPaid || 0,
+    cleanSheetCell(shliach.passportOrId),
+    cleanSheetCell(shliach.city),
+    cleanSheetCell(shliach.country),
+    cleanSheetCell(shliach.phone),
+    cleanSheetCell(shliach.email),
+    cleanSheetCell(shliach.arrivalDate),
+    cleanSheetCell(shliach.arrivalTime),
+    cleanSheetCell(shliach.departureDate),
+    cleanSheetCell(shliach.departureTime),
+    cleanSheetCell(shliach.paymentStatus),
+    Number(shliach.amountPaid) || 0,
     shliach.needsChildrenAccommodation ? "כן" : "לא",
-    (shliach.childrenNames || []).join(", "),
-    shliach.preferredRoommates || "",
-    shliach.specialRequests || "",
+    cleanSheetCell((shliach.childrenNames || []).join(", ")),
+    cleanSheetCell(shliach.preferredRoommates),
+    cleanSheetCell(shliach.specialRequests),
     new Date().toLocaleString("he-IL", { timeZone: "America/New_York" })
   ];
 

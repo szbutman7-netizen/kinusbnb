@@ -146,9 +146,10 @@ export const translations = {
     // Validation
     valRequiredField: "שדה חובה: נא למלא את כל השדות המסומנים",
     valAgeRequired: "נא להזין גיל תקין (18 ומעלה)",
-    valHebrewNameRequired: "נא להזין שם מלא בעברית (אותיות בעברית בלבד)",
-    valFirstNameRequired: "נא להזין שם פרטי באנגלית",
-    valLastNameRequired: "נא להזין שם משפחה באנגלית",
+    valHebrewNameRequired: "נא להזין שם מלא (שם פרטי ושם משפחה)",
+    valFullNameIncomplete: "שם פרטי או שם משפחה חסרים: נא להזין שם פרטי ושם משפחה מלאים",
+    valFirstNameRequired: "נא להזין שם פרטי",
+    valLastNameRequired: "נא להזין שם משפחה",
     valPassportRequired: "נא להזין מספר דרכון או תעודת זהות",
     valCountryRequired: "נא לבחור מדינת שליחות",
     valCityRequired: "נא להזין עיר שליחות",
@@ -164,6 +165,9 @@ export const translations = {
     submittingOverlayTitle: "מאמת נתונים ושומר את הרישום בשרת...",
     submittingOverlayDesc: "הנתונים נשמרים כעת בשרת הכינוס בצורה מאובטחת. אנא אל תסגור את העמוד ואל תרענן את הדפדפן.",
     valGenericError: "אירעה שגיאה בעת ההרשמה, אנא נסו שוב.",
+    valMessageRequired: "נא להזין את תוכן הפנייה",
+    savingData: "שומר פרטים...",
+    mandatoryNotice: "* כל השדות הינם שדות חובה",
 
     // Success Page
     successTitle: "ההרשמה נקלטה בהצלחה!",
@@ -354,9 +358,10 @@ export const translations = {
     // Validation
     valRequiredField: "Required field: Please complete all required fields",
     valAgeRequired: "Please enter a valid age (18 or older)",
-    valHebrewNameRequired: "Please enter full Hebrew name (Hebrew letters only)",
-    valFirstNameRequired: "Please enter first name in English",
-    valLastNameRequired: "Please enter last name in English",
+    valHebrewNameRequired: "Please enter full name (first and last name)",
+    valFullNameIncomplete: "First name or last name is missing: Please enter full first and last name",
+    valFirstNameRequired: "Please enter first name",
+    valLastNameRequired: "Please enter last name",
     valPassportRequired: "Please enter passport or ID number",
     valCountryRequired: "Please select country of shlichus",
     valCityRequired: "Please enter city of shlichus",
@@ -372,6 +377,9 @@ export const translations = {
     submittingOverlayTitle: "Verifying and saving registration to server...",
     submittingOverlayDesc: "Your registration is being securely saved to the server. Please do not close or refresh this page.",
     valGenericError: "An error occurred during registration, please try again.",
+    valMessageRequired: "Please enter your message",
+    savingData: "Saving...",
+    mandatoryNotice: "* All fields are mandatory",
 
     // Success Page
     successTitle: "Registration Confirmed!",

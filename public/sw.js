@@ -1,4 +1,4 @@
-const CACHE_NAME = "kinus-cache-v1.0.0";
+const CACHE_NAME = "kinus-cache-v1.0.1";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
@@ -18,7 +18,12 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // Pass through fetch handler with cache fallback
+  // Only intercept GET requests — never intercept POST, PUT, DELETE
+  if (event.request.method !== "GET") {
+    return;
+  }
+
+  // Pass through fetch handler with cache fallback for GET requests
   event.respondWith(
     fetch(event.request).catch(() => caches.match(event.request))
   );
