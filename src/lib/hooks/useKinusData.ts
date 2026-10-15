@@ -11,7 +11,8 @@ import {
   EmailLog, 
   DashboardStats,
   FormSettings,
-  ContactMessage
+  ContactMessage,
+  AuditLogEntry
 } from "@/types";
 
 export function useKinusData() {
@@ -21,6 +22,7 @@ export function useKinusData() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
+  const [auditLogs, setAuditLogs] = useState<AuditLogEntry[]>([]);
   const [formSettings, setFormSettings] = useState<FormSettings>({ isOpen: true });
   const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -33,6 +35,7 @@ export function useKinusData() {
     setUsers(dataStore.getUsers());
     setTemplates(dataStore.getTemplates());
     setEmailLogs(dataStore.getEmailLogs());
+    setAuditLogs(dataStore.getAuditLogs());
     setFormSettings(dataStore.getFormSettings());
     setContactMessages(dataStore.getContactMessages());
     setStats(dataStore.getStats());
@@ -59,10 +62,14 @@ export function useKinusData() {
     users,
     templates,
     emailLogs,
+    auditLogs,
     formSettings,
     contactMessages,
     stats,
     actions: {
+      refreshData,
+      logAudit: dataStore.logAudit.bind(dataStore),
+      undoAuditLog: dataStore.undoAuditLog.bind(dataStore),
       addShliach: dataStore.addShliach.bind(dataStore),
       updateShliach: dataStore.updateShliach.bind(dataStore),
       toggleBlockCheckIn: dataStore.toggleBlockCheckIn.bind(dataStore),
@@ -80,6 +87,8 @@ export function useKinusData() {
       updateUser: dataStore.updateUser.bind(dataStore),
       deleteUser: dataStore.deleteUser.bind(dataStore),
       updateFormSettings: dataStore.updateFormSettings.bind(dataStore),
+      deleteShliach: dataStore.deleteShliach.bind(dataStore),
+      resetAllData: dataStore.resetAllData.bind(dataStore),
       addContactMessage: dataStore.addContactMessage.bind(dataStore),
       replyContactMessage: dataStore.replyContactMessage.bind(dataStore),
       deleteContactMessage: dataStore.deleteContactMessage.bind(dataStore),

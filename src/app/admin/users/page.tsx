@@ -56,6 +56,7 @@ export default function UsersManagementPage() {
         reception: isSuper || isReception ? "EDIT" : "VIEW",
         emails: isSuper ? "EDIT" : "NONE",
         users: isSuper ? "EDIT" : "NONE",
+        audit: isSuper ? "EDIT" : isHousing ? "VIEW" : "NONE",
       },
     };
 
@@ -165,6 +166,11 @@ export default function UsersManagementPage() {
                         <span className="bg-slate-100 px-1.5 py-0.5 rounded border">
                           קבלה: {u.screenAccess.reception}
                         </span>
+                        {u.screenAccess.audit && (
+                          <span className="bg-slate-100 px-1.5 py-0.5 rounded border">
+                            יומן שינויים: {u.screenAccess.audit}
+                          </span>
+                        )}
                       </div>
                     </td>
 
@@ -228,7 +234,7 @@ export default function UsersManagementPage() {
                   onChange={(e) => setNameInput(e.target.value)}
                   required
                   placeholder="יוסי גרינוולד"
-                  className="w-full p-2.5 border rounded-xl"
+                  className="w-full p-2.5 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                 />
               </div>
 
@@ -242,7 +248,7 @@ export default function UsersManagementPage() {
                   onChange={(e) => setEmailInput(e.target.value)}
                   required
                   placeholder="yossi@gmail.com / yossi@kinus.org"
-                  className="w-full p-2.5 border rounded-xl"
+                  className="w-full p-2.5 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                 />
                 <span className="text-[10px] text-slate-500 block mt-0.5">
                   רק משתמש שיתחבר עם כתובת זו יוכל להיכנס לממשק.

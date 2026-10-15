@@ -292,7 +292,7 @@ export default function ApartmentsPage() {
                   onChange={(e) => setFormNumber(e.target.value)}
                   required
                   placeholder="דירה 4 - יוניון 720"
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                 />
               </div>
 
@@ -306,7 +306,7 @@ export default function ApartmentsPage() {
                   onChange={(e) => setFormAddress(e.target.value)}
                   required
                   placeholder="720 Union St, Apt 3A, Brooklyn, NY 11213"
-                  className="w-full px-3 py-2 border rounded-xl"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                 />
               </div>
 
@@ -322,7 +322,7 @@ export default function ApartmentsPage() {
                     value={formTotalBeds}
                     onChange={(e) => setFormTotalBeds(Number(e.target.value))}
                     required
-                    className="w-full px-3 py-2 border rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                   />
                   <span className="text-[10px] text-slate-500 block mt-0.5">
                     המיטות ייווצרו אוטומטית במקביל
@@ -338,7 +338,7 @@ export default function ApartmentsPage() {
                     value={formFloor}
                     onChange={(e) => setFormFloor(e.target.value)}
                     placeholder="קומה 2 (יש מעלית)"
-                    className="w-full px-3 py-2 border rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                   />
                 </div>
               </div>
@@ -353,7 +353,7 @@ export default function ApartmentsPage() {
                     value={formEntryCode}
                     onChange={(e) => setFormEntryCode(e.target.value)}
                     placeholder="קוד: 7700#"
-                    className="w-full px-3 py-2 border rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                   />
                 </div>
 
@@ -366,7 +366,7 @@ export default function ApartmentsPage() {
                     value={formWaze}
                     onChange={(e) => setFormWaze(e.target.value)}
                     placeholder="https://waze.com/ul?..."
-                    className="w-full px-3 py-2 border rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                   />
                 </div>
               </div>
@@ -381,7 +381,7 @@ export default function ApartmentsPage() {
                     value={formManagerName}
                     onChange={(e) => setFormManagerName(e.target.value)}
                     placeholder="מנחם כהן"
-                    className="w-full px-3 py-2 border rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                   />
                 </div>
 
@@ -393,7 +393,7 @@ export default function ApartmentsPage() {
                     type="date"
                     value={formScheduledClosure}
                     onChange={(e) => setFormScheduledClosure(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-xl"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                   />
                 </div>
               </div>

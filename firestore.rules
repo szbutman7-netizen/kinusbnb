@@ -176,6 +176,15 @@ service cloud.firestore {
     }
 
     // =========================================================================
+    // AUDIT LOG
+    // =========================================================================
+
+    // Audit logs recording administrative actions and status modifications - strictly admin only
+    match /auditLog/{logId} {
+      allow read, write: if isAdmin();
+    }
+
+    // =========================================================================
     // SYSTEM SETTINGS & DOMAIN CONFIGURATION
     // =========================================================================
 

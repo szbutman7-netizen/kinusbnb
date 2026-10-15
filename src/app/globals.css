@@ -25,6 +25,21 @@ body {
   color: var(--foreground);
 }
 
+/* Form input, select, textarea default styling - ensure black/dark text on light inputs across browsers and admin pages */
+input, select, textarea {
+  color: #0f172a;
+}
+
+/* Retain white/light text for dark inputs explicitly marked */
+.dark input,
+.kinus-input,
+[data-theme="dark"] input,
+input.text-white,
+textarea.text-white,
+select.text-white {
+  color: #ffffff;
+}
+
 /* Prevent auto-zoom on iOS/Android mobile inputs */
 @media (max-width: 640px) {
   input, select, textarea {

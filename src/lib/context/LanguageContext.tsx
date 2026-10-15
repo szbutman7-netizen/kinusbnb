@@ -111,10 +111,22 @@ export const translations = {
     specialRequestsLabel: "בקשות מיוחדות / צרכי נגישות",
     specialRequestsPlaceholder: "קומה נמוכה, מעלית, צרכי נגישות מיוחדים וכו'",
 
+    // Children Accommodation
+    childrenQuestionLabel: "האם אתה זקוק למקום לינה עבור ילדיך?",
+    childrenOptionYes: "כן",
+    childrenOptionNo: "לא",
+    childrenPriceNotice: "שימו לב: כל ילד זה תוספת של $30 עבור לינה לכל ימי הכינוס.",
+    childNameLabel: "שם הילד",
+    childNamePlaceholder: "הזן שם מלא של הילד",
+    addChildButton: "הוסף ילד נוסף",
+    removeChildButton: "הסר",
+    childrenSummaryLabel: "תוספת לינה עבור ילדים:",
+
     // Step 3 Fields
     step3Header: "תשלום מאובטח באמצעות Stripe",
-    feeSummaryLabel: "דמי השתתפות באירוח ולינה:",
+    feeSummaryLabel: "דמי השתתפות באירוח ולינה (שליח):",
     feeSummaryAmount: "$30.00 USD",
+    feeTotalLabel: "סה״כ לתשלום:",
     sslSecuredText: "סליקה מאובטחת SSL",
     cardDetailsHeader: "פרטי כרטיס אשראי",
     stripeEncryptionText: "Stripe 256-bit Encryption",
@@ -126,7 +138,7 @@ export const translations = {
     // Buttons
     btnBack: "חזור",
     btnNext: "המשך",
-    btnSubmit: "בצע תשלום ואשר הרשמה ($30)",
+    btnSubmit: "בצע תשלום ואשר הרשמה",
     btnSubmitting: "מעבד תשלום...",
 
     // Validation
@@ -289,10 +301,22 @@ export const translations = {
     specialRequestsLabel: "Special Requests / Accessibility Needs",
     specialRequestsPlaceholder: "Low floor, elevator access, special mobility requirements, etc.",
 
+    // Children Accommodation
+    childrenQuestionLabel: "Do you need accommodations for your children?",
+    childrenOptionYes: "Yes",
+    childrenOptionNo: "No",
+    childrenPriceNotice: "Please note: Each child is an additional $30 for accommodation throughout the Kinus.",
+    childNameLabel: "Child's Name",
+    childNamePlaceholder: "Enter child's full name",
+    addChildButton: "Add another child",
+    removeChildButton: "Remove",
+    childrenSummaryLabel: "Children accommodation fee:",
+
     // Step 3 Fields
     step3Header: "Secure Payment via Stripe",
-    feeSummaryLabel: "Housing & Accommodation Participation Fee:",
+    feeSummaryLabel: "Housing & Accommodation Fee (Shliach):",
     feeSummaryAmount: "$30.00 USD",
+    feeTotalLabel: "Total Amount Due:",
     sslSecuredText: "SSL Secure Checkout",
     cardDetailsHeader: "Credit Card Information",
     stripeEncryptionText: "Stripe 256-bit Encryption",
@@ -304,7 +328,7 @@ export const translations = {
     // Buttons
     btnBack: "Back",
     btnNext: "Next Step",
-    btnSubmit: "Complete Payment & Confirm ($30)",
+    btnSubmit: "Complete Payment & Confirm",
     btnSubmitting: "Processing Payment...",
 
     // Validation

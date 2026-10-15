@@ -1,14 +1,9 @@
 import { 
-  collection, 
   doc, 
-  onSnapshot, 
   setDoc, 
   updateDoc, 
   deleteDoc, 
-  writeBatch,
-  getDocs,
-  query,
-  where
+  writeBatch
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { 
@@ -20,7 +15,8 @@ import {
   EmailLog, 
   DashboardStats,
   FormSettings,
-  ContactMessage
+  ContactMessage,
+  AuditLogEntry
 } from "@/types";
 import { 
   INITIAL_SHLUCHIM, 
@@ -44,6 +40,7 @@ class StoreManager {
   private templates: EmailTemplate[] = [];
   private emailLogs: EmailLog[] = [];
   private contactMessages: ContactMessage[] = [];
+  private auditLogs: AuditLogEntry[] = [];
   private formSettings: FormSettings = { 
     isOpen: true,
     allowedArrivalDates: [...DEFAULT_ARRIVAL_DATES],
@@ -70,11 +67,13 @@ class StoreManager {
       const storedLogs = localStorage.getItem("kinus_logs");
       const storedFormSettings = localStorage.getItem("kinus_form_settings");
       const storedMessages = localStorage.getItem("kinus_contact_messages");
+      const storedAuditLogs = localStorage.getItem("kinus_audit_logs");
 
       this.shluchim = storedShluchim ? JSON.parse(storedShluchim) : INITIAL_SHLUCHIM;
       this.apartments = storedApts ? JSON.parse(storedApts) : INITIAL_APARTMENTS;
       this.beds = storedBeds ? JSON.parse(storedBeds) : INITIAL_BEDS;
       this.users = storedUsers ? JSON.parse(storedUsers) : [...INITIAL_USERS];
+      this.auditLogs = storedAuditLogs ? JSON.parse(storedAuditLogs) : [];
 
       // Failsafe: ensure primary super admin szbutman7@gmail.com is always present and active
       const primaryEmail = "szbutman7@gmail.com";
@@ -117,6 +116,7 @@ class StoreManager {
       const parsedSettings = storedFormSettings ? JSON.parse(storedFormSettings) : null;
       this.formSettings = {
         isOpen: parsedSettings?.isOpen ?? true,
+        sendConfirmationEmail: parsedSettings?.sendConfirmationEmail ?? true,
         closedMessageHe: parsedSettings?.closedMessageHe || "",
         closedMessageEn: parsedSettings?.closedMessageEn || "",
         allowedArrivalDates: parsedSettings?.allowedArrivalDates || [...DEFAULT_ARRIVAL_DATES],
@@ -137,6 +137,7 @@ class StoreManager {
       this.contactMessages = [];
       this.formSettings = { 
         isOpen: true,
+        sendConfirmationEmail: true,
         allowedArrivalDates: [...DEFAULT_ARRIVAL_DATES],
         allowedDepartureDates: [...DEFAULT_DEPARTURE_DATES],
         siteUrl: OFFICIAL_DOMAIN,
@@ -156,6 +157,7 @@ class StoreManager {
       localStorage.setItem("kinus_logs", JSON.stringify(this.emailLogs));
       localStorage.setItem("kinus_form_settings", JSON.stringify(this.formSettings));
       localStorage.setItem("kinus_contact_messages", JSON.stringify(this.contactMessages));
+      localStorage.setItem("kinus_audit_logs", JSON.stringify(this.auditLogs));
     }
     this.notify();
   }
@@ -196,11 +198,399 @@ class StoreManager {
     return [...this.emailLogs];
   }
 
+  public getAuditLogs(): AuditLogEntry[] {
+    const seen = new Set<string>();
+    return this.auditLogs.filter(l => {
+      if (!l || !l.id || seen.has(l.id)) return false;
+      seen.add(l.id);
+      return true;
+    });
+  }
+
+  public getEffectiveActor(actor?: { id?: string; displayName?: string; email?: string }) {
+    if (actor && (actor.id || actor.displayName || actor.email)) {
+      return {
+        id: actor.id || "admin",
+        displayName: actor.displayName || actor.email || "משתמש מערכת",
+        email: actor.email || ""
+      };
+    }
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("kinus_auth_user");
+        if (saved) {
+          const u = JSON.parse(saved);
+          return {
+            id: u.id || "admin",
+            displayName: u.displayName || u.email || "משתמש מערכת",
+            email: u.email || ""
+          };
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return { id: "admin", displayName: "משתמש מערכת", email: "" };
+  }
+
+  public logAudit(
+    action: string,
+    entity: string,
+    entityId: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    before: Record<string, any> | null = null,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    after: Record<string, any> | null = null,
+    description?: string,
+    actionHebrew?: string,
+    actor?: { id?: string; displayName?: string; email?: string }
+  ): AuditLogEntry {
+    const defaultHebrewMap: Record<string, string> = {
+      'CREATE_SHLIACH': 'רישום שליח חדש',
+      'UPDATE_SHLIACH': 'עדכון פרטי שליח',
+      'DELETE_SHLIACH': 'מחיקת שליח',
+      'ASSIGN_PLACEMENT': 'שיבוץ לדירה ומיטה',
+      'UNASSIGN_PLACEMENT': 'ביטול שיבוץ',
+      'TOGGLE_CHECKIN': 'עמדת קבלה (Check-In)',
+      'TOGGLE_BLOCK': 'חסימת / שחרור קליטה',
+      'CREATE_APARTMENT': 'הוספת דירה',
+      'UPDATE_APARTMENT': 'עדכון דירה',
+      'DELETE_APARTMENT': 'מחיקת דירה',
+      'UPDATE_BED_STATUS': 'עדכון סטטוס מיטה',
+      'SET_BED_RESERVED': 'שמירת / שחרור מיטה',
+      'BATCH_PUBLISH_PLACEMENT': 'פרסום שיבוץ מרוכז',
+      'CREATE_USER': 'הוספת משתמש מורשה',
+      'UPDATE_USER': 'עדכון משתמש מורשה',
+      'DELETE_USER': 'הסרת משתמש מורשה',
+      'UPDATE_SETTINGS': 'עדכון הגדרות מערכת',
+      'RESET_ALL_DATA': 'איפוס מוחלט של נתונים',
+      'UNDO_ACTION': 'ביטול פעולה'
+    };
+
+    const actionTitle = actionHebrew || defaultHebrewMap[action] || action;
+    const finalDescription = description || `${actionTitle}: ${entity} #${entityId}`;
+    const actorInfo = this.getEffectiveActor(actor);
+
+    const newLog: AuditLogEntry = {
+      id: `audit-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      userId: actorInfo.id,
+      userDisplayName: actorInfo.displayName,
+      userEmail: actorInfo.email,
+      action,
+      actionHebrew: actionTitle,
+      description: finalDescription,
+      entity,
+      entityId,
+      before: before ? JSON.parse(JSON.stringify(before)) : null,
+      after: after ? JSON.parse(JSON.stringify(after)) : null,
+      timestamp: new Date().toISOString()
+    };
+
+    this.auditLogs.unshift(newLog);
+    if (this.auditLogs.length > 2000) {
+      this.auditLogs = this.auditLogs.slice(0, 2000);
+    }
+    this.persist();
+
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        setDoc(doc(db, "auditLog", newLog.id), newLog).catch(e => {
+          console.warn("Firestore audit log write error:", e);
+        });
+      }
+    } catch (e) {
+      console.warn("Firestore audit log error:", e);
+    }
+
+    return newLog;
+  }
+
+  public async undoAuditLog(
+    logId: string, 
+    actorUserId?: string
+  ): Promise<{ success: boolean; message?: string; error?: string }> {
+    const log = this.auditLogs.find(l => l.id === logId);
+    if (!log) {
+      return { success: false, error: 'רשומת יומן השינויים לא נמצאה' };
+    }
+
+    if (log.undone) {
+      return { success: false, error: 'פעולה זו כבר בוטלה (שוחזרה) בעבר.' };
+    }
+
+    const markAsUndone = async () => {
+      log.undone = true;
+      this.persist();
+      try {
+        if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+          await updateDoc(doc(db, 'auditLog', logId), { undone: true });
+        }
+      } catch (e) {
+        console.warn('Could not persist undone status on audit log document:', e);
+      }
+    };
+
+    const effectiveActor = this.getEffectiveActor(actorUserId ? { id: actorUserId } : undefined);
+
+    try {
+      // 1. Undo ASSIGN_PLACEMENT -> free bed and unassign shliach
+      if (log.action === 'ASSIGN_PLACEMENT') {
+        const shliachId = log.entityId;
+        const shliach = this.shluchim.find(s => s.id === shliachId);
+        if (!shliach) {
+          return { success: false, error: 'השליח אינו קיים עוד במערכת' };
+        }
+
+        const bedId = log.after?.bedId;
+        if (bedId && shliach.bedId !== bedId) {
+          return {
+            success: false,
+            error: `שגיאת התנגשות (Conflict): שיבוץ השליח ${shliach.firstName} ${shliach.lastName} כבר שונה או בוטל לאחר פעולה זו.`
+          };
+        }
+
+        await this.unassignPlacement(shliach.id);
+        await markAsUndone();
+
+        this.logAudit(
+          'UNDO_ACTION',
+          'Shliach',
+          shliach.id,
+          null,
+          null,
+          `ביטול פעולה: בוטל שיבוץ דירה עבור ${shliach.firstName} ${shliach.lastName} והמיטה פונתה`,
+          'ביטול פעולה',
+          effectiveActor
+        );
+
+        return { success: true, message: `שיבוץ הדירה של ${shliach.firstName} ${shliach.lastName} בוטל והמיטה פונתה בהצלחה` };
+      }
+
+      // 2. Undo UNASSIGN_PLACEMENT -> restore shliach back to bed
+      if (log.action === 'UNASSIGN_PLACEMENT') {
+        const prev = log.before;
+        if (!prev || !prev.bedId) {
+          return { success: false, error: 'נתוני השיבוץ המקוריים אינם מלאים ברשומה זו' };
+        }
+
+        const shliach = this.shluchim.find(s => s.id === log.entityId);
+        if (!shliach) {
+          return { success: false, error: 'השליח אינו קיים עוד במערכת.' };
+        }
+
+        const bed = this.beds.find(b => b.id === prev.bedId);
+        if (!bed) {
+          return { success: false, error: 'המיטה המקורית אינה קיימת עוד במערכת.' };
+        }
+
+        const apt = this.apartments.find(a => a.id === (prev.apartmentId || bed.apartmentId));
+
+        // Conflict check: is bed currently occupied by another person?
+        if (bed.status === 'ASSIGNED' && bed.currentShliachId && bed.currentShliachId !== shliach.id) {
+          const occupant = this.shluchim.find(s => s.id === bed.currentShliachId);
+          const occupantName = occupant ? `${occupant.firstName} ${occupant.lastName}` : (bed.currentShliachName || 'שליח אחר');
+          return {
+            success: false,
+            error: `שגיאת התנגשות (Conflict): לא ניתן לבטל את פעולת השחרור מכיוון שמיטה ${bed.bedNumber} ב${apt?.apartmentNumber || 'דירה'} כבר נתפסה ע״י ${occupantName}. יש לפנות את המיטה תחילה כדי להחזיר את השיבוץ.`
+          };
+        }
+
+        // Conflict check: is shliach already placed elsewhere?
+        if (shliach.bedId && shliach.bedId !== bed.id) {
+          return {
+            success: false,
+            error: `שגיאת התנגשות: השליח ${shliach.firstName} ${shliach.lastName} כבר שובץ בינתיים לדירה אחרת (${shliach.apartmentName || ''} מיטה ${shliach.bedNumber}). יש לבטל את שיבוצו החדש תחילה.`
+          };
+        }
+
+        const res = await this.assignPlacement(shliach.id, bed.id, prev.receptionVisible ?? false);
+        if (!res.success) {
+          return { success: false, error: res.message || 'שגיאה בהחזרת השיבוץ' };
+        }
+
+        await markAsUndone();
+
+        this.logAudit(
+          'UNDO_ACTION',
+          'Shliach',
+          shliach.id,
+          null,
+          { restoredBedId: bed.id },
+          `ביטול פעולה: שוחזר שיבוץ עבור ${shliach.firstName} ${shliach.lastName} ל${apt?.apartmentNumber || 'הדירה'}, מיטה ${bed.bedNumber}`,
+          'ביטול פעולה',
+          effectiveActor
+        );
+
+        return { success: true, message: `השיבוץ של ${shliach.firstName} ${shliach.lastName} ל${apt?.apartmentNumber || 'דירה'} מיטה ${bed.bedNumber} שוחזר בהצלחה` };
+      }
+
+      // 3. Undo TOGGLE_CHECKIN
+      if (log.action === 'TOGGLE_CHECKIN') {
+        const shliach = this.shluchim.find(s => s.id === log.entityId);
+        if (!shliach) return { success: false, error: 'השליח לא נמצא' };
+
+        const targetCheckedIn = log.before?.checkedIn ?? false;
+        await this.updateShliach(shliach.id, {
+          checkedIn: targetCheckedIn,
+          checkedInAt: targetCheckedIn ? (log.before?.checkedInAt || new Date().toISOString()) : undefined,
+          checkedInBy: targetCheckedIn ? (log.before?.checkedInBy || 'מערכת') : undefined
+        });
+
+        await markAsUndone();
+
+        this.logAudit(
+          'UNDO_ACTION',
+          'Shliach',
+          shliach.id,
+          null,
+          { checkedIn: targetCheckedIn },
+          `ביטול פעולה: שוחזר סטטוס קבלה (Check-In) עבור ${shliach.firstName} ${shliach.lastName} ל-${targetCheckedIn ? 'נקלט' : 'טרם נקלט'}`,
+          'ביטול פעולה',
+          effectiveActor
+        );
+
+        return { success: true, message: `סטטוס קבלה עבור ${shliach.firstName} ${shliach.lastName} שוחזר בהצלחה` };
+      }
+
+      // 4. Undo TOGGLE_BLOCK
+      if (log.action === 'TOGGLE_BLOCK') {
+        const shliach = this.shluchim.find(s => s.id === log.entityId);
+        if (!shliach) return { success: false, error: 'השליח לא נמצא' };
+
+        const targetBlock = log.before?.blockCheckIn ?? false;
+        const targetReason = log.before?.blockReason ?? '';
+
+        await this.updateShliach(shliach.id, {
+          blockCheckIn: targetBlock,
+          blockReason: targetReason
+        });
+
+        await markAsUndone();
+
+        this.logAudit(
+          'UNDO_ACTION',
+          'Shliach',
+          shliach.id,
+          null,
+          { blockCheckIn: targetBlock },
+          `ביטול פעולה: שוחזר סטטוס חסימה עבור ${shliach.firstName} ${shliach.lastName}`,
+          'ביטול פעולה',
+          effectiveActor
+        );
+
+        return { success: true, message: `סטטוס חסימת קבלה עבור ${shliach.firstName} ${shliach.lastName} שוחזר בהצלחה` };
+      }
+
+      // 5. Undo UPDATE_SHLIACH
+      if (log.action === 'UPDATE_SHLIACH' && log.before) {
+        const shliach = this.shluchim.find(s => s.id === log.entityId);
+        if (!shliach) return { success: false, error: 'השליח לא נמצא' };
+
+        await this.updateShliach(shliach.id, log.before);
+        await markAsUndone();
+
+        this.logAudit(
+          'UNDO_ACTION',
+          'Shliach',
+          shliach.id,
+          null,
+          null,
+          `ביטול פעולה: שוחזרו פרטי ${shliach.firstName} ${shliach.lastName} למצב הקודם`,
+          'ביטול פעולה',
+          effectiveActor
+        );
+
+        return { success: true, message: `פרטי ${shliach.firstName} ${shliach.lastName} שוחזרו בהצלחה` };
+      }
+
+      // 6. Undo UPDATE_APARTMENT
+      if (log.action === 'UPDATE_APARTMENT' && log.before) {
+        const apt = this.apartments.find(a => a.id === log.entityId);
+        if (!apt) return { success: false, error: 'הדירה לא נמצאה' };
+
+        await this.updateApartment(apt.id, log.before);
+        await markAsUndone();
+
+        this.logAudit(
+          'UNDO_ACTION',
+          'Apartment',
+          apt.id,
+          null,
+          null,
+          `ביטול פעולה: שוחזרו פרטי דירה ${apt.apartmentNumber}`,
+          'ביטול פעולה',
+          effectiveActor
+        );
+
+        return { success: true, message: `פרטי דירה ${apt.apartmentNumber} שוחזרו בהצלחה` };
+      }
+
+      // 7. Undo DELETE_SHLIACH
+      if (log.action === 'DELETE_SHLIACH' && log.before) {
+        const restored: Shliach = {
+          ...log.before,
+          id: log.entityId,
+          apartmentId: null,
+          apartmentName: undefined,
+          apartmentAddress: undefined,
+          bedId: null,
+          bedNumber: undefined,
+          receptionVisible: false,
+          updatedAt: new Date().toISOString()
+        } as Shliach;
+
+        await this.addShliach(restored);
+        await markAsUndone();
+
+        this.logAudit(
+          'UNDO_ACTION',
+          'Shliach',
+          restored.id,
+          null,
+          null,
+          `ביטול פעולה: שוחזר השליח ${restored.firstName} ${restored.lastName} שנמחק (ללא שיבוץ דירה)`,
+          'ביטול פעולה',
+          effectiveActor
+        );
+
+        return { success: true, message: `השליח ${restored.firstName} ${restored.lastName} שוחזר בהצלחה` };
+      }
+
+      // 8. Undo UPDATE_USER
+      if (log.action === 'UPDATE_USER' && log.before) {
+        const u = this.users.find(usr => usr.id === log.entityId);
+        if (!u) return { success: false, error: 'המשתמש לא נמצא' };
+
+        await this.updateUser(u.id, log.before);
+        await markAsUndone();
+
+        this.logAudit(
+          'UNDO_ACTION',
+          'UserProfile',
+          u.id,
+          null,
+          null,
+          `ביטול פעולה: שוחזרו פרטי והרשאות ${u.displayName}`,
+          'ביטול פעולה',
+          effectiveActor
+        );
+
+        return { success: true, message: `פרטי ${u.displayName} שוחזרו בהצלחה` };
+      }
+
+      return { success: false, error: 'לא הוגדר מנגנון ביטול עבור סוג פעולה זה' };
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : 'שגיאה בעת ביצוע שחזור הפעולה';
+      return { success: false, error: errMsg };
+    }
+  }
+
   public getFormSettings(): FormSettings {
     return { ...this.formSettings };
   }
 
   public async updateFormSettings(settings: Partial<FormSettings>): Promise<void> {
+    const before = { ...this.formSettings };
     this.formSettings = {
       ...this.formSettings,
       ...settings,
@@ -210,6 +600,16 @@ class StoreManager {
       updatedAt: new Date().toISOString()
     };
     this.persist();
+
+    this.logAudit(
+      'UPDATE_SETTINGS',
+      'Settings',
+      'registrationForm',
+      before,
+      this.formSettings,
+      `עדכון הגדרות מערכת וטופס הרשמה`,
+      'עדכון הגדרות'
+    );
 
     try {
       if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
@@ -252,6 +652,16 @@ class StoreManager {
     this.shluchim.unshift(shliach);
     this.persist();
 
+    this.logAudit(
+      'CREATE_SHLIACH',
+      'Shliach',
+      shliach.id,
+      null,
+      shliach,
+      `רישום שליח חדש: ${shliach.firstName} ${shliach.lastName}`,
+      'הוספת נרשם'
+    );
+
     // Firestore attempt
     try {
       if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
@@ -265,8 +675,19 @@ class StoreManager {
   public async updateShliach(id: string, updates: Partial<Shliach>): Promise<void> {
     const idx = this.shluchim.findIndex(s => s.id === id);
     if (idx !== -1) {
+      const before = { ...this.shluchim[idx] };
       this.shluchim[idx] = { ...this.shluchim[idx], ...updates, updatedAt: new Date().toISOString() };
       this.persist();
+
+      this.logAudit(
+        'UPDATE_SHLIACH',
+        'Shliach',
+        id,
+        before,
+        this.shluchim[idx],
+        `עדכון פרטי שליח: ${this.shluchim[idx].firstName} ${this.shluchim[idx].lastName}`,
+        'עדכון נרשם'
+      );
     }
 
     try {
@@ -282,11 +703,125 @@ class StoreManager {
   }
 
   public async toggleBlockCheckIn(id: string, block: boolean, reason?: string): Promise<void> {
+    const shliach = this.shluchim.find(s => s.id === id);
+    const before = shliach ? { blockCheckIn: shliach.blockCheckIn, blockReason: shliach.blockReason } : null;
+
     await this.updateShliach(id, {
       blockCheckIn: block,
       blockReason: block ? (reason || "חסום להגעה לפי הוראת הנהלה") : ""
     });
+
+    if (shliach) {
+      this.logAudit(
+        'TOGGLE_BLOCK',
+        'Shliach',
+        id,
+        before,
+        { blockCheckIn: block, blockReason: reason },
+        `${block ? 'חסימת' : 'שחרור'} קליטה עבור ${shliach.firstName} ${shliach.lastName}`,
+        'חסימת קבלה'
+      );
+    }
   }
+
+  public async deleteShliach(id: string): Promise<void> {
+    const target = this.shluchim.find(s => s.id === id);
+    const before = target ? { ...target } : null;
+
+    // 1. Unassign from bed if currently placed
+    await this.unassignPlacement(id);
+
+    // 2. Remove from shluchim list
+    this.shluchim = this.shluchim.filter(s => s.id !== id);
+    this.persist();
+
+    if (target) {
+      this.logAudit(
+        'DELETE_SHLIACH',
+        'Shliach',
+        id,
+        before,
+        null,
+        `מחיקת שליח מהמערכת: ${target.firstName} ${target.lastName}`,
+        'מחיקת נרשם'
+      );
+    }
+
+    // 3. Firestore deletion
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        await deleteDoc(doc(db, "shluchim", id));
+      }
+    } catch (e) {
+      console.warn("Firestore deleteShliach fallback:", e);
+    }
+  }
+
+  public async resetAllData(passcode: string): Promise<{ success: boolean; message: string }> {
+    if (passcode !== "7676") {
+      return { success: false, message: "קוד ניהול שגוי. הפעולה בוטלה." };
+    }
+
+    // 1. Reset shluchim
+    const existingShluchimIds = this.shluchim.map(s => s.id);
+    this.shluchim = [];
+
+    // 2. Reset all beds to available and clear placements
+    this.beds = this.beds.map(b => ({
+      ...b,
+      status: "AVAILABLE",
+      currentShliachId: null,
+      currentShliachName: null
+    }));
+
+    // 3. Clear logs and contact messages
+    this.emailLogs = [];
+    this.contactMessages = [];
+
+    this.logAudit(
+      'RESET_ALL_DATA',
+      'System',
+      'ALL',
+      null,
+      null,
+      'איפוס מוחלט של נתוני השלוחים, המיטות ולוגי המערכת',
+      'איפוס נתונים'
+    );
+
+    this.persist();
+
+    // 4. Firestore wipe where applicable
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        // Delete shluchim documents in chunks/batches
+        for (const id of existingShluchimIds) {
+          try {
+            await deleteDoc(doc(db, "shluchim", id));
+          } catch (err) {
+            console.warn(`Failed deleting shliach ${id} from Firestore:`, err);
+          }
+        }
+
+        // Reset beds in Firestore
+        for (const b of this.beds) {
+          try {
+            await updateDoc(doc(db, "beds", b.id), {
+              status: "AVAILABLE",
+              currentShliachId: null,
+              currentShliachName: null
+            });
+          } catch (err) {
+            console.warn(`Failed resetting bed ${b.id} in Firestore:`, err);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Firestore resetAllData error:", e);
+    }
+
+    return { success: true, message: "כל הנתונים אופסו ונמחקו בהצלחה!" };
+  }
+
 
   // --- Reception Check-in Action ---
   public async checkInShliach(id: string, staffName: string): Promise<{ success: boolean; message: string }> {
@@ -302,11 +837,28 @@ class StoreManager {
       };
     }
 
+    const before = {
+      checkedIn: shliach.checkedIn,
+      checkedInAt: shliach.checkedInAt,
+      checkedInBy: shliach.checkedInBy
+    };
+
     await this.updateShliach(id, {
       checkedIn: true,
       checkedInAt: new Date().toISOString(),
       checkedInBy: staffName
     });
+
+    this.logAudit(
+      'TOGGLE_CHECKIN',
+      'Shliach',
+      id,
+      before,
+      { checkedIn: true, checkedInBy: staffName },
+      `קליטה (Check-In) עבור ${shliach.firstName} ${shliach.lastName} ע"י ${staffName}`,
+      'עמדת קבלה',
+      { displayName: staffName }
+    );
 
     return { success: true, message: "צ'ק-אין בוצע בהצלחה!" };
   }
@@ -336,6 +888,16 @@ class StoreManager {
     this.beds.push(...newBeds);
     this.persist();
 
+    this.logAudit(
+      'CREATE_APARTMENT',
+      'Apartment',
+      aptId,
+      null,
+      newApartment,
+      `הוספת דירה חדשה: ${newApartment.apartmentNumber} (${bedCount} מיטות)`,
+      'הוספת דירה'
+    );
+
     // Firestore batch attempt
     try {
       if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
@@ -359,12 +921,26 @@ class StoreManager {
   public async updateApartment(id: string, updates: Partial<Apartment>): Promise<void> {
     const idx = this.apartments.findIndex(a => a.id === id);
     if (idx !== -1) {
+      const before = { ...this.apartments[idx] };
       this.apartments[idx] = { ...this.apartments[idx], ...updates };
       this.persist();
+
+      this.logAudit(
+        'UPDATE_APARTMENT',
+        'Apartment',
+        id,
+        before,
+        this.apartments[idx],
+        `עדכון פרטי דירה: ${this.apartments[idx].apartmentNumber}`,
+        'עדכון דירה'
+      );
     }
   }
 
   public async deleteApartment(id: string): Promise<void> {
+    const apt = this.apartments.find(a => a.id === id);
+    const before = apt ? { ...apt } : null;
+
     // Release assigned shluchim first
     const affectedShluchim = this.shluchim.filter(s => s.apartmentId === id);
     for (const sh of affectedShluchim) {
@@ -374,6 +950,18 @@ class StoreManager {
     this.apartments = this.apartments.filter(a => a.id !== id);
     this.beds = this.beds.filter(b => b.apartmentId !== id);
     this.persist();
+
+    if (apt) {
+      this.logAudit(
+        'DELETE_APARTMENT',
+        'Apartment',
+        id,
+        before,
+        null,
+        `מחיקת דירה: ${apt.apartmentNumber}`,
+        'מחיקת דירה'
+      );
+    }
   }
 
   // --- Placement Atomic Actions ---
@@ -396,6 +984,14 @@ class StoreManager {
     const apt = this.apartments.find(a => a.id === bed.apartmentId);
     const aptName = apt ? apt.apartmentNumber : "דירה";
     const aptAddress = apt ? apt.address : "";
+
+    const before = {
+      apartmentId: shliach.apartmentId,
+      apartmentName: shliach.apartmentName,
+      bedId: shliach.bedId,
+      bedNumber: shliach.bedNumber,
+      receptionVisible: shliach.receptionVisible
+    };
 
     // If shliach was already in another bed, free it
     if (shliach.bedId && shliach.bedId !== bedId) {
@@ -420,12 +1016,31 @@ class StoreManager {
     shliach.receptionVisible = receptionVisible;
 
     this.persist();
+
+    this.logAudit(
+      'ASSIGN_PLACEMENT',
+      'Shliach',
+      shliach.id,
+      before,
+      { apartmentId: bed.apartmentId, bedId: bed.id, bedNumber: bed.bedNumber, apartmentName: aptName },
+      `שיבוץ לדירה: ${shliach.firstName} ${shliach.lastName} -> ${aptName}, מיטה ${bed.bedNumber}`,
+      'שיבוץ דירה'
+    );
+
     return { success: true, message: "השיבוץ בוצע בהצלחה!" };
   }
 
   public async unassignPlacement(shliachId: string): Promise<void> {
     const shliach = this.shluchim.find(s => s.id === shliachId);
     if (!shliach) return;
+
+    const before = {
+      apartmentId: shliach.apartmentId,
+      apartmentName: shliach.apartmentName,
+      bedId: shliach.bedId,
+      bedNumber: shliach.bedNumber,
+      receptionVisible: shliach.receptionVisible
+    };
 
     if (shliach.bedId) {
       const bed = this.beds.find(b => b.id === shliach.bedId);
@@ -444,12 +1059,25 @@ class StoreManager {
     shliach.receptionVisible = false;
 
     this.persist();
+
+    if (before.bedId) {
+      this.logAudit(
+        'UNASSIGN_PLACEMENT',
+        'Shliach',
+        shliach.id,
+        before,
+        null,
+        `ביטול שיבוץ: שוחרר שיבוץ עבור ${shliach.firstName} ${shliach.lastName} מ-${before.apartmentName || 'דירה'} מיטה ${before.bedNumber}`,
+        'ביטול שיבוץ'
+      );
+    }
   }
 
   public async setBedReserved(bedId: string, reserved: boolean): Promise<void> {
     const bed = this.beds.find(b => b.id === bedId);
     if (!bed) return;
 
+    const prevStatus = bed.status;
     if (reserved) {
       if (bed.status === 'AVAILABLE') {
         bed.status = 'RESERVED';
@@ -460,6 +1088,16 @@ class StoreManager {
       }
     }
     this.persist();
+
+    this.logAudit(
+      'SET_BED_RESERVED',
+      'Bed',
+      bedId,
+      { status: prevStatus },
+      { status: bed.status },
+      `${reserved ? 'שמירת' : 'שחרור שמירת'} מיטה ${bed.bedNumber}`,
+      'סטטוס מיטה'
+    );
   }
 
   public async batchPublishPlacement(shliachIds: string[], visible: boolean): Promise<void> {
@@ -470,6 +1108,16 @@ class StoreManager {
       }
     }
     this.persist();
+
+    this.logAudit(
+      'BATCH_PUBLISH_PLACEMENT',
+      'Placement',
+      `${shliachIds.length}-items`,
+      null,
+      { count: shliachIds.length, visible },
+      `${visible ? 'פרסום' : 'הסתרת'} שיבוצים עבור ${shliachIds.length} שלוחים`,
+      'פרסום שיבוץ'
+    );
   }
 
   // --- Email Logs & Templates ---
@@ -498,6 +1146,16 @@ class StoreManager {
     this.users.push(user);
     this.persist();
 
+    this.logAudit(
+      'CREATE_USER',
+      'UserProfile',
+      user.id,
+      null,
+      user,
+      `הוספת משתמש מורשה חדש: ${user.displayName} (${user.email})`,
+      'הוספת משתמש'
+    );
+
     try {
       if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
         await setDoc(doc(db, "users", user.id), user);
@@ -510,8 +1168,19 @@ class StoreManager {
   public async updateUser(id: string, updates: Partial<UserProfile>): Promise<void> {
     const idx = this.users.findIndex(u => u.id === id);
     if (idx !== -1) {
+      const before = { ...this.users[idx] };
       this.users[idx] = { ...this.users[idx], ...updates };
       this.persist();
+
+      this.logAudit(
+        'UPDATE_USER',
+        'UserProfile',
+        id,
+        before,
+        this.users[idx],
+        `עדכון פרטי משתמש: ${this.users[idx].displayName}`,
+        'עדכון משתמש'
+      );
 
       try {
         if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
@@ -524,8 +1193,23 @@ class StoreManager {
   }
 
   public async deleteUser(id: string): Promise<void> {
+    const target = this.users.find(u => u.id === id);
+    const before = target ? { ...target } : null;
+
     this.users = this.users.filter(u => u.id !== id);
     this.persist();
+
+    if (target) {
+      this.logAudit(
+        'DELETE_USER',
+        'UserProfile',
+        id,
+        before,
+        null,
+        `מחיקת משתמש מורשה: ${target.displayName}`,
+        'מחיקת משתמש'
+      );
+    }
 
     try {
       if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {

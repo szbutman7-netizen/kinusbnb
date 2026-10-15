@@ -373,7 +373,7 @@ export default function ShluchimPage() {
               onChange={(e) => setNotesInput(e.target.value)}
               rows={4}
               placeholder="כתוב הערות מנהל פנימיות (אינן גלויות לשליח)..."
-              className="w-full p-3 border rounded-xl"
+              className="w-full p-3 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
             />
             <div className="flex justify-end gap-2 pt-2 border-t">
               <button
@@ -416,7 +416,7 @@ export default function ShluchimPage() {
                   value={blockReasonInput}
                   onChange={(e) => setBlockReasonInput(e.target.value)}
                   placeholder="למשל: נדרש להסדיר תשלום, לפנות למנהל הכינוס"
-                  className="w-full p-2.5 border rounded-xl"
+                  className="w-full p-2.5 border border-slate-300 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900"
                 />
               </div>
             )}

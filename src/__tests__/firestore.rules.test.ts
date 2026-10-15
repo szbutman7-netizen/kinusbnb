@@ -135,4 +135,15 @@ describe('Firestore Security Rules - Integration Tests', () => {
 
     await expect(aptsRef.get()).rejects.toThrow();
   });
+
+  it('should DENY unauthenticated access to auditLog collection', async ({ skip }) => {
+    if (!isEmulatorRunning || !testEnv) {
+      return skip();
+    }
+
+    const unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
+    const auditLogRef = unauthenticatedDb.collection('auditLog');
+
+    await expect(auditLogRef.get()).rejects.toThrow();
+  });
 });

@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) return false;
     if (user.role === "SUPER_ADMIN") return true;
 
-    const currentLevel = user.screenAccess[screen];
+    const currentLevel = user.screenAccess[screen] ?? "NONE";
     if (currentLevel === "NONE") return false;
     if (requiredLevel === "EDIT" && currentLevel !== "EDIT") return false;
     return true;

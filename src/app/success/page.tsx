@@ -15,7 +15,7 @@ import { CheckCircle2, Printer, ArrowRight, ArrowLeft, ShieldCheck, MapPin } fro
 function SuccessContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
-  const { t, isRtl } = useLanguage();
+  const { t, isRtl, language } = useLanguage();
   const [shliach, setShliach] = useState<Shliach | null>(null);
 
   useEffect(() => {
@@ -62,14 +62,14 @@ function SuccessContent() {
       {/* Printable Confirmation Card */}
       <div className="bg-[#15305B] rounded-2xl shadow-2xl border border-[#E8D8A8]/20 overflow-hidden print:bg-white print:text-black print:border print:shadow-none">
         {/* Card Header */}
-        <div className="bg-[#102444] p-5 flex items-center justify-between border-b border-[#E8D8A8]/20 text-white">
+        <div className="bg-[#102444] p-5 flex items-center justify-between border-b border-[#E8D8A8]/20 text-white print:bg-slate-100 print:text-black print:border-slate-300">
           <div className="flex items-center gap-3">
             <KinusLogo size={38} color="#E8D8A8" />
             <div className={isRtl ? "text-right" : "text-left"}>
-              <span className="text-[10px] text-[#E8D8A8] font-bold uppercase tracking-widest block">
+              <span className="text-[10px] text-[#E8D8A8] print:text-slate-700 font-bold uppercase tracking-widest block">
                 {t("title")}
               </span>
-              <span className="text-base font-serif font-bold block">
+              <span className="text-base font-serif font-bold block print:text-black">
                 {t("successCardBadge")}
               </span>
             </div>
@@ -77,53 +77,70 @@ function SuccessContent() {
         </div>
 
         {/* Card Body */}
-        <div className="p-6 space-y-5 text-white">
-          <div className={`space-y-1 pb-4 border-b border-slate-700/60 ${isRtl ? "text-right" : "text-left"}`}>
-            <span className="text-xs font-semibold text-slate-300">{t("successShliachDetails")}</span>
-            <h2 className="text-xl font-bold text-white">
+        <div className="p-6 space-y-5 text-white print:text-slate-900 print:bg-white">
+          <div className={`space-y-1 pb-4 border-b border-slate-700/60 print:border-slate-200 ${isRtl ? "text-right" : "text-left"}`}>
+            <span className="text-xs font-semibold text-slate-300 print:text-slate-600">{t("successShliachDetails")}</span>
+            <h2 className="text-xl font-bold text-white print:text-black">
               {shliach?.hebrewName || t("successDefaultShliachName")}
             </h2>
-            <p className="text-xs text-slate-300 flex items-center gap-1.5 pt-0.5">
-              <MapPin className="w-3.5 h-3.5 text-[#E8D8A8]" aria-hidden="true" />
+            <p className="text-xs text-slate-300 print:text-slate-700 flex items-center gap-1.5 pt-0.5">
+              <MapPin className="w-3.5 h-3.5 text-[#E8D8A8] print:text-slate-700" aria-hidden="true" />
               <span>{t("successLocationPrefix")}{shliach?.city || ""}, {shliach?.country || ""}</span>
             </p>
             {shliach?.passportOrId && (
-              <p className="text-[11px] text-slate-300 font-mono pt-0.5">
+              <p className="text-[11px] text-slate-300 print:text-slate-600 font-mono pt-0.5">
                 {t("successIdPrefix")} {shliach.passportOrId}
               </p>
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="p-3 bg-[#102444] rounded-xl border border-slate-700/80">
-              <span className="text-slate-300 block mb-1 text-[11px]">{t("successStayDates")}</span>
-              <span className="font-bold text-white block">
+            <div className="p-3 bg-[#102444] print:bg-slate-50 rounded-xl border border-slate-700/80 print:border-slate-300">
+              <span className="text-slate-300 print:text-slate-600 block mb-1 text-[11px]">{t("successStayDates")}</span>
+              <span className="font-bold text-white print:text-black block">
                 {shliach?.arrivalDate || "2026-11-03"} - {shliach?.departureDate || "2026-11-10"}
               </span>
             </div>
 
-            <div className="p-3 bg-[#102444] rounded-xl border border-slate-700/80">
-              <span className="text-slate-300 block mb-1 text-[11px]">{t("successPaymentStatus")}</span>
-              <span className="font-bold text-emerald-400 flex items-center gap-1">
+            <div className="p-3 bg-[#102444] print:bg-slate-50 rounded-xl border border-slate-700/80 print:border-slate-300">
+              <span className="text-slate-300 print:text-slate-600 block mb-1 text-[11px]">{t("successPaymentStatus")}</span>
+              <span className="font-bold text-emerald-400 print:text-emerald-800 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" aria-hidden="true" />
-                {t("successPaidStripe")}
+                <span>
+                  {language === "he"
+                    ? `שולם ($${shliach?.amountPaid ?? 30}) ב-Stripe`
+                    : `Paid ($${shliach?.amountPaid ?? 30}) via Stripe`}
+                </span>
               </span>
             </div>
           </div>
 
+          {shliach?.needsChildrenAccommodation && shliach.childrenNames && shliach.childrenNames.length > 0 && (
+            <div className="p-3.5 bg-[#102444] print:bg-slate-50 rounded-xl border border-[#E8D8A8]/30 print:border-slate-300 text-xs text-white print:text-slate-900 space-y-1.5">
+              <span className="font-bold text-[#E8D8A8] print:text-slate-800 block">
+                {language === "he"
+                  ? `לינה עבור ילדים (${shliach.childrenNames.length}):`
+                  : `Children Accommodation (${shliach.childrenNames.length}):`}
+              </span>
+              <p className="text-slate-200 print:text-slate-700 text-[11px]">
+                {shliach.childrenNames.join(", ")}
+              </p>
+            </div>
+          )}
+
           {/* Important Registration Notice / Disclaimer */}
-          <div className="bg-amber-950/30 border border-amber-500/30 rounded-xl p-4 text-xs text-amber-200 space-y-1.5">
-            <p className="font-bold text-amber-300 flex items-center gap-1.5">
+          <div className="bg-amber-950/30 print:bg-amber-50 border border-amber-500/30 print:border-amber-200 rounded-xl p-4 text-xs text-amber-200 print:text-amber-900 space-y-1.5">
+            <p className="font-bold text-amber-300 print:text-amber-800 flex items-center gap-1.5">
               <span>{t("successDisclaimerTitle")}</span>
             </p>
-            <p className="text-[11px] leading-relaxed text-amber-100/90 font-light">
+            <p className="text-[11px] leading-relaxed text-amber-100/90 print:text-amber-900 font-light">
               {t("successDisclaimerText")}
             </p>
           </div>
 
-          <div className="bg-[#102444]/80 border border-[#E8D8A8]/20 rounded-xl p-4 text-xs text-slate-200 space-y-1.5">
-            <p className="font-bold text-[#E8D8A8]">{t("successArrivalGuideTitle")}</p>
-            <p className="text-[11px] leading-relaxed text-slate-200">
+          <div className="bg-[#102444]/80 print:bg-slate-50 border border-[#E8D8A8]/20 print:border-slate-300 rounded-xl p-4 text-xs text-slate-200 print:text-slate-800 space-y-1.5">
+            <p className="font-bold text-[#E8D8A8] print:text-slate-900">{t("successArrivalGuideTitle")}</p>
+            <p className="text-[11px] leading-relaxed text-slate-200 print:text-slate-700">
               {t("successArrivalGuideText")}
             </p>
           </div>

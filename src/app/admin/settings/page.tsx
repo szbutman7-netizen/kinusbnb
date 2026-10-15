@@ -5,6 +5,7 @@ import { useKinusData } from "@/lib/hooks/useKinusData";
 import { useAuth } from "@/lib/context/AuthContext";
 import { DEFAULT_ARRIVAL_DATES, DEFAULT_DEPARTURE_DATES } from "@/lib/services/dataService";
 import { 
+  Settings,
   Sliders, 
   CheckCircle2, 
   Lock, 
@@ -16,7 +17,11 @@ import {
   Calendar,
   Globe,
   ShieldCheck,
-  Check
+  Check,
+  AlertTriangle,
+  Trash2,
+  KeyRound,
+  X
 } from "lucide-react";
 import Link from "next/link";
 
@@ -31,7 +36,7 @@ const ALL_POSSIBLE_DATES = [
   { value: "2026-11-10", label: "יום שלישי, ל׳ בחשוון (10 בנובמבר)" },
 ];
 
-export default function FormSettingsPage() {
+export default function SystemSettingsPage() {
   const { formSettings, actions, isLoaded } = useKinusData();
   const { user } = useAuth();
 
@@ -43,6 +48,13 @@ export default function FormSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copiedDomain, setCopiedDomain] = useState(false);
+
+  // Master reset state
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [passcode, setPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetSuccessMessage, setResetSuccessMessage] = useState("");
 
   const handleCopyDomain = () => {
     navigator.clipboard.writeText("https://kinusbed.vercel.app/");
@@ -115,10 +127,36 @@ export default function FormSettingsPage() {
     }
   };
 
+  const handleMasterReset = async () => {
+    if (passcode.trim() !== "7676") {
+      setPasscodeError("קוד שגוי! יש להזין את קוד הניהול המדויק.");
+      return;
+    }
+
+    setIsResetting(true);
+    setPasscodeError("");
+    try {
+      const res = await actions.resetAllData(passcode.trim());
+      if (res.success) {
+        setResetSuccessMessage(res.message);
+        setShowResetModal(false);
+        setPasscode("");
+        setTimeout(() => setResetSuccessMessage(""), 5000);
+      } else {
+        setPasscodeError(res.message);
+      }
+    } catch (err) {
+      console.error("Master reset error:", err);
+      setPasscodeError("אירעה שגיאה בעת ביצוע האיפוס");
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   if (!isLoaded) {
     return (
       <div className="p-8 text-center text-slate-500">
-        טוען הגדרות טופס...
+        טוען הגדרות מערכת...
       </div>
     );
   }
@@ -129,11 +167,11 @@ export default function FormSettingsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Sliders className="w-6 h-6 text-blue-900" />
-            הגדרות טופס הרשמה ותאריכים
+            <Settings className="w-6 h-6 text-blue-900" />
+            הגדרות מערכת ואיפוס נתונים
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            שליטה בזמינות טופס ההרשמה הציבורי, פתיחה או נעילת ההרשמה וקביעת טווח תאריכי השהות המורשים
+            שליטה בזמינות טופס ההרשמה הציבורי, תאריכי שהות, דומיין מורשה וניהול נתוני המערכת
           </p>
         </div>
 
@@ -401,6 +439,134 @@ export default function FormSettingsPage() {
           </div>
         </form>
       </div>
+
+      {/* Reset Success Banner */}
+      {resetSuccessMessage && (
+        <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-2xl flex items-center gap-3 text-emerald-800 font-bold text-sm shadow-xs animate-in fade-in duration-200">
+          <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span>{resetSuccessMessage}</span>
+        </div>
+      )}
+
+      {/* Danger Zone: Reset and Wipe All Data */}
+      <div className="bg-red-50/60 border border-red-200 rounded-2xl p-6 space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-red-100 border border-red-200 flex items-center justify-center text-red-700 shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-red-950">
+                אזור סכנה: מחיקה ואיפוס כל הנתונים (System Reset)
+              </h2>
+              <p className="text-xs text-red-700 mt-1 max-w-2xl leading-relaxed">
+                פעולה זו תמחק לצמיתות את כל נתוני הנרשמים והשלוחים במערכת, תאפס את כל המיטות לזמינות מלאה, ותנקה את פניות הציבור ולוגי המיילים. לא ניתן לבטל פעולה זו לאחר ביצועה!
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setShowResetModal(true);
+              setPasscode("");
+              setPasscodeError("");
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors shadow-xs shrink-0 cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4" />
+            מחק ואפס את כל הנתונים
+          </button>
+        </div>
+      </div>
+
+      {/* Confirmation & Security Code Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full border border-red-200 shadow-2xl p-6 space-y-5 animate-in zoom-in-95 duration-150" dir="rtl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2 text-red-700 font-bold text-base">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                אישור מחיקה ואיפוס כל הנתונים
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!isResetting) setShowResetModal(false);
+                }}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-xs text-slate-700 leading-relaxed">
+                הנך עומד לבצע <strong className="text-red-700 font-black">איפוס מוחלט של כלל הנתונים</strong> במערכת:
+              </p>
+              <ul className="text-xs text-slate-600 list-disc list-inside space-y-1 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <li>מחיקת כל השלוחים והאורחים הרשומים</li>
+                <li>איפוס ושחרור כל המיטות והדירות לסטטוס פנוי</li>
+                <li>מחיקת פניות הציבור ולוגי הודעות הדוא״ל</li>
+              </ul>
+              
+              <div className="pt-2">
+                <label className="block text-xs font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
+                  <KeyRound className="w-4 h-4 text-blue-900" />
+                  הזן קוד ניהול לאימות המחיקה:
+                </label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  value={passcode}
+                  onChange={(e) => {
+                    setPasscode(e.target.value);
+                    if (passcodeError) setPasscodeError("");
+                  }}
+                  placeholder="הזן קוד ניהול (4 ספרות)"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm tracking-widest text-center font-mono font-bold focus:ring-2 focus:ring-red-600 focus:border-red-600 outline-none"
+                  autoFocus
+                />
+                {passcodeError && (
+                  <p className="text-xs text-red-600 font-bold mt-1.5 flex items-center gap-1">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    {passcodeError}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                disabled={isResetting}
+                onClick={() => setShowResetModal(false)}
+                className="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors"
+              >
+                ביטול
+              </button>
+              <button
+                type="button"
+                disabled={isResetting || !passcode}
+                onClick={handleMasterReset}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition-colors shadow-xs disabled:opacity-40"
+              >
+                {isResetting ? (
+                  <>
+                    <Clock className="w-4 h-4 animate-spin" />
+                    מאפס נתונים...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    אשר ומחק הכל לצמיתות
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

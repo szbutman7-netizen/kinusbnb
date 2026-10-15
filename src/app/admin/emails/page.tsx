@@ -14,11 +14,14 @@ import {
   Sparkles, 
   Plus, 
   RefreshCw,
-  Gauge
+  Gauge,
+  Power,
+  FlaskConical,
+  Check
 } from "lucide-react";
 
 export default function EmailsPage() {
-  const { templates, emailLogs, shluchim, actions, isLoaded } = useKinusData();
+  const { templates, emailLogs, shluchim, formSettings, actions, isLoaded } = useKinusData();
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
     templates[0]?.id || "template-registration-confirmation"
@@ -34,9 +37,100 @@ export default function EmailsPage() {
   const [previewTab, setPreviewTab] = useState<"CODE" | "PREVIEW">("PREVIEW");
   const [remainingDailyQuota, setRemainingDailyQuota] = useState(1485);
 
+  // Auto-send confirmation toggle
+  const [autoEmailEnabled, setAutoEmailEnabled] = useState(formSettings?.sendConfirmationEmail ?? true);
+  const [isSavingToggle, setIsSavingToggle] = useState(false);
+
+  // Test email state
+  const [testEmailAddress, setTestEmailAddress] = useState("");
+  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
   if (!isLoaded) {
     return <div className="p-8 text-center text-slate-500">טוען ממשק מיילים...</div>;
   }
+
+  const handleToggleAutoEmail = async () => {
+    const nextVal = !autoEmailEnabled;
+    setAutoEmailEnabled(nextVal);
+    setIsSavingToggle(true);
+    try {
+      await actions.updateFormSettings({
+        sendConfirmationEmail: nextVal,
+      });
+    } catch (err) {
+      console.error("Failed to update auto email status:", err);
+    } finally {
+      setIsSavingToggle(false);
+    }
+  };
+
+  const handleSendTestEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!testEmailAddress || !testEmailAddress.includes("@")) {
+      setTestResult({ success: false, message: "נא להזין כתובת דוא״ל תקינה" });
+      return;
+    }
+
+    setIsSendingTest(true);
+    setTestResult(null);
+
+    const testHtml = htmlContent
+      .replace(/{shliach_name}/g, "הרב ישראל מאיר לאו")
+      .replace(/{city}/g, "תל אביב - יפו")
+      .replace(/{apartment_name}/g, "דירה 1 - מונטגומרי 740")
+      .replace(/{apartment_address}/g, "740 Montgomery St, Brooklyn")
+      .replace(/{bed_number}/g, "1")
+      .replace(/{entry_code}/g, "7701#")
+      .replace(/{arrival_date}/g, "03/11/2026")
+      .replace(/{departure_date}/g, "10/11/2026");
+
+    try {
+      const res = await fetch("/api/email-relay/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: testEmailAddress.trim(),
+          subject: `[מייל בדיקה] ${subject}`,
+          htmlBody: testHtml,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "שגיאה בשליחת מייל הבדיקה");
+      }
+
+      actions.addEmailLog({
+        recipientEmail: testEmailAddress.trim(),
+        recipientName: "מייל בדיקה / ניסיון",
+        subject: `[מייל בדיקה] ${subject}`,
+        templateName: currentTemplate?.name,
+        status: "SENT",
+      });
+
+      setTestResult({
+        success: true,
+        message: `מייל ניסיון נשלח בהצלחה אל ${testEmailAddress.trim()}!`,
+      });
+      setTimeout(() => setTestResult(null), 6000);
+    } catch (err: any) {
+      setTestResult({
+        success: false,
+        message: err.message || "נכשלה שליחת מייל הניסיון",
+      });
+      actions.addEmailLog({
+        recipientEmail: testEmailAddress.trim(),
+        recipientName: "מייל בדיקה / ניסיון",
+        subject: `[מייל בדיקה] ${subject}`,
+        templateName: currentTemplate?.name,
+        status: "FAILED",
+        errorMessage: err.message,
+      });
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
 
   const handleSelectTemplate = (id: string) => {
     setSelectedTemplateId(id);
@@ -183,6 +277,99 @@ export default function EmailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Col: Template Selector & Sending Controls */}
         <div className="space-y-6">
+          {/* Automated Confirmation Email Toggle Card */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3 text-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className={`p-2 rounded-xl ${autoEmailEnabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400"}`}>
+                  <Power className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-xs">שליחת מייל אישור הרשמה</h3>
+                  <p className="text-[10px] text-slate-400">שליחה אוטומטית בעת סיום הרישום בטופס</p>
+                </div>
+              </div>
+
+              {/* Switch button */}
+              <button
+                type="button"
+                role="switch"
+                aria-checked={autoEmailEnabled}
+                onClick={handleToggleAutoEmail}
+                disabled={isSavingToggle}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  autoEmailEnabled ? "bg-emerald-600" : "bg-slate-300"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    autoEmailEnabled ? "-translate-x-5" : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <span className="text-slate-500">סטטוס מנגנון:</span>
+              <span className={`font-bold px-2 py-0.5 rounded ${autoEmailEnabled ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"}`}>
+                {autoEmailEnabled ? "פעיל (שולח מיידית לנרשם)" : "כבוי (ללא שליחה אוטומטית)"}
+              </span>
+            </div>
+          </div>
+
+          {/* Send Test Email Card */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3 text-xs">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+              <FlaskConical className="w-4 h-4 text-amber-600" />
+              <span>שליחת מייל ניסיון (Test Email)</span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              שגר מייל בדיקה עם התבנית הפעילה ונתוני הדגמה מלאים לכל כתובת דוא״ל לבחירתך:
+            </p>
+
+            <form onSubmit={handleSendTestEmail} className="space-y-2.5">
+              <div>
+                <input
+                  type="email"
+                  dir="ltr"
+                  value={testEmailAddress}
+                  onChange={(e) => setTestEmailAddress(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 outline-none"
+                />
+              </div>
+
+              {testResult && (
+                <div className={`p-2.5 rounded-xl text-[11px] font-medium flex items-center gap-2 ${
+                  testResult.success 
+                    ? "bg-emerald-50 text-emerald-800 border border-emerald-200" 
+                    : "bg-red-50 text-red-800 border border-red-200"
+                }`}>
+                  {testResult.success ? <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" /> : <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />}
+                  <span>{testResult.message}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isSendingTest || !testEmailAddress.trim()}
+                className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+              >
+                {isSendingTest ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>שולח מייל בדיקה...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>שלח מייל ניסיון עכשיו</span>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
           {/* Templates Selector */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3 text-xs">
             <h3 className="font-bold text-slate-900 text-sm">בחר תבנית מייל</h3>

@@ -17,7 +17,8 @@ import {
   Menu,
   X,
   Sliders,
-  MessageSquare
+  MessageSquare,
+  History
 } from "lucide-react";
 import { useState } from "react";
 import { KinusLogo } from "@/components/common/KinusLogo";
@@ -48,7 +49,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navItems = [
     { label: "לוח בקרה", href: "/admin", icon: LayoutDashboard, access: true },
-    { label: "הגדרות טופס", href: "/admin/settings", icon: Sliders, access: user.role === "SUPER_ADMIN" || user.role === "ADMIN" || user.role === "HOUSING_MANAGER" },
+    { label: "הגדרות מערכת", href: "/admin/settings", icon: Sliders, access: user.role === "SUPER_ADMIN" || user.role === "ADMIN" || user.role === "HOUSING_MANAGER" },
     { label: "פניות הציבור", href: "/admin/messages", icon: MessageSquare, access: true },
     { label: "דירות ומיטות", href: "/admin/apartments", icon: Building2, access: hasAccess("apartments") },
     { label: "מאגר נרשמים", href: "/admin/shluchim", icon: Users, access: hasAccess("shluchim") },
@@ -56,6 +57,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "עמדת קבלה", href: "/admin/reception", icon: CheckSquare, access: hasAccess("reception") },
     { label: "שליחת מיילים", href: "/admin/emails", icon: Mail, access: hasAccess("emails") },
     { label: "ניהול משתמשים", href: "/admin/users", icon: UserCheck, access: hasAccess("users") },
+    { label: "יומן שינויים", href: "/admin/audit", icon: History, access: user.role === "SUPER_ADMIN" || hasAccess("audit") },
   ];
 
   return (

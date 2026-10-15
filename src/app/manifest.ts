@@ -1,0 +1,42 @@
+import type { MetadataRoute } from "next";
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: "כינוס השלוחים",
+    short_name: "כינוס השלוחים",
+    description: "כינוס השלוחים העולמי - מערכת ניהול",
+    start_url: "/admin",
+    scope: "/",
+    display: "standalone",
+    orientation: "portrait",
+    background_color: "#0B1A30",
+    theme_color: "#0B1A30",
+    dir: "rtl",
+    lang: "he",
+    icons: [
+      {
+        src: "/icons/icon-192x192.png",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/icons/icon-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/icons/icon-maskable-512x512.png",
+        sizes: "512x512",
+        type: "image/png",
+        purpose: "maskable",
+      },
+      {
+        src: "/icons/apple-touch-icon.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  };
+}

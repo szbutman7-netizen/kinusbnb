@@ -14,6 +14,7 @@ export interface ScreenPermissions {
   users: ScreenAccessLevel;
   settings?: ScreenAccessLevel;
   messages?: ScreenAccessLevel;
+  audit?: ScreenAccessLevel;
 }
 
 export interface UserProfile {
@@ -48,6 +49,11 @@ export interface Shliach {
   departureTime?: string;
   preferredRoommates?: string;
   specialRequests?: string;
+
+  // Children Accommodation
+  needsChildrenAccommodation?: boolean;
+  childrenNames?: string[];
+  childrenCount?: number;
 
   // Payment
   paymentStatus: PaymentStatus;
@@ -138,6 +144,7 @@ export interface DashboardStats {
 
 export interface FormSettings {
   isOpen: boolean;
+  sendConfirmationEmail?: boolean;
   closedMessageHe?: string;
   closedMessageEn?: string;
   allowedArrivalDates?: string[];
@@ -162,4 +169,23 @@ export interface ContactMessage {
   replyText?: string;
   repliedAt?: string;
   repliedBy?: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  userId: string;
+  userDisplayName?: string;
+  userEmail?: string;
+  action: string;
+  actionHebrew?: string;
+  description: string;
+  entity: string;
+  entityId: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  before: Record<string, any> | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  after: Record<string, any> | null;
+  timestamp: string;
+  isUndo?: boolean;
+  undone?: boolean;
 }

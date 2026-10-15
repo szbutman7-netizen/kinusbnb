@@ -11,6 +11,7 @@ import { KinusDatePicker } from "@/components/common/KinusDatePicker";
 import { COUNTRIES } from "@/lib/constants/countries";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import { DEFAULT_ARRIVAL_DATES, DEFAULT_DEPARTURE_DATES } from "@/lib/services/dataService";
+import { generateRegistrationConfirmationHtml } from "@/lib/services/emailTemplateHelper";
 import { 
   User, 
   Calendar, 
@@ -18,11 +19,14 @@ import {
   CheckCircle, 
   ShieldCheck, 
   ArrowLeft, 
-  ArrowRight,
-  Lock,
-  AlertCircle,
-  Check,
-  Loader2
+  ArrowRight, 
+  Lock, 
+  AlertCircle, 
+  Check, 
+  Loader2,
+  Plus,
+  Trash2,
+  Baby
 } from "lucide-react";
 
 const KINUS_START_DATE = "2026-11-03";
@@ -43,6 +47,8 @@ const INITIAL_FORM_DATA = {
   departureTime: "",
   preferredRoommates: "",
   specialRequests: "",
+  needsChildrenAccommodation: false,
+  childrenNames: [""] as string[],
   cardNumber: "",
   cardExp: "",
   cardCvc: "",
@@ -79,6 +85,43 @@ export function RegistrationForm() {
     setErrorMessage("");
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handleChildNameChange = (index: number, val: string) => {
+    setFormData(prev => {
+      const updated = [...prev.childrenNames];
+      updated[index] = val;
+      return { ...prev, childrenNames: updated };
+    });
+  };
+
+  const handleAddChild = () => {
+    setFormData(prev => ({
+      ...prev,
+      childrenNames: [...prev.childrenNames, ""]
+    }));
+  };
+
+  const handleRemoveChild = (index: number) => {
+    setFormData(prev => {
+      const updated = prev.childrenNames.filter((_, i) => i !== index);
+      return {
+        ...prev,
+        childrenNames: updated.length > 0 ? updated : [""]
+      };
+    });
+  };
+
+  // Dynamic pricing calculation: $30 base + $30 per child (if needs accommodation)
+  const validChildren = formData.needsChildrenAccommodation
+    ? formData.childrenNames.map(c => c.trim()).filter(Boolean)
+    : [];
+  // If user selected "yes", we count either the number of entered children or minimum 1 if they clicked yes
+  const childrenCount = formData.needsChildrenAccommodation
+    ? Math.max(formData.childrenNames.length, 1)
+    : 0;
+  const childrenFee = childrenCount * 30;
+  const basePrice = 30;
+  const totalPrice = basePrice + childrenFee;
 
   const handleNextStep = () => {
     setErrorMessage("");
@@ -150,8 +193,11 @@ export function RegistrationForm() {
         departureTime: formData.departureTime || "12:00",
         preferredRoommates: formData.preferredRoommates.trim(),
         specialRequests: formData.specialRequests.trim(),
+        needsChildrenAccommodation: formData.needsChildrenAccommodation,
+        childrenNames: formData.needsChildrenAccommodation ? validChildren : [],
+        childrenCount: childrenCount,
         paymentStatus: "PAID",
-        amountPaid: 30,
+        amountPaid: totalPrice,
         currency: "USD",
         paidAt: new Date().toISOString(),
         receptionVisible: false,
@@ -162,20 +208,52 @@ export function RegistrationForm() {
 
       await dataStore.addShliach(newShliach);
 
-      // Attempt sending confirmation email via relay if email provided
-      if (newShliach.email) {
+      // Attempt sending confirmation email via relay if email provided and feature is enabled
+      const isEmailEnabled = formSettings?.sendConfirmationEmail ?? true;
+      if (newShliach.email && isEmailEnabled) {
         try {
+          const styledHtml = generateRegistrationConfirmationHtml({
+            shliachName: newShliach.hebrewName,
+            city: newShliach.city,
+            country: newShliach.country,
+            arrivalDate: newShliach.arrivalDate,
+            departureDate: newShliach.departureDate,
+            registrationId: newShliach.id,
+            totalPrice: newShliach.amountPaid,
+            specialRequests: newShliach.specialRequests,
+            preferredRoommates: newShliach.preferredRoommates,
+            childrenNames: newShliach.childrenNames,
+            needsChildrenAccommodation: newShliach.needsChildrenAccommodation,
+          });
+
           await fetch("/api/email-relay/send", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               to: newShliach.email,
-              subject: language === "he" ? "אישור הרשמה לכינוס השלוחים תשפ״ז" : "Kinus HaShluchim 5787 Registration Confirmation",
-              htmlBody: `<h3>${newShliach.hebrewName},</h3><p>${language === "he" ? "הרשמתכם ללינה בכינוס השלוחים נקלטה בהצלחה!" : "Your Kinus housing registration has been confirmed!"}</p><p>ID: ${newShliach.id}</p><p>Dates: ${newShliach.arrivalDate} - ${newShliach.departureDate}</p><p style="margin-top:12px;"><a href="https://kinusbed.vercel.app/" style="color:#1E3A8A;font-weight:bold;">https://kinusbed.vercel.app/</a></p>`
-            })
+              subject: "אישור הרשמה לכינוס השלוחים העולמי ה׳תשפ״ז",
+              htmlBody: styledHtml,
+            }),
           });
-        } catch (err) {
+
+          // Log the successful automated email in the system
+          dataStore.addEmailLog({
+            recipientEmail: newShliach.email,
+            recipientName: newShliach.hebrewName,
+            subject: "אישור הרשמה לכינוס השלוחים העולמי ה׳תשפ״ז",
+            templateName: "אישור הרשמה וקבלה לתשלום",
+            status: "SENT",
+          });
+        } catch (err: any) {
           console.warn("Email relay background notice:", err);
+          dataStore.addEmailLog({
+            recipientEmail: newShliach.email,
+            recipientName: newShliach.hebrewName,
+            subject: "אישור הרשמה לכינוס השלוחים העולמי ה׳תשפ״ז",
+            templateName: "אישור הרשמה וקבלה לתשלום",
+            status: "FAILED",
+            errorMessage: err?.message || "Failed to send",
+          });
         }
       }
 
@@ -701,6 +779,95 @@ export function RegistrationForm() {
               </p>
             </div>
 
+            {/* Children Accommodation Question */}
+            <div className="p-4 rounded-2xl bg-[#102444]/90 border border-slate-700/80 space-y-3.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="text-xs font-semibold text-white flex items-center gap-2">
+                  <Baby className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
+                  {t("childrenQuestionLabel")}
+                </label>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        needsChildrenAccommodation: true,
+                        childrenNames: prev.childrenNames.length > 0 ? prev.childrenNames : [""]
+                      }));
+                    }}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                      formData.needsChildrenAccommodation
+                        ? "bg-[#E8D8A8] text-[#07142A] shadow-[0_0_12px_rgba(232,216,168,0.4)] scale-105"
+                        : "bg-slate-800 text-slate-300 hover:text-white border border-slate-700"
+                    }`}
+                  >
+                    {t("childrenOptionYes")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({
+                        ...prev,
+                        needsChildrenAccommodation: false
+                      }));
+                    }}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${
+                      !formData.needsChildrenAccommodation
+                        ? "bg-[#E8D8A8] text-[#07142A] shadow-[0_0_12px_rgba(232,216,168,0.4)] scale-105"
+                        : "bg-slate-800 text-slate-300 hover:text-white border border-slate-700"
+                    }`}
+                  >
+                    {t("childrenOptionNo")}
+                  </button>
+                </div>
+              </div>
+
+              {formData.needsChildrenAccommodation && (
+                <div className="pt-2 space-y-3 border-t border-slate-700/60 animate-fade-in">
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-400/30 text-amber-200 text-xs flex items-center gap-2">
+                    <span className="font-bold text-amber-300">ℹ️</span>
+                    <span>{t("childrenPriceNotice")}</span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {formData.childrenNames.map((childName, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type="text"
+                            value={childName}
+                            onChange={(e) => handleChildNameChange(idx, e.target.value)}
+                            placeholder={`${t("childNamePlaceholder")} ${formData.childrenNames.length > 1 ? `(#${idx + 1})` : ""}`}
+                            className="kinus-input w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-[#0B1E38] text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs"
+                          />
+                        </div>
+                        {formData.childrenNames.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveChild(idx)}
+                            aria-label={`${t("removeChildButton")} #${idx + 1}`}
+                            className="p-2.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-300 hover:text-red-100 hover:bg-red-900/60 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleAddChild}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#E8D8A8]/40 bg-[#E8D8A8]/10 text-[#E8D8A8] text-xs font-semibold hover:bg-[#E8D8A8]/20 transition-all active:scale-95"
+                  >
+                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>{t("addChildButton")}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+
             <div>
               <label htmlFor="specialRequests" className="block text-xs font-semibold text-slate-200 mb-1">
                 {t("specialRequestsLabel")}
@@ -726,16 +893,31 @@ export function RegistrationForm() {
                 <CreditCard className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
                 {t("step3Header")}
               </span>
-              <span className="text-sm font-serif font-bold text-[#E8D8A8]">$30.00 USD</span>
+              <span className="text-sm font-serif font-bold text-[#E8D8A8]">${totalPrice}.00 USD</span>
             </h2>
 
             {/* VIP Pass Summary Card */}
-            <div className="glass-panel rounded-2xl p-4 sm:p-5 border border-[#E8D8A8]/30 shadow-md relative overflow-hidden">
-              <div className="flex justify-between items-center pb-3 border-b border-slate-700/60 text-xs">
+            <div className="glass-panel rounded-2xl p-4 sm:p-5 border border-[#E8D8A8]/30 shadow-md relative overflow-hidden space-y-2.5">
+              <div className="flex justify-between items-center text-xs">
                 <span className="text-slate-200 font-medium">{t("feeSummaryLabel")}</span>
-                <span className="font-serif font-bold text-[#E8D8A8] text-base drop-shadow-sm">$30.00 USD</span>
+                <span className="font-serif font-semibold text-slate-100">$30.00 USD</span>
               </div>
-              <div className="flex justify-between items-center pt-3 text-[11px] text-slate-300">
+
+              {formData.needsChildrenAccommodation && childrenCount > 0 && (
+                <div className="flex justify-between items-center text-xs border-t border-slate-700/40 pt-2 text-[#E8D8A8]">
+                  <span>
+                    {t("childrenSummaryLabel")} ({childrenCount} × $30)
+                  </span>
+                  <span className="font-serif font-semibold">${childrenFee}.00 USD</span>
+                </div>
+              )}
+
+              <div className="flex justify-between items-center pt-2.5 border-t border-slate-700/60 text-xs">
+                <span className="text-white font-bold">{t("feeTotalLabel")}</span>
+                <span className="font-serif font-bold text-[#E8D8A8] text-base drop-shadow-sm">${totalPrice}.00 USD</span>
+              </div>
+
+              <div className="flex justify-between items-center pt-2 text-[11px] text-slate-300">
                 <span className="text-slate-400 font-light">{language === "he" ? "כולל אירוח מלא לכל ימי הכינוס" : "Includes full accommodation for all Kinus days"}</span>
                 <span className="text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-500/30">
                   <ShieldCheck className="w-3.5 h-3.5 animate-pulse" aria-hidden="true" />
@@ -845,7 +1027,7 @@ export function RegistrationForm() {
               ) : (
                 <>
                   <CheckCircle className="w-4 h-4" aria-hidden="true" />
-                  {t("btnSubmit")}
+                  <span>{`${t("btnSubmit")} ($${totalPrice})`}</span>
                 </>
               )}
             </button>
