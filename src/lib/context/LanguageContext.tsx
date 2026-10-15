@@ -195,8 +195,9 @@ export const translations = {
     formClosedDesc: "ההרשמה המקוונת לדירות ואירוח בכינוס השלוחים סגורה כעת לקבלת פניות חדשות. במידה ודרוש מענה דחוף או סיוע אישי, ניתן לפנות ישירות למוקד הלינה בוואטסאפ.",
     formClosedContactUs: "לבירורים דחופים וסיוע אישי:",
 
-    // Date Picker
+    // Date & Time Picker
     dateSelectPlaceholder: "אנא בחר תאריך",
+    timeSelectPlaceholder: "אנא בחר שעה",
     hebrewOnlyError: "יש להזין שם בעברית בלבד",
 
     // Contact Us Block
@@ -407,8 +408,9 @@ export const translations = {
     formClosedDesc: "Online housing registration for the International Conference of Shluchim is currently closed for new applications. If you require urgent assistance or personal coordination, please reach out to our team directly via WhatsApp.",
     formClosedContactUs: "For urgent inquiries & assistance:",
 
-    // Date Picker
+    // Date & Time Picker
     dateSelectPlaceholder: "Please select date",
+    timeSelectPlaceholder: "Please select time",
     hebrewOnlyError: "Please enter Hebrew name only",
 
     // Contact Us Block

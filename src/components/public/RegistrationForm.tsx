@@ -8,6 +8,7 @@ import { Shliach } from "@/types";
 import { KinusLogo } from "@/components/common/KinusLogo";
 import { WhatsAppButton } from "@/components/common/WhatsAppButton";
 import { KinusDatePicker } from "@/components/common/KinusDatePicker";
+import { KinusTimePicker } from "@/components/common/KinusTimePicker";
 import { COUNTRIES } from "@/lib/constants/countries";
 import { useLanguage } from "@/lib/context/LanguageContext";
 import { DEFAULT_ARRIVAL_DATES, DEFAULT_DEPARTURE_DATES } from "@/lib/services/dataService";
@@ -985,25 +986,15 @@ export function RegistrationForm() {
               </div>
 
               <div>
-                <label htmlFor="arrivalTime" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("arrivalTimeLabel")} <span className="text-amber-400">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    id="arrivalTime"
-                    type="time"
-                    name="arrivalTime"
-                    value={formData.arrivalTime}
-                    onChange={handleChange}
-                    required
-                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
-                      formData.arrivalTime ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
-                    } bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs transition-all ${
-                      formData.arrivalTime ? (isRtl ? "pl-10" : "pr-10") : ""
-                    }`}
-                  />
-                  {Boolean(formData.arrivalTime) && <ValidBadge />}
-                </div>
+                <KinusTimePicker
+                  id="arrivalTime"
+                  name="arrivalTime"
+                  label={t("arrivalTimeLabel")}
+                  required
+                  value={formData.arrivalTime}
+                  onChange={(val) => setFormData(prev => ({ ...prev, arrivalTime: val }))}
+                  placeholder={t("timeSelectPlaceholder")}
+                />
               </div>
             </div>
 
@@ -1022,25 +1013,15 @@ export function RegistrationForm() {
               </div>
 
               <div>
-                <label htmlFor="departureTime" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("departureTimeLabel")} <span className="text-amber-400">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    id="departureTime"
-                    type="time"
-                    name="departureTime"
-                    value={formData.departureTime}
-                    onChange={handleChange}
-                    required
-                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
-                      formData.departureTime ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
-                    } bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs transition-all ${
-                      formData.departureTime ? (isRtl ? "pl-10" : "pr-10") : ""
-                    }`}
-                  />
-                  {Boolean(formData.departureTime) && <ValidBadge />}
-                </div>
+                <KinusTimePicker
+                  id="departureTime"
+                  name="departureTime"
+                  label={t("departureTimeLabel")}
+                  required
+                  value={formData.departureTime}
+                  onChange={(val) => setFormData(prev => ({ ...prev, departureTime: val }))}
+                  placeholder={t("timeSelectPlaceholder")}
+                />
               </div>
             </div>
 
@@ -1221,6 +1202,10 @@ export function RegistrationForm() {
                 country: formData.country,
                 city: formData.city.trim(),
                 passportOrId: formData.passportOrId.trim(),
+                arrivalDate: formData.arrivalDate || "2026-11-04",
+                arrivalTime: formData.arrivalTime || "12:00",
+                departureDate: formData.departureDate || "2026-11-09",
+                departureTime: formData.departureTime || "12:00",
                 needsChildrenAccommodation: formData.needsChildrenAccommodation,
                 childrenNames: validChildren,
               }}

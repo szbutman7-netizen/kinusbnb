@@ -43,6 +43,46 @@ export async function POST(req: Request) {
             paidAt: now,
             updatedAt: now,
           }, { merge: true });
+        } else {
+          // Autonomous safety net: Create full Shliach document directly from Stripe payment metadata
+          // Guarantees 100% that no paid Shliach is ever lost even if browser crashed or disconnected!
+          const displayName = metadata.shliachName || "הרב השליח";
+          const nameParts = displayName.split(/\s+/).filter(Boolean);
+          const firstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(" ") : displayName;
+          const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
+
+          await setDoc(docRef, {
+            id: shliachId,
+            firstName,
+            lastName,
+            hebrewName: displayName,
+            email: metadata.email || "",
+            phone: metadata.phone || "",
+            country: metadata.country || "לא צוין",
+            city: metadata.city || "לא צוין",
+            passportOrId: metadata.passportOrId || "",
+            arrivalDate: metadata.arrivalDate || "2026-11-04",
+            arrivalTime: metadata.arrivalTime || "12:00",
+            departureDate: metadata.departureDate || "2026-11-09",
+            departureTime: metadata.departureTime || "12:00",
+            preferredRoommates: "",
+            specialRequests: "",
+            needsChildrenAccommodation: (Number(metadata.childrenCount) || 0) > 0,
+            childrenNames: [],
+            childrenCount: Number(metadata.childrenCount) || 0,
+            paymentStatus: "PAID",
+            amountPaid: Number(metadata.amountPaid) || (paymentIntent.amount / 100),
+            currency: "USD",
+            paidAt: now,
+            receptionVisible: false,
+            checkedIn: false,
+            blockCheckIn: false,
+            registrationStatus: "COMPLETED",
+            stripePaymentIntentId: paymentIntent.id,
+            createdAt: now,
+            updatedAt: now,
+          });
+          console.log(`Safety-net autonomous Shliach document created for ${shliachId}`);
         }
 
         // Autonomous confirmation email dispatch
