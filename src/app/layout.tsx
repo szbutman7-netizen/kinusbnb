@@ -66,15 +66,9 @@ export const metadata: Metadata = {
     images: ["/og-image.jpg"],
   },
   icons: {
-    icon: [
-      { url: "/assets/kinus-emblem.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-    ],
-    apple: [
-      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-    shortcut: "/favicon.ico",
+    icon: "/assets/kinus-emblem.svg",
+    shortcut: "/assets/kinus-emblem.svg",
+    apple: "/assets/kinus-emblem.svg",
   },
   other: {
     "image_src": "https://kinusbed.vercel.app/og-image.jpg",
