@@ -47,14 +47,14 @@ export function Navbar() {
 
             <Link
               href="/"
-              className="hidden md:inline-flex items-center justify-center px-4 py-2 text-xs sm:text-sm font-semibold rounded-full border border-[#E8D8A8]/25 text-slate-200 hover:border-[#E8D8A8] hover:text-[#E8D8A8] hover:bg-[#15305B]/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
+              className="hidden md:inline-flex items-center justify-center px-4 sm:px-5 h-9 sm:h-10 text-xs sm:text-sm font-semibold rounded-full border border-[#E8D8A8]/25 text-slate-200 hover:border-[#E8D8A8] hover:text-[#E8D8A8] hover:bg-[#15305B]/60 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
             >
               {t("navInfo")}
             </Link>
 
             <Link
               href="/register"
-              className="shimmer-button inline-flex items-center justify-center px-3.5 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm font-bold rounded-full bg-[#E8D8A8] text-[#0B1A30] hover:bg-white hover:shadow-[0_0_20px_rgba(232,216,168,0.4)] active:scale-95 transition-all duration-200 tracking-wide whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
+              className="shimmer-button inline-flex items-center justify-center px-4 sm:px-5 h-9 sm:h-10 text-xs sm:text-sm font-bold rounded-full bg-[#E8D8A8] text-[#0B1A30] border border-[#E8D8A8] hover:bg-white hover:text-[#0B1A30] hover:border-white hover:shadow-[0_0_20px_rgba(232,216,168,0.4)] active:scale-95 transition-all duration-200 tracking-wide whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8]"
             >
               {t("navRegister")}
             </Link>

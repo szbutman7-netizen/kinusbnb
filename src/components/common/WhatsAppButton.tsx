@@ -52,7 +52,7 @@ export function WhatsAppButton({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={accessibleLabel}
-      className={`inline-flex items-center gap-2 px-4 py-2 bg-[#102444] text-[#E8D8A8] border border-[#E8D8A8]/30 hover:border-[#E8D8A8] hover:bg-[#15305B] rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all text-xs font-bold focus:outline-none focus-visible:ring-4 focus-visible:ring-[#E8D8A8]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#102444] ${className}`}
+      className={`inline-flex items-center justify-center gap-2 px-4 sm:px-5 h-9 sm:h-10 bg-[#102444] text-[#E8D8A8] border border-[#E8D8A8]/30 hover:border-[#E8D8A8] hover:bg-[#15305B] rounded-full shadow-md hover:shadow-lg active:scale-95 transition-all text-xs sm:text-sm font-bold focus:outline-none focus-visible:ring-4 focus-visible:ring-[#E8D8A8]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#102444] ${className}`}
     >
       <svg
         className="w-4 h-4 fill-current flex-shrink-0"
