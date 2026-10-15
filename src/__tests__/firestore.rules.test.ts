@@ -146,4 +146,127 @@ describe('Firestore Security Rules - Integration Tests', () => {
 
     await expect(auditLogRef.get()).rejects.toThrow();
   });
+
+  it('should allow public creation with valid optional age and DRAFT status', async ({ skip }) => {
+    if (!isEmulatorRunning || !testEnv) {
+      return skip();
+    }
+
+    const unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
+    const shliachRef = unauthenticatedDb.collection('shluchim').doc('draft-123');
+
+    const draftData = {
+      firstName: 'לוי',
+      lastName: 'יצחק',
+      email: 'levi@example.com',
+      phone: '0509876543',
+      city: 'ירושלים',
+      country: 'ישראל',
+      arrivalDate: '2026-11-05',
+      departureDate: '2026-11-09',
+      age: 25,
+      registrationStatus: 'DRAFT',
+      checkedIn: false,
+      blockCheckIn: false,
+      receptionVisible: false,
+    };
+
+    await expect(shliachRef.set(draftData)).resolves.not.toThrow();
+  });
+
+  it('should DENY public creation with invalid age (< 18 or > 120)', async ({ skip }) => {
+    if (!isEmulatorRunning || !testEnv) {
+      return skip();
+    }
+
+    const unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
+    const shliachRef = unauthenticatedDb.collection('shluchim').doc('draft-invalid-age');
+
+    const invalidAgeData = {
+      firstName: 'לוי',
+      lastName: 'יצחק',
+      email: 'levi@example.com',
+      phone: '0509876543',
+      city: 'ירושלים',
+      country: 'ישראל',
+      arrivalDate: '2026-11-05',
+      departureDate: '2026-11-09',
+      age: 15, // Under 18
+      registrationStatus: 'DRAFT',
+      checkedIn: false,
+      blockCheckIn: false,
+      receptionVisible: false,
+    };
+
+    await expect(shliachRef.set(invalidAgeData)).rejects.toThrow();
+  });
+
+  it('should allow public update from DRAFT to COMPLETED', async ({ skip }) => {
+    if (!isEmulatorRunning || !testEnv) {
+      return skip();
+    }
+
+    // Seed draft as admin
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const adminDb = context.firestore();
+      await adminDb.collection('shluchim').doc('shliach-draft-to-comp').set({
+        firstName: 'שמואל',
+        lastName: 'קמינצקי',
+        email: 'shmuel@example.com',
+        phone: '0501112233',
+        city: 'דניפרו',
+        country: 'אוקראינה',
+        arrivalDate: '2026-11-05',
+        departureDate: '2026-11-09',
+        registrationStatus: 'DRAFT',
+        checkedIn: false,
+        blockCheckIn: false,
+        receptionVisible: false,
+      });
+    });
+
+    const unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
+    const shliachRef = unauthenticatedDb.collection('shluchim').doc('shliach-draft-to-comp');
+
+    await expect(
+      shliachRef.update({
+        registrationStatus: 'COMPLETED',
+        age: 40,
+      })
+    ).resolves.not.toThrow();
+  });
+
+  it('should DENY public update on an already COMPLETED registration', async ({ skip }) => {
+    if (!isEmulatorRunning || !testEnv) {
+      return skip();
+    }
+
+    // Seed completed record
+    await testEnv.withSecurityRulesDisabled(async (context) => {
+      const adminDb = context.firestore();
+      await adminDb.collection('shluchim').doc('shliach-completed').set({
+        firstName: 'יוסף',
+        lastName: 'כהן',
+        email: 'yosef@example.com',
+        phone: '0502223344',
+        city: 'תל אביב',
+        country: 'ישראל',
+        arrivalDate: '2026-11-05',
+        departureDate: '2026-11-09',
+        registrationStatus: 'COMPLETED',
+        checkedIn: false,
+        blockCheckIn: false,
+        receptionVisible: false,
+      });
+    });
+
+    const unauthenticatedDb = testEnv.unauthenticatedContext().firestore();
+    const shliachRef = unauthenticatedDb.collection('shluchim').doc('shliach-completed');
+
+    await expect(
+      shliachRef.update({
+        phone: '0509999999',
+      })
+    ).rejects.toThrow();
+  });
 });

@@ -62,7 +62,7 @@ service cloud.firestore {
     }
 
     function isOptionalString(data, field, maxLen) {
-      return !data.keys().hasAny([field]) || (data[field] is string && data[field].size() <= maxLen);
+      return !data.keys().hasAny([field]) || data[field] == null || (data[field] is string && data[field].size() <= maxLen);
     }
 
     function isValidEmail(email) {
@@ -72,14 +72,26 @@ service cloud.firestore {
              email.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$');
     }
 
+    // Age validation: optional or integer between 18 and 120
+    function isValidOptionalAge(data) {
+      return !data.keys().hasAny(['age']) ||
+             data.age == null ||
+             (data.age is int && data.age >= 18 && data.age <= 120);
+    }
+
+    // Registration status: optional or must be 'DRAFT' or 'COMPLETED'
+    function hasValidRegistrationStatus(data) {
+      return !data.keys().hasAny(['registrationStatus']) ||
+             data.registrationStatus in ['DRAFT', 'COMPLETED'];
+    }
+
     // =========================================================================
     // SHLUCHIM COLLECTION VALIDATORS & RULES
     // =========================================================================
 
-    // Validates shliach registration data submitted by public / unauthenticated users
-    function isValidPublicShliachCreate(data, docId) {
+    // Core identity and registration fields bounds
+    function hasValidShliachCoreFields(data) {
       return (
-        // 1. Mandatory core identity fields
         isNonEmptyString(data.firstName, 60) &&
         isNonEmptyString(data.lastName, 60) &&
         isValidEmail(data.email) &&
@@ -88,27 +100,29 @@ service cloud.firestore {
         isNonEmptyString(data.country, 80) &&
         isNonEmptyString(data.arrivalDate, 30) &&
         isNonEmptyString(data.departureDate, 30) &&
+        isOptionalString(data, 'passportOrId', 50)
+      );
+    }
 
-        // 2. ID consistency check if provided in data
-        (!data.keys().hasAny(['id']) || data.id == docId) &&
-
-        // 3. Optional user input fields bounds
+    // Optional user input fields bounds
+    function hasValidShliachOptionalFields(data) {
+      return (
         isOptionalString(data, 'hebrewName', 120) &&
-        isOptionalString(data, 'passportOrId', 50) &&
         isOptionalString(data, 'state', 60) &&
         isOptionalString(data, 'arrivalTime', 20) &&
         isOptionalString(data, 'departureTime', 20) &&
         isOptionalString(data, 'preferredRoommates', 300) &&
-        isOptionalString(data, 'specialRequests', 600) &&
+        isOptionalString(data, 'specialRequests', 600)
+      );
+    }
 
-        // 4. Strict lockdown of management / admin flags:
-        // Public registration MUST NOT allow check-in or blocking flags to be enabled
+    // Strict lockdown of management / admin flags and bed/apartment assignments
+    function isPublicAdminFieldsLocked(data) {
+      return (
         data.get('checkedIn', false) == false &&
         data.get('blockCheckIn', false) == false &&
         data.get('receptionVisible', false) == false &&
         !data.keys().hasAny(['checkedInAt', 'checkedInBy', 'blockReason', 'adminNotes']) &&
-
-        // 5. Public registration MUST NOT self-assign apartment or bed
         (!data.keys().hasAny(['apartmentId']) || data.apartmentId == null) &&
         (!data.keys().hasAny(['apartmentName']) || data.apartmentName == null) &&
         (!data.keys().hasAny(['apartmentAddress']) || data.apartmentAddress == null) &&
@@ -117,8 +131,58 @@ service cloud.firestore {
       );
     }
 
+    // Validates shliach registration data submitted by public / unauthenticated users
+    function isValidPublicShliachCreate(data, docId) {
+      return (
+        // 1. Mandatory core identity fields
+        hasValidShliachCoreFields(data) &&
+
+        // 2. ID consistency check if provided in data
+        (!data.keys().hasAny(['id']) || data.id == docId) &&
+
+        // 3. Optional user input fields bounds
+        hasValidShliachOptionalFields(data) &&
+
+        // 4. Age validation (optional or integer between 18 and 120)
+        isValidOptionalAge(data) &&
+
+        // 5. Registration status (optional, DRAFT or COMPLETED)
+        hasValidRegistrationStatus(data) &&
+
+        // 6. Strict lockdown of management / admin flags and bed/apartment assignments
+        isPublicAdminFieldsLocked(data)
+      );
+    }
+
+    // Validates shliach draft update or completion submitted by public / unauthenticated users
+    function isValidPublicShliachUpdate(data, docId) {
+      return (
+        // 1. Must be transitioning from an existing DRAFT record
+        resource.data.get('registrationStatus', '') == 'DRAFT' &&
+
+        // 2. Target registrationStatus must be DRAFT or COMPLETED
+        data.get('registrationStatus', 'COMPLETED') in ['DRAFT', 'COMPLETED'] &&
+
+        // 3. ID immutability and consistency check
+        (!data.keys().hasAny(['id']) || data.id == docId) &&
+        (!data.keys().hasAny(['id']) || !resource.data.keys().hasAny(['id']) || data.id == resource.data.id) &&
+
+        // 4. Mandatory core identity fields
+        hasValidShliachCoreFields(data) &&
+
+        // 5. Optional user input fields bounds
+        hasValidShliachOptionalFields(data) &&
+
+        // 6. Age validation (optional or integer between 18 and 120)
+        isValidOptionalAge(data) &&
+
+        // 7. Strict lockdown of management / admin flags and bed/apartment assignments
+        isPublicAdminFieldsLocked(data)
+      );
+    }
+
     match /shluchim/{shliachId} {
-      // Create: Public registration form allowed if data satisfies domain constraints,
+      // Create: Public registration form / draft allowed if data satisfies domain constraints,
       // OR an authenticated admin creating a record.
       allow create: if (
         isValidPublicShliachCreate(request.resource.data, shliachId) ||
@@ -131,8 +195,15 @@ service cloud.firestore {
       // List (querying the entire collection): Restricted strictly to authenticated admins
       allow list: if isAdmin();
 
-      // Update & Delete: Restricted strictly to authenticated admins
-      allow update, delete: if isAdmin();
+      // Update: Public draft update/completion allowed if transitioning from DRAFT,
+      // OR an authenticated admin updating a record.
+      allow update: if (
+        isValidPublicShliachUpdate(request.resource.data, shliachId) ||
+        isAdmin()
+      );
+
+      // Delete: Restricted strictly to authenticated admins
+      allow delete: if isAdmin();
     }
 
     // =========================================================================
