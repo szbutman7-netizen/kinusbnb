@@ -25,13 +25,13 @@ export const translations = {
 
     // Home Page
     traditionalBh: "",
-    datesBanner: "כ״ד – כ״ט בחשוון תשפ״ז • 4 – 9 בנובמבר 2026 • ברוקלין, ניו יורק",
+    datesBanner: "כ״ג – ל׳ בחשוון תשפ״ז • 3 – 10 בנובמבר 2026 • ברוקלין, ניו יורק",
     heroTitle: "כינוס השלוחים העולמי",
-    heroSubtitle: "מערך אירוח ולינה לשלוחי כ״ק אדמו״ר נשיא דורנו",
-    heroDescription: "ברוכים הבאים למערכת הרישום והסדרת הלינה לקראת ימי הכינוס הקדושים. דירות אירוח מרווחות ומסודרות בשכונת קראון הייטס בסמיכות לבית חיינו – 770.",
+    heroSubtitle: "מערך אירוח ולינה במהלך ימי הכינוס",
+    heroDescription: "ברוכים הבאים למערכת הרישום והסדרת הלינה לקראת ימי הכינוס. דירות אירוח מרווחות ומסודרות בשכונת קראון הייטס בסמיכות לבית חיינו – 770.",
     heroRegisterCta: "להרשמה והסדרת מקום לינה",
     heroDetailsCta: "פרטי האירוח והסדרי הגעה",
-    feeBadge: "דמי השתתפות: $180 לכל ימי הכינוס",
+    feeBadge: "דמי השתתפות: $30 לכל ימי הכינוס",
 
     // Pillars
     pillarsHeaderTag: "הסדרי האירוח",
@@ -46,11 +46,11 @@ export const translations = {
     // FAQ
     faqTitle: "מידע חשוב לקראת ההגעה",
     faq1Q: "מתי ניתן להגיע ולקבל את מפתח הדירה?",
-    faq1A: "עמדת הקבלה תיפתח ביום רביעי, כ״ד בחשוון (4 בנובמבר). בהגעתכם יש לגשת לעמדת הקבלה ולהזדהות בשמכם לקבלת המפתח ופרטי החדר.",
+    faq1A: "עמדת הקבלה תפעל לאורך ימי הכינוס בבניין המוזיאון הסמוך ל770, בהגעתכם יש לגשת לעמדת הקבלה ולהזדהות בשמכם לקבלת המפתח ופרטי החדר.",
     faq2Q: "מה כולל האירוח בדירה?",
-    faq2A: "האירוח כולל מיטה מוצעת עם מצעים נקיים, כרית, שמיכה ומגבת. הדירות מצוידות בחימום/מיזוג, מים חמים וקוד כניסה מסודר.",
+    faq2A: "האירוח כולל מיטה מסודרת ומרווחת, כולל כרית ושמיכה, יש להביא מצעים איתכם.",
     faq3Q: "עד מתי ניתן להישאר בדירה?",
-    faq3A: "הפינוי מתבצע ביום שני, כ״ט בחשוון (9 בנובמבר), לאחר הבאנקעט המרכזי של כינוס השלוחים.",
+    faq3A: "הדירות נסגרות ביום שלישי בתאריך 10 בנובמבר (ל׳ בחשוון), לא נוכל לספק לינה מעבר לתאריך זה.",
 
     // Home Bottom CTA
     bottomCtaTitle: "הבטיחו את מקומכם בימי הכינוס",
@@ -65,10 +65,11 @@ export const translations = {
     backToInfo: "חזרה למידע כללי על הכינוס",
 
     // Registration Form
-    formBadge: "טופס הרשמה רשמי",
+    formBadge: "",
     formTitle: "אירוח ולינה בכינוס השלוחים",
-    formYearSubtitle: "שנת הקהל תשפ״ז • ברוקלין, ניו יורק",
-    formPrice: "$180",
+    formYearSubtitle: "",
+    formDeadlineNotice: "ניתן להירשם עד ליום י״ז חשוון 28 באוקטובר",
+    formPrice: "$30",
     formPriceLabel: "לכל ימי הכינוס",
     optionalFieldsBadge: "שדות רשות",
     stepLabel1: "פרטי השליח",
@@ -85,7 +86,7 @@ export const translations = {
     hebrewNamePlaceholder: "הרב מנחם מענדל כהן",
     emailLabel: "דוא״ל לקבלת אישור ופרטי הדירה",
     emailPlaceholder: "rabbi@chabad.org",
-    phoneLabel: "מספר טלפון נייד (וואטסאפ)",
+    phoneLabel: "מספר טלפון נייד",
     phonePlaceholder: "+1-718-555-0123",
     countryLabel: "מדינת השליחות (בחירה מתוך רשימה)",
     countrySelectDefault: "-- בחר מדינה --",
@@ -98,9 +99,9 @@ export const translations = {
     // Step 2 Fields
     step2Header: "זמני שהות ובקשות מיוחדות",
     datesNoticeTitle: "תאריכי הכינוס המורשים:",
-    datesNoticeText: "הלינה והאירוח מתקיימים בין התאריכים: 4 – 9 בנובמבר 2026 (כ״ד – כ״ט בחשוון ה׳תשפ״ז). תאריכים מחוץ לטווח זה נעולים לבחירה.",
+    datesNoticeText: "הלינה והאירוח מתקיימים בין התאריכים: 3 – 10 בנובמבר 2026 (כ״ג – ל׳ בחשוון ה׳תשפ״ז).",
     arrivalDateLabel: "תאריך הגעה משוער",
-    dateRangeHint: "טווח: 4 – 9 בנובמבר 2026 בלבד",
+    dateRangeHint: "",
     arrivalTimeLabel: "שעת הגעה משוערת",
     departureDateLabel: "תאריך עזיבה משוער",
     departureTimeLabel: "שעת עזיבה משוערת",
@@ -113,7 +114,7 @@ export const translations = {
     // Step 3 Fields
     step3Header: "תשלום מאובטח באמצעות Stripe",
     feeSummaryLabel: "דמי השתתפות באירוח ולינה:",
-    feeSummaryAmount: "$180.00 USD",
+    feeSummaryAmount: "$30.00 USD",
     sslSecuredText: "סליקה מאובטחת SSL",
     cardDetailsHeader: "פרטי כרטיס אשראי",
     stripeEncryptionText: "Stripe 256-bit Encryption",
@@ -125,12 +126,12 @@ export const translations = {
     // Buttons
     btnBack: "חזור",
     btnNext: "המשך",
-    btnSubmit: "בצע תשלום ואשר הרשמה ($180)",
+    btnSubmit: "בצע תשלום ואשר הרשמה ($30)",
     btnSubmitting: "מעבד תשלום...",
 
     // Validation
     valEmailInvalid: "נא להזין כתובת דוא״ל תקינה",
-    valDatesOutOfRange: "תאריכי הלינה חייבים להיות בטווח הכינוס: 4 עד 9 בנובמבר 2026 (כ״ד – כ״ט בחשוון תשפ״ז)",
+    valDatesOutOfRange: "תאריכי הלינה חייבים להיות בטווח הכינוס: 3 עד 10 בנובמבר 2026 (כ״ג – ל׳ בחשוון תשפ״ז)",
     valDepartureBeforeArrival: "תאריך עזיבה אינו יכול להיות מוקדם מתאריך הגעה",
     valGenericError: "אירעה שגיאה בעת ההרשמה, אנא נסו שוב.",
 
@@ -144,9 +145,11 @@ export const translations = {
     successIdPrefix: "מספר מזהה / ת״ז:",
     successStayDates: "תאריכי שהות:",
     successPaymentStatus: "סטטוס תשלום:",
-    successPaidStripe: "שולם ($180) ב-Stripe",
+    successPaidStripe: "שולם ($30) ב-Stripe",
     successArrivalGuideTitle: "הנחיות להגעה וקליטה:",
-    successArrivalGuideText: "בהגעתכם לקראון הייטס, גשו לעמדת הקבלה והזדהו בשמכם או במספר תעודת הזהות/הדרכון לקבלת מפתח הדירה ופרטי החדר.",
+    successArrivalGuideText: "עמדת הקבלה תפעל לאורך ימי הכינוס בבניין המוזיאון הסמוך ל770, בהגעתכם יש לגשת לעמדת הקבלה ולהזדהות בשמכם לקבלת המפתח ופרטי החדר.",
+    successDisclaimerTitle: "שימו לב:",
+    successDisclaimerText: "אין בהרשמה התחייבות לקבלת מיטה. צוות הכינוס עושה את מיטב המאמצים לדאוג למיטות עבור כל הנרשמים. נעדכן בעז״ה בזמן הקרוב אם נוכל לספק עבורכם מקום לינה, ובמידה ולא נוכל נבצע החזר מלא על דמי ההרשמה.",
     btnPrint: "הדפס אישור הרשמה",
     btnHome: "חזרה לדף הבית",
     loadingReceipt: "טוען אישור הרשמה...",
@@ -170,7 +173,7 @@ export const translations = {
     contactNamePlaceholder: "הרב לוי יצחק",
     contactEmailLabel: "כתובת דוא״ל למענה",
     contactEmailPlaceholder: "shliach@chabad.org",
-    contactPhoneLabel: "טלפון / וואטסאפ",
+    contactPhoneLabel: "טלפון נייד",
     contactPhonePlaceholder: "+1-718-555-0199",
     contactSubjectLabel: "נושא הפנייה",
     contactSubjectPlaceholder: "בירור לגבי שיבוץ דירה / צרכי נגישות",
@@ -183,7 +186,7 @@ export const translations = {
   },
   en: {
     // Top Bar & Navbar
-    title: "International Kinus HaShluchim",
+    title: "International Conference of Shluchim",
     deptSubtitle: "Hospitality & Housing Dept. • 5787",
     navInfo: "General Info",
     navRegister: "Housing Registration",
@@ -200,13 +203,13 @@ export const translations = {
 
     // Home Page
     traditionalBh: "",
-    datesBanner: "24 – 29 Cheshvan 5787 • November 4 – 9, 2026 • Brooklyn, New York",
-    heroTitle: "International Kinus HaShluchim",
-    heroSubtitle: "Official Hospitality and Housing System for the Rebbe's Shluchim",
-    heroDescription: "Welcome to the official registration system for accommodations during the sacred days of the Kinus. Spacious and organized guest apartments located in Crown Heights, within short walking distance of 770.",
+    datesBanner: "23 – 30 Cheshvan 5787 • November 3 – 10, 2026 • Brooklyn, New York",
+    heroTitle: "International Conference of Shluchim",
+    heroSubtitle: "Hospitality & Housing during the Kinus",
+    heroDescription: "Welcome to the registration system for accommodations during the Kinus. Spacious and organized guest apartments located in Crown Heights, within short walking distance of 770.",
     heroRegisterCta: "Register for Accommodations",
     heroDetailsCta: "Accommodation Details & Arrival",
-    feeBadge: "Participation Fee: $180 for all days of the Kinus",
+    feeBadge: "Registration Fee: $30 for all days of the Kinus",
 
     // Pillars
     pillarsHeaderTag: "Hospitality Arrangements",
@@ -221,11 +224,11 @@ export const translations = {
     // FAQ
     faqTitle: "Important Arrival Information",
     faq1Q: "When can I arrive and collect my room keys?",
-    faq1A: "The check-in reception desk opens Wednesday, 24 Cheshvan (Nov 4). Upon arrival, check in with your name to receive your keys and room details.",
+    faq1A: "The reception desk will operate throughout the Kinus in the Museum building adjacent to 770. Upon arrival, please visit the desk and identify yourself by name to receive keys and room details.",
     faq2Q: "What is included in the apartment accommodations?",
-    faq2A: "Accommodations include a prepared bed with fresh linens, pillow, blanket, and towels. Apartments are equipped with climate control, hot water, and secure access code.",
+    faq2A: "Accommodations include an orderly and spacious bed, with a pillow and blanket. Please bring your own bed linens.",
     faq3Q: "When is checkout?",
-    faq3A: "Checkout is on Monday, 29 Cheshvan (Nov 9), following the Grand Gala Banquet of the Kinus.",
+    faq3A: "Apartments close on Tuesday, November 10 (30 Cheshvan); we cannot provide accommodation beyond this date.",
 
     // Home Bottom CTA
     bottomCtaTitle: "Secure Your Place at the Kinus",
@@ -234,16 +237,17 @@ export const translations = {
 
     // Footer
     footerAddress: "Hospitality & Housing Department • 788 Eastern Parkway, Suite 301, Brooklyn NY, 11213",
-    footerCopyright: "International Kinus HaShluchim 5787",
+    footerCopyright: "International Conference of Shluchim 5787",
 
     // Register Page
     backToInfo: "Back to General Information",
 
     // Registration Form
-    formBadge: "Official Registration Form",
-    formTitle: "Kinus HaShluchim Housing & Accommodations",
-    formYearSubtitle: "Year of Hakhel 5787 • Brooklyn, NY",
-    formPrice: "$180",
+    formBadge: "",
+    formTitle: "Housing & Accommodations for the Kinus",
+    formYearSubtitle: "",
+    formDeadlineNotice: "Registration is open until 17 Cheshvan / October 28",
+    formPrice: "$30",
     formPriceLabel: "For all days of the Kinus",
     optionalFieldsBadge: "All fields optional",
     stepLabel1: "Shliach Info",
@@ -260,7 +264,7 @@ export const translations = {
     hebrewNamePlaceholder: "הרב מנחם מענדל כהן",
     emailLabel: "Email (for confirmation & room details)",
     emailPlaceholder: "rabbi@chabad.org",
-    phoneLabel: "Mobile Phone (WhatsApp)",
+    phoneLabel: "Mobile Phone Number",
     phonePlaceholder: "+1-718-555-0123",
     countryLabel: "Country of Shlichus (select from list)",
     countrySelectDefault: "-- Select Country --",
@@ -273,9 +277,9 @@ export const translations = {
     // Step 2 Fields
     step2Header: "Dates of Stay & Special Requests",
     datesNoticeTitle: "Authorized Kinus Dates:",
-    datesNoticeText: "Accommodations are provided strictly between: November 4 – 9, 2026 (24 – 29 Cheshvan 5787). Dates outside this range are locked.",
+    datesNoticeText: "Accommodations are provided strictly between: November 3 – 10, 2026 (23 – 30 Cheshvan 5787).",
     arrivalDateLabel: "Estimated Arrival Date",
-    dateRangeHint: "Range: November 4 – 9, 2026 only",
+    dateRangeHint: "",
     arrivalTimeLabel: "Estimated Arrival Time",
     departureDateLabel: "Estimated Departure Date",
     departureTimeLabel: "Estimated Departure Time",
@@ -287,8 +291,8 @@ export const translations = {
 
     // Step 3 Fields
     step3Header: "Secure Payment via Stripe",
-    feeSummaryLabel: "Housing Participation Fee:",
-    feeSummaryAmount: "$180.00 USD",
+    feeSummaryLabel: "Housing & Accommodation Participation Fee:",
+    feeSummaryAmount: "$30.00 USD",
     sslSecuredText: "SSL Secure Checkout",
     cardDetailsHeader: "Credit Card Information",
     stripeEncryptionText: "Stripe 256-bit Encryption",
@@ -300,12 +304,12 @@ export const translations = {
     // Buttons
     btnBack: "Back",
     btnNext: "Next Step",
-    btnSubmit: "Complete Payment & Confirm ($180)",
+    btnSubmit: "Complete Payment & Confirm ($30)",
     btnSubmitting: "Processing Payment...",
 
     // Validation
     valEmailInvalid: "Please enter a valid email address",
-    valDatesOutOfRange: "Dates must fall within the Kinus period: November 4 to 9, 2026 (24 – 29 Cheshvan)",
+    valDatesOutOfRange: "Dates must fall within the Kinus period: November 3 to 10, 2026 (23 – 30 Cheshvan 5787)",
     valDepartureBeforeArrival: "Departure date cannot be earlier than arrival date",
     valGenericError: "An error occurred during registration, please try again.",
 
@@ -319,9 +323,11 @@ export const translations = {
     successIdPrefix: "Registration ID / Passport:",
     successStayDates: "Dates of Stay:",
     successPaymentStatus: "Payment Status:",
-    successPaidStripe: "Paid ($180) via Stripe",
+    successPaidStripe: "Paid ($30) via Stripe",
     successArrivalGuideTitle: "Arrival & Check-in Instructions:",
-    successArrivalGuideText: "Upon arriving in Crown Heights, visit the reception desk and present your name or passport/ID to receive your apartment key and room assignment.",
+    successArrivalGuideText: "The reception desk will operate throughout the Kinus in the Museum building adjacent to 770. Upon arrival, please visit the desk and identify yourself by name to receive keys and room details.",
+    successDisclaimerTitle: "Please Note:",
+    successDisclaimerText: "Registration does not guarantee a bed. The Kinus committee is making every effort to arrange beds for all registered Shluchim. We will update you in the near future regarding availability; if we are unable to accommodate, a full refund of the registration fee will be issued.",
     btnPrint: "Print Confirmation",
     btnHome: "Return to Home Page",
     loadingReceipt: "Loading confirmation receipt...",
@@ -329,8 +335,8 @@ export const translations = {
     // Form Closed State
     formClosedBadge: "Registration Closed",
     formClosedTitle: "Housing Registration is Currently Closed",
-    formClosedSubtitle: "Hospitality & Housing Department • Kinus HaShluchim 5787",
-    formClosedDesc: "Online housing registration for the International Kinus HaShluchim is currently closed for new applications. If you require urgent assistance or personal coordination, please reach out to our team directly via WhatsApp.",
+    formClosedSubtitle: "Hospitality & Housing Department • International Conference of Shluchim 5787",
+    formClosedDesc: "Online housing registration for the International Conference of Shluchim is currently closed for new applications. If you require urgent assistance or personal coordination, please reach out to our team directly via WhatsApp.",
     formClosedContactUs: "For urgent inquiries & assistance:",
 
     // Date Picker
@@ -345,7 +351,7 @@ export const translations = {
     contactNamePlaceholder: "Rabbi Levi Yitzchok",
     contactEmailLabel: "Email Address for Reply",
     contactEmailPlaceholder: "shliach@chabad.org",
-    contactPhoneLabel: "Phone / WhatsApp",
+    contactPhoneLabel: "Mobile Phone",
     contactPhonePlaceholder: "+1-718-555-0199",
     contactSubjectLabel: "Subject",
     contactSubjectPlaceholder: "Inquiry regarding apartment placement / accessibility",

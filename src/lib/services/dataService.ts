@@ -30,8 +30,8 @@ import {
   INITIAL_EMAIL_TEMPLATES 
 } from "./mockData";
 
-export const DEFAULT_ARRIVAL_DATES = ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
-export const DEFAULT_DEPARTURE_DATES = ["2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09"];
+export const DEFAULT_ARRIVAL_DATES = ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09", "2026-11-10"];
+export const DEFAULT_DEPARTURE_DATES = ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09", "2026-11-10"];
 export const OFFICIAL_DOMAIN = "https://kinusbed.vercel.app/";
 export const AUTHORIZED_DOMAIN = "kinusbed.vercel.app";
 

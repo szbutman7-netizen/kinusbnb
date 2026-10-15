@@ -98,7 +98,7 @@ function SuccessContent() {
             <div className="p-3 bg-[#102444] rounded-xl border border-slate-700/80">
               <span className="text-slate-300 block mb-1 text-[11px]">{t("successStayDates")}</span>
               <span className="font-bold text-white block">
-                {shliach?.arrivalDate || "2026-11-04"} - {shliach?.departureDate || "2026-11-09"}
+                {shliach?.arrivalDate || "2026-11-03"} - {shliach?.departureDate || "2026-11-10"}
               </span>
             </div>
 
@@ -109,6 +109,16 @@ function SuccessContent() {
                 {t("successPaidStripe")}
               </span>
             </div>
+          </div>
+
+          {/* Important Registration Notice / Disclaimer */}
+          <div className="bg-amber-950/30 border border-amber-500/30 rounded-xl p-4 text-xs text-amber-200 space-y-1.5">
+            <p className="font-bold text-amber-300 flex items-center gap-1.5">
+              <span>{t("successDisclaimerTitle")}</span>
+            </p>
+            <p className="text-[11px] leading-relaxed text-amber-100/90 font-light">
+              {t("successDisclaimerText")}
+            </p>
           </div>
 
           <div className="bg-[#102444]/80 border border-[#E8D8A8]/20 rounded-xl p-4 text-xs text-slate-200 space-y-1.5">

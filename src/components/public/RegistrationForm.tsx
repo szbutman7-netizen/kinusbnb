@@ -25,8 +25,8 @@ import {
   Loader2
 } from "lucide-react";
 
-const KINUS_START_DATE = "2026-11-04";
-const KINUS_END_DATE = "2026-11-09";
+const KINUS_START_DATE = "2026-11-03";
+const KINUS_END_DATE = "2026-11-10";
 
 const INITIAL_FORM_DATA = {
   firstName: "",
@@ -144,14 +144,14 @@ export function RegistrationForm() {
         country: formData.country || (language === "he" ? "לא צוין" : "Not specified"),
         city: formData.city.trim() || (language === "he" ? "לא צוין" : "Not specified"),
         passportOrId: formData.passportOrId.trim(),
-        arrivalDate: formData.arrivalDate || "2026-11-04",
+        arrivalDate: formData.arrivalDate || "2026-11-03",
         arrivalTime: formData.arrivalTime || "12:00",
-        departureDate: formData.departureDate || "2026-11-09",
+        departureDate: formData.departureDate || "2026-11-10",
         departureTime: formData.departureTime || "12:00",
         preferredRoommates: formData.preferredRoommates.trim(),
         specialRequests: formData.specialRequests.trim(),
         paymentStatus: "PAID",
-        amountPaid: 180,
+        amountPaid: 30,
         currency: "USD",
         paidAt: new Date().toISOString(),
         receptionVisible: false,
@@ -301,20 +301,29 @@ export function RegistrationForm() {
               <KinusLogo size={52} variant="emblem" />
             </div>
             <div>
-              <span className="text-[#E8D8A8] font-semibold text-xs tracking-widest uppercase block">
-                {t("formBadge")}
-              </span>
+              {t("formBadge") ? (
+                <span className="text-[#E8D8A8] font-semibold text-xs tracking-widest uppercase block">
+                  {t("formBadge")}
+                </span>
+              ) : null}
               <h1 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-wide">
                 {t("formTitle")}
               </h1>
-              <p className="text-slate-200 text-xs mt-0.5 font-light">
-                {t("formYearSubtitle")}
-              </p>
+              {t("formYearSubtitle") ? (
+                <p className="text-slate-200 text-xs mt-0.5 font-light">
+                  {t("formYearSubtitle")}
+                </p>
+              ) : null}
+              {t("formDeadlineNotice") ? (
+                <p className="text-[#E8D8A8] text-xs mt-1 font-medium">
+                  {t("formDeadlineNotice")}
+                </p>
+              ) : null}
             </div>
           </div>
 
           <div className={`hidden sm:block ${isRtl ? "text-left" : "text-right"}`}>
-            <span className="text-2xl font-serif font-bold text-[#E8D8A8] block drop-shadow-sm">$180</span>
+            <span className="text-2xl font-serif font-bold text-[#E8D8A8] block drop-shadow-sm">$30</span>
             <span className="text-[11px] text-slate-300">{t("formPriceLabel")}</span>
           </div>
         </div>
@@ -434,7 +443,7 @@ export function RegistrationForm() {
 
             <div>
               <label htmlFor="hebrewName" className="block text-xs font-semibold text-slate-200 mb-1">
-                {language === "he" ? "שם השליח (בעברית בלבד)" : "Shliach Full Name (Hebrew only)"}
+                {language === "he" ? "שם השליח (בעברית)" : "Shliach Full Name (Hebrew only)"}
               </label>
               <div className="relative">
                 <input
@@ -454,9 +463,6 @@ export function RegistrationForm() {
                 />
                 {isHebrewNameValid && <ValidBadge />}
               </div>
-              <span className="text-[10px] text-slate-400 block mt-1">
-                {language === "he" ? "* את שם השליח יש למלא בעברית בלבד" : "* Please fill the Shliach's name in Hebrew only"}
-              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -720,14 +726,14 @@ export function RegistrationForm() {
                 <CreditCard className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
                 {t("step3Header")}
               </span>
-              <span className="text-sm font-serif font-bold text-[#E8D8A8]">$180.00 USD</span>
+              <span className="text-sm font-serif font-bold text-[#E8D8A8]">$30.00 USD</span>
             </h2>
 
             {/* VIP Pass Summary Card */}
             <div className="glass-panel rounded-2xl p-4 sm:p-5 border border-[#E8D8A8]/30 shadow-md relative overflow-hidden">
               <div className="flex justify-between items-center pb-3 border-b border-slate-700/60 text-xs">
                 <span className="text-slate-200 font-medium">{t("feeSummaryLabel")}</span>
-                <span className="font-serif font-bold text-[#E8D8A8] text-base drop-shadow-sm">$180.00 USD</span>
+                <span className="font-serif font-bold text-[#E8D8A8] text-base drop-shadow-sm">$30.00 USD</span>
               </div>
               <div className="flex justify-between items-center pt-3 text-[11px] text-slate-300">
                 <span className="text-slate-400 font-light">{language === "he" ? "כולל אירוח מלא לכל ימי הכינוס" : "Includes full accommodation for all Kinus days"}</span>

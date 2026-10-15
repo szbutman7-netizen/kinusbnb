@@ -7,7 +7,7 @@ const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: "2025-01-27
 
 export async function POST(req: Request) {
   try {
-    const { amount = 180, currency = "usd", shliachDetails } = await req.json();
+    const { amount = 30, currency = "usd", shliachDetails } = await req.json();
 
     if (stripe) {
       const paymentIntent = await stripe.paymentIntents.create({
