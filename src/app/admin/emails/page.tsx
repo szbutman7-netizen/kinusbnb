@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useKinusData } from "@/lib/hooks/useKinusData";
 import { EmailTemplate, Shliach } from "@/types";
 import { 
@@ -24,7 +24,7 @@ export default function EmailsPage() {
   const { templates, emailLogs, shluchim, formSettings, actions, isLoaded } = useKinusData();
 
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(
-    templates[0]?.id || "template-registration-confirmation"
+    "template-registration-confirmation"
   );
 
   const currentTemplate = templates.find((t) => t.id === selectedTemplateId) || templates[0];
@@ -37,9 +37,23 @@ export default function EmailsPage() {
   const [previewTab, setPreviewTab] = useState<"CODE" | "PREVIEW">("PREVIEW");
   const [remainingDailyQuota, setRemainingDailyQuota] = useState(1485);
 
+  // Sync state whenever templates are loaded or selectedTemplateId changes
+  useEffect(() => {
+    if (currentTemplate) {
+      setSubject(currentTemplate.subject);
+      setHtmlContent(currentTemplate.htmlContent);
+    }
+  }, [selectedTemplateId, currentTemplate?.subject, currentTemplate?.htmlContent]);
+
   // Auto-send confirmation toggle
   const [autoEmailEnabled, setAutoEmailEnabled] = useState(formSettings?.sendConfirmationEmail ?? true);
   const [isSavingToggle, setIsSavingToggle] = useState(false);
+
+  useEffect(() => {
+    if (formSettings?.sendConfirmationEmail !== undefined) {
+      setAutoEmailEnabled(formSettings.sendConfirmationEmail);
+    }
+  }, [formSettings?.sendConfirmationEmail]);
 
   // Test email state
   const [testEmailAddress, setTestEmailAddress] = useState("");

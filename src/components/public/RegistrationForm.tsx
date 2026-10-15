@@ -36,6 +36,7 @@ const INITIAL_FORM_DATA = {
   firstName: "",
   lastName: "",
   hebrewName: "",
+  age: "",
   email: "",
   phone: "",
   country: "",
@@ -61,6 +62,8 @@ export function RegistrationForm() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [savedShliachId, setSavedShliachId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
@@ -123,37 +126,134 @@ export function RegistrationForm() {
   const basePrice = 30;
   const totalPrice = basePrice + childrenFee;
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     setErrorMessage("");
     if (step === 1) {
-      if (formData.hebrewName.trim()) {
-        const hasEnglish = /[a-zA-Z]/.test(formData.hebrewName);
-        if (hasEnglish) {
-          setErrorMessage(t("hebrewOnlyError"));
-          return;
-        }
+      if (!formData.hebrewName.trim()) {
+        setErrorMessage(t("valHebrewNameRequired"));
+        return;
       }
-      // All fields are optional - validate email only if entered
-      if (formData.email && !formData.email.includes("@")) {
+      if (/[a-zA-Z]/.test(formData.hebrewName)) {
+        setErrorMessage(t("hebrewOnlyError"));
+        return;
+      }
+      if (!formData.firstName.trim()) {
+        setErrorMessage(t("valFirstNameRequired"));
+        return;
+      }
+      if (!formData.lastName.trim()) {
+        setErrorMessage(t("valLastNameRequired"));
+        return;
+      }
+      const ageNum = Number(formData.age);
+      if (!formData.age || isNaN(ageNum) || ageNum < 18 || ageNum > 120) {
+        setErrorMessage(t("valAgeRequired"));
+        return;
+      }
+      if (!formData.passportOrId.trim()) {
+        setErrorMessage(t("valPassportRequired"));
+        return;
+      }
+      if (!formData.country.trim()) {
+        setErrorMessage(t("valCountryRequired"));
+        return;
+      }
+      if (!formData.city.trim()) {
+        setErrorMessage(t("valCityRequired"));
+        return;
+      }
+      const cleanPhone = formData.phone.trim().replace(/\D/g, "");
+      if (!formData.phone.trim() || cleanPhone.length < 7) {
+        setErrorMessage(t("valPhoneRequired"));
+        return;
+      }
+      if (!formData.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
         setErrorMessage(t("valEmailInvalid"));
         return;
       }
+
+      setIsSavingDraft(true);
+      try {
+        const draft = await dataStore.saveShliachDraft({
+          id: savedShliachId || undefined,
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          hebrewName: formData.hebrewName.trim(),
+          age: ageNum,
+          passportOrId: formData.passportOrId.trim(),
+          country: formData.country,
+          city: formData.city.trim(),
+          phone: formData.phone.trim(),
+          email: formData.email.trim().toLowerCase(),
+          needsChildrenAccommodation: formData.needsChildrenAccommodation,
+          childrenNames: validChildren,
+          childrenCount: childrenCount,
+          registrationStatus: 'DRAFT',
+        });
+        if (draft && draft.id) {
+          setSavedShliachId(draft.id);
+        }
+      } catch (err) {
+        console.warn("Draft auto-save notice:", err);
+      } finally {
+        setIsSavingDraft(false);
+      }
+
       setDirection("forward");
       setStep(2);
     } else if (step === 2) {
-      // Validate dates range if entered
-      if (formData.arrivalDate && (formData.arrivalDate < KINUS_START_DATE || formData.arrivalDate > KINUS_END_DATE)) {
+      if (!formData.arrivalDate) {
+        setErrorMessage(t("valArrivalRequired"));
+        return;
+      }
+      if (formData.arrivalDate < KINUS_START_DATE || formData.arrivalDate > KINUS_END_DATE) {
         setErrorMessage(t("valDatesOutOfRange"));
         return;
       }
-      if (formData.departureDate && (formData.departureDate < KINUS_START_DATE || formData.departureDate > KINUS_END_DATE)) {
+      if (!formData.arrivalTime) {
+        setErrorMessage(t("valArrivalRequired"));
+        return;
+      }
+      if (!formData.departureDate) {
+        setErrorMessage(t("valDepartureRequired"));
+        return;
+      }
+      if (formData.departureDate < KINUS_START_DATE || formData.departureDate > KINUS_END_DATE) {
         setErrorMessage(t("valDatesOutOfRange"));
         return;
       }
-      if (formData.arrivalDate && formData.departureDate && formData.arrivalDate > formData.departureDate) {
+      if (!formData.departureTime) {
+        setErrorMessage(t("valDepartureRequired"));
+        return;
+      }
+      if (formData.arrivalDate > formData.departureDate) {
         setErrorMessage(t("valDepartureBeforeArrival"));
         return;
       }
+      if (formData.needsChildrenAccommodation && validChildren.length === 0) {
+        setErrorMessage(t("valChildrenNamesRequired"));
+        return;
+      }
+
+      try {
+        await dataStore.saveShliachDraft({
+          id: savedShliachId || undefined,
+          passportOrId: formData.passportOrId.trim(),
+          arrivalDate: formData.arrivalDate,
+          arrivalTime: formData.arrivalTime,
+          departureDate: formData.departureDate,
+          departureTime: formData.departureTime,
+          preferredRoommates: formData.preferredRoommates.trim(),
+          specialRequests: formData.specialRequests.trim(),
+          needsChildrenAccommodation: formData.needsChildrenAccommodation,
+          childrenNames: validChildren,
+          childrenCount: childrenCount,
+          registrationStatus: 'DRAFT',
+        });
+      } catch (err) {
+        console.warn("Draft step 2 update notice:", err);
+      }
+
       setDirection("forward");
       setStep(3);
     }
@@ -170,8 +270,25 @@ export function RegistrationForm() {
     setIsSubmitting(true);
     setErrorMessage("");
 
+    const cleanCard = formData.cardNumber.replace(/\D/g, "");
+    if (!cleanCard || cleanCard.length < 15) {
+      setErrorMessage(t("valPaymentRequired"));
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.cardExp.trim() || !formData.cardExp.includes("/")) {
+      setErrorMessage(t("valPaymentRequired"));
+      setIsSubmitting(false);
+      return;
+    }
+    if (!formData.cardCvc.trim() || formData.cardCvc.trim().length < 3) {
+      setErrorMessage(t("valPaymentRequired"));
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      const shliachId = "shliach-" + Date.now();
+      const shliachId = savedShliachId || ("shliach-" + Date.now());
       const displayName =
         formData.hebrewName.trim() ||
         [formData.firstName, formData.lastName].filter(Boolean).join(" ") ||
@@ -182,6 +299,7 @@ export function RegistrationForm() {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         hebrewName: displayName,
+        age: Number(formData.age) || undefined,
         email: formData.email.trim().toLowerCase(),
         phone: formData.phone.trim(),
         country: formData.country || (language === "he" ? "לא צוין" : "Not specified"),
@@ -203,6 +321,7 @@ export function RegistrationForm() {
         receptionVisible: false,
         checkedIn: false,
         blockCheckIn: false,
+        registrationStatus: 'COMPLETED',
         createdAt: new Date().toISOString(),
       };
 
@@ -345,6 +464,9 @@ export function RegistrationForm() {
 
   // Real-time live validation states
   const isHebrewNameValid = formData.hebrewName.trim().length > 1 && !/[a-zA-Z]/.test(formData.hebrewName);
+  const isFirstNameValid = formData.firstName.trim().length > 1;
+  const isLastNameValid = formData.lastName.trim().length > 1;
+  const isAgeValid = !isNaN(Number(formData.age)) && Number(formData.age) >= 18 && Number(formData.age) <= 120;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
   const isPhoneValid = formData.phone.trim().replace(/\D/g, "").length >= 7;
   const isCountryValid = Boolean(formData.country);
@@ -517,11 +639,15 @@ export function RegistrationForm() {
                 <User className="w-4 h-4 text-[#E8D8A8]" aria-hidden="true" />
                 {t("step1Header")}
               </h2>
+              <span className="text-[11px] text-[#E8D8A8] font-medium">
+                * {language === "he" ? "כל השדות הינם שדות חובה" : "All fields are mandatory"}
+              </span>
             </div>
 
+            {/* Hebrew Name */}
             <div>
               <label htmlFor="hebrewName" className="block text-xs font-semibold text-slate-200 mb-1">
-                {language === "he" ? "שם השליח (בעברית)" : "Shliach Full Name (Hebrew only)"}
+                {language === "he" ? "שם מלא בלשון הקודש (עברית)" : "Full Hebrew Name (Hebrew only)"} <span className="text-amber-400">*</span>
               </label>
               <div className="relative">
                 <input
@@ -533,6 +659,7 @@ export function RegistrationForm() {
                   value={formData.hebrewName}
                   onChange={handleChange}
                   placeholder="הרב מנחם מענדל כהן"
+                  required
                   className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
                     isHebrewNameValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
                   } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs text-right transition-all ${
@@ -543,58 +670,113 @@ export function RegistrationForm() {
               </div>
             </div>
 
+            {/* English First & Last Name */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="email" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("emailLabel")}
+                <label htmlFor="firstName" className="block text-xs font-semibold text-slate-200 mb-1">
+                  {t("firstNameLabel")} <span className="text-amber-400">*</span>
                 </label>
                 <div className="relative">
                   <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    autoComplete="email"
-                    value={formData.email}
+                    id="firstName"
+                    type="text"
+                    name="firstName"
+                    autoComplete="given-name"
+                    value={formData.firstName}
                     onChange={handleChange}
-                    placeholder={t("emailPlaceholder")}
+                    placeholder={t("firstNamePlaceholder")}
+                    required
                     className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
-                      isEmailValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                      isFirstNameValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
                     } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
-                      isEmailValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                      isFirstNameValid ? (isRtl ? "pl-10" : "pr-10") : ""
                     }`}
                   />
-                  {isEmailValid && <ValidBadge />}
+                  {isFirstNameValid && <ValidBadge />}
                 </div>
               </div>
 
               <div>
-                <label htmlFor="phone" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("phoneLabel")}
+                <label htmlFor="lastName" className="block text-xs font-semibold text-slate-200 mb-1">
+                  {t("lastNameLabel")} <span className="text-amber-400">*</span>
                 </label>
                 <div className="relative">
                   <input
-                    id="phone"
-                    type="tel"
-                    name="phone"
-                    autoComplete="tel"
-                    value={formData.phone}
+                    id="lastName"
+                    type="text"
+                    name="lastName"
+                    autoComplete="family-name"
+                    value={formData.lastName}
                     onChange={handleChange}
-                    placeholder={t("phonePlaceholder")}
+                    placeholder={t("lastNamePlaceholder")}
+                    required
                     className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
-                      isPhoneValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                      isLastNameValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
                     } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
-                      isPhoneValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                      isLastNameValid ? (isRtl ? "pl-10" : "pr-10") : ""
                     }`}
                   />
-                  {isPhoneValid && <ValidBadge />}
+                  {isLastNameValid && <ValidBadge />}
                 </div>
               </div>
             </div>
 
+            {/* Age & Passport / ID */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="age" className="block text-xs font-semibold text-slate-200 mb-1">
+                  {t("ageLabel")} <span className="text-amber-400">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="age"
+                    type="number"
+                    name="age"
+                    min="18"
+                    max="120"
+                    value={formData.age}
+                    onChange={handleChange}
+                    placeholder={t("agePlaceholder")}
+                    required
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      isAgeValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
+                      isAgeValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  />
+                  {isAgeValid && <ValidBadge />}
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="passportOrId" className="block text-xs font-semibold text-slate-200 mb-1">
+                  {t("passportLabel")} <span className="text-amber-400">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="passportOrId"
+                    type="text"
+                    name="passportOrId"
+                    value={formData.passportOrId}
+                    onChange={handleChange}
+                    placeholder={t("passportPlaceholder")}
+                    required
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      isPassportValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
+                      isPassportValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  />
+                  {isPassportValid && <ValidBadge />}
+                </div>
+              </div>
+            </div>
+
+            {/* Country & City */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="country" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("countryLabel")}
+                  {t("countryLabel")} <span className="text-amber-400">*</span>
                 </label>
                 <div className="relative">
                   <select
@@ -602,6 +784,7 @@ export function RegistrationForm() {
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
+                    required
                     className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
                       isCountryValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
                     } bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs transition-all ${
@@ -626,7 +809,7 @@ export function RegistrationForm() {
 
               <div>
                 <label htmlFor="city" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("cityLabel")}
+                  {t("cityLabel")} <span className="text-amber-400">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -636,6 +819,7 @@ export function RegistrationForm() {
                     value={formData.city}
                     onChange={handleChange}
                     placeholder={t("cityPlaceholder")}
+                    required
                     className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
                       isCityValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
                     } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
@@ -647,25 +831,54 @@ export function RegistrationForm() {
               </div>
             </div>
 
-            <div>
-              <label htmlFor="passportOrId" className="block text-xs font-semibold text-slate-200 mb-1">
-                {t("passportLabel")}
-              </label>
-              <div className="relative">
-                <input
-                  id="passportOrId"
-                  type="text"
-                  name="passportOrId"
-                  value={formData.passportOrId}
-                  onChange={handleChange}
-                  placeholder={t("passportPlaceholder")}
-                  className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
-                    isPassportValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
-                  } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
-                    isPassportValid ? (isRtl ? "pl-10" : "pr-10") : ""
-                  }`}
-                />
-                {isPassportValid && <ValidBadge />}
+            {/* Phone & Email */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="phone" className="block text-xs font-semibold text-slate-200 mb-1">
+                  {t("phoneLabel")} <span className="text-amber-400">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    autoComplete="tel"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    placeholder={t("phonePlaceholder")}
+                    required
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      isPhoneValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
+                      isPhoneValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  />
+                  {isPhoneValid && <ValidBadge />}
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-xs font-semibold text-slate-200 mb-1">
+                  {t("emailLabel")} <span className="text-amber-400">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    autoComplete="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder={t("emailPlaceholder")}
+                    required
+                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
+                      isEmailValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
+                    } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
+                      isEmailValid ? (isRtl ? "pl-10" : "pr-10") : ""
+                    }`}
+                  />
+                  {isEmailValid && <ValidBadge />}
+                </div>
               </div>
             </div>
           </fieldset>
@@ -1008,10 +1221,20 @@ export function RegistrationForm() {
             <button
               type="button"
               onClick={handleNextStep}
-              className="shimmer-button inline-flex items-center gap-2 px-7 sm:px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white hover:shadow-[0_0_20px_rgba(232,216,168,0.4)] transition-all duration-200 shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38] active:scale-95"
+              disabled={isSavingDraft}
+              className="shimmer-button inline-flex items-center gap-2 px-7 sm:px-8 py-3 rounded-full bg-[#E8D8A8] text-[#040D1E] text-xs font-bold hover:bg-white hover:shadow-[0_0_20px_rgba(232,216,168,0.4)] transition-all duration-200 shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E8D8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1E38] active:scale-95 disabled:opacity-60"
             >
-              {t("btnNext")}
-              {isRtl ? <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" /> : <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />}
+              {isSavingDraft ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
+                  <span>{language === "he" ? "שומר פרטים..." : "Saving..."}</span>
+                </>
+              ) : (
+                <>
+                  <span>{t("btnNext")}</span>
+                  {isRtl ? <ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" /> : <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />}
+                </>
+              )}
             </button>
           ) : (
             <button

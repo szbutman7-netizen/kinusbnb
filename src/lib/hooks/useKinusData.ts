@@ -71,6 +71,7 @@ export function useKinusData() {
       logAudit: dataStore.logAudit.bind(dataStore),
       undoAuditLog: dataStore.undoAuditLog.bind(dataStore),
       addShliach: dataStore.addShliach.bind(dataStore),
+      saveShliachDraft: dataStore.saveShliachDraft.bind(dataStore),
       updateShliach: dataStore.updateShliach.bind(dataStore),
       toggleBlockCheckIn: dataStore.toggleBlockCheckIn.bind(dataStore),
       checkInShliach: dataStore.checkInShliach.bind(dataStore),

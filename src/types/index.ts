@@ -41,6 +41,8 @@ export interface Shliach {
   state?: string;
   city: string;
   passportOrId: string;
+  age?: number;
+  registrationStatus?: 'COMPLETED' | 'DRAFT';
   
   // Dates & Requests
   arrivalDate: string; // ISO date or YYYY-MM-DD
@@ -140,6 +142,7 @@ export interface DashboardStats {
   totalBeds: number;
   availableBeds: number;
   blockedGuests: number;
+  totalDrafts?: number;
 }
 
 export interface FormSettings {

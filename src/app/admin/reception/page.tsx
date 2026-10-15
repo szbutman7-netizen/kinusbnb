@@ -50,6 +50,10 @@ export default function ReceptionPage() {
   }
 
   const handleCheckIn = async (shliach: Shliach) => {
+    if (shliach.registrationStatus === 'DRAFT') {
+      alert("שליח זה בסטטוס 'טופס נטוש (טיוטה)' וטרם השלים את הרישום. יש להפנות למשרד להסדרת הרישום והתשלום.");
+      return;
+    }
     const result = await actions.checkInShliach(shliach.id, staffName);
     if (!result.success) {
       alert(result.message);

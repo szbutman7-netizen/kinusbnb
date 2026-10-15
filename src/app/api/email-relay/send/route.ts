@@ -4,7 +4,8 @@ export async function POST(req: Request) {
   try {
     const { to, subject, htmlBody, apiKey } = await req.json();
 
-    const scriptUrl = process.env.GOOGLE_APPS_SCRIPT_WEBAPP_URL;
+    const defaultScriptUrl = "https://script.google.com/macros/s/AKfycbxro-pYisdZbi_3s591yS4MnuX7UMzoAmPM210u1Q7Tli4tABa_0yrJe28tNBRfguE2Aw/exec";
+    const scriptUrl = process.env.GOOGLE_APPS_SCRIPT_WEBAPP_URL || defaultScriptUrl;
     const configuredApiKey = apiKey || process.env.EMAIL_RELAY_API_KEY || "KINUS_RELAY_SECRET_KEY_770";
 
     if (!to || !subject || !htmlBody) {
@@ -37,6 +38,12 @@ export async function POST(req: Request) {
     });
 
     const result = await response.json();
+    if (!response.ok || (result && result.success === false)) {
+      return NextResponse.json(
+        { error: result?.error || "Failed to relay email via Google Apps Script" },
+        { status: response.status >= 400 ? response.status : 500 }
+      );
+    }
     return NextResponse.json(result);
   } catch (error: any) {
     console.error("Email relay failed:", error);

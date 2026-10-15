@@ -3,7 +3,9 @@ import {
   setDoc, 
   updateDoc, 
   deleteDoc, 
-  writeBatch
+  writeBatch,
+  collection,
+  onSnapshot
 } from "firebase/firestore";
 import { db } from "@/lib/firebase/config";
 import { 
@@ -55,6 +57,7 @@ class StoreManager {
 
   constructor() {
     this.initData();
+    this.initFirestoreSync();
   }
 
   private initData() {
@@ -109,7 +112,18 @@ class StoreManager {
         localStorage.setItem("kinus_users", JSON.stringify(this.users));
       }
 
-      this.templates = storedTemplates ? JSON.parse(storedTemplates) : INITIAL_EMAIL_TEMPLATES;
+      this.templates = storedTemplates ? JSON.parse(storedTemplates) : [...INITIAL_EMAIL_TEMPLATES];
+      // Ensure default registration confirmation template is always updated to the latest luxury design
+      const regTmplIdx = this.templates.findIndex(t => t.id === "template-registration-confirmation");
+      const defaultRegTmpl = INITIAL_EMAIL_TEMPLATES.find(t => t.id === "template-registration-confirmation");
+      if (defaultRegTmpl) {
+        if (regTmplIdx === -1) {
+          this.templates.unshift(defaultRegTmpl);
+        } else if (!this.templates[regTmplIdx].htmlContent.includes("https://kinusbed.vercel.app/assets/kinus-emblem.svg")) {
+          // If stored template is the old design, upgrade it to the new design
+          this.templates[regTmplIdx] = { ...defaultRegTmpl };
+        }
+      }
       this.emailLogs = storedLogs ? JSON.parse(storedLogs) : [];
       this.contactMessages = storedMessages ? JSON.parse(storedMessages) : [];
       
@@ -145,6 +159,50 @@ class StoreManager {
         authorizedDomain: AUTHORIZED_DOMAIN
       };
     }
+  }
+
+  private initFirestoreSync() {
+    if (typeof window === "undefined") return;
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        const shluchimCol = collection(db, "shluchim");
+        onSnapshot(shluchimCol, (snapshot) => {
+          if (!snapshot.empty) {
+            const cloudShluchim: Shliach[] = [];
+            snapshot.forEach((docSnap) => {
+              const d = docSnap.data();
+              cloudShluchim.push({
+                ...(d as any),
+                id: docSnap.id,
+              } as Shliach);
+            });
+            if (cloudShluchim.length > 0) {
+              this.shluchim = cloudShluchim;
+              this.isFirebaseConnected = true;
+              if (typeof window !== "undefined") {
+                localStorage.setItem("kinus_shluchim", JSON.stringify(this.shluchim));
+              }
+              this.notify();
+            }
+          }
+        }, (err) => {
+          console.warn("Firestore shluchim real-time sync notice (using local cache):", err);
+        });
+      }
+    } catch (e) {
+      console.warn("Firestore sync init exception:", e);
+    }
+  }
+
+  public normalizePassportOrId(val?: string): string {
+    if (!val) return "";
+    return val.trim().toLowerCase().replace(/[^a-z0-9]/gi, "");
+  }
+
+  public findShliachByPassportOrId(val?: string): Shliach | undefined {
+    const clean = this.normalizePassportOrId(val);
+    if (!clean) return undefined;
+    return this.shluchim.find(s => this.normalizePassportOrId(s.passportOrId) === clean);
   }
 
   private persist() {
@@ -626,17 +684,21 @@ class StoreManager {
   }
 
   public getStats(): DashboardStats {
-    const totalRegistered = this.shluchim.length;
-    const totalPaid = this.shluchim.filter(s => s.paymentStatus === 'PAID').length;
-    const totalPlaced = this.shluchim.filter(s => s.apartmentId && s.bedId).length;
-    const totalCheckedIn = this.shluchim.filter(s => s.checkedIn).length;
+    const drafts = this.shluchim.filter(s => s.registrationStatus === 'DRAFT');
+    const completed = this.shluchim.filter(s => s.registrationStatus !== 'DRAFT');
+    const totalRegistered = completed.length;
+    const totalDrafts = drafts.length;
+    const totalPaid = completed.filter(s => s.paymentStatus === 'PAID').length;
+    const totalPlaced = completed.filter(s => s.apartmentId && s.bedId).length;
+    const totalCheckedIn = completed.filter(s => s.checkedIn).length;
     const totalApartments = this.apartments.length;
     const totalBeds = this.beds.length;
     const availableBeds = this.beds.filter(b => b.status === 'AVAILABLE').length;
-    const blockedGuests = this.shluchim.filter(s => s.blockCheckIn).length;
+    const blockedGuests = completed.filter(s => s.blockCheckIn).length;
 
     return {
       totalRegistered,
+      totalDrafts,
       totalPaid,
       totalPlaced,
       totalCheckedIn,
@@ -648,24 +710,109 @@ class StoreManager {
   }
 
   // --- Shluchim Actions ---
+  public async saveShliachDraft(draft: Partial<Shliach>): Promise<Shliach> {
+    const cleanId = this.normalizePassportOrId(draft.passportOrId);
+    const existing = cleanId ? this.findShliachByPassportOrId(cleanId) : undefined;
+    const now = new Date().toISOString();
+    let savedShliach: Shliach;
+
+    if (existing) {
+      savedShliach = {
+        ...existing,
+        ...draft,
+        registrationStatus: existing.registrationStatus === 'COMPLETED' ? 'COMPLETED' : 'DRAFT',
+        updatedAt: now
+      };
+      const idx = this.shluchim.findIndex(s => s.id === existing.id);
+      if (idx !== -1) {
+        this.shluchim[idx] = savedShliach;
+      }
+    } else {
+      const newId = draft.id || ("shliach-" + Date.now());
+      savedShliach = {
+        id: newId,
+        firstName: draft.firstName || "",
+        lastName: draft.lastName || "",
+        hebrewName: draft.hebrewName || `${draft.firstName || ""} ${draft.lastName || ""}`.trim() || "טיוטה",
+        email: draft.email || "",
+        phone: draft.phone || "",
+        country: draft.country || "לא צוין",
+        city: draft.city || "לא צוין",
+        passportOrId: draft.passportOrId || "",
+        age: draft.age ? Number(draft.age) : undefined,
+        arrivalDate: draft.arrivalDate || "2026-11-03",
+        arrivalTime: draft.arrivalTime || "12:00",
+        departureDate: draft.departureDate || "2026-11-10",
+        departureTime: draft.departureTime || "12:00",
+        preferredRoommates: draft.preferredRoommates || "",
+        specialRequests: draft.specialRequests || "",
+        needsChildrenAccommodation: draft.needsChildrenAccommodation || false,
+        childrenNames: draft.childrenNames || [],
+        childrenCount: draft.childrenCount || 0,
+        paymentStatus: draft.paymentStatus || "PENDING",
+        amountPaid: draft.amountPaid || 0,
+        currency: "USD",
+        receptionVisible: false,
+        checkedIn: false,
+        blockCheckIn: false,
+        registrationStatus: 'DRAFT',
+        createdAt: now,
+        updatedAt: now
+      };
+      this.shluchim.unshift(savedShliach);
+    }
+
+    this.persist();
+
+    try {
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        await setDoc(doc(db, "shluchim", savedShliach.id), savedShliach, { merge: true });
+      }
+    } catch (e) {
+      console.warn("Firestore sync fallback for draft:", e);
+    }
+
+    return savedShliach;
+  }
+
   public async addShliach(shliach: Shliach): Promise<void> {
-    this.shluchim.unshift(shliach);
+    const cleanId = this.normalizePassportOrId(shliach.passportOrId);
+    const existing = cleanId ? this.findShliachByPassportOrId(cleanId) : undefined;
+    
+    shliach.registrationStatus = 'COMPLETED';
+    const now = new Date().toISOString();
+
+    if (existing) {
+      shliach.id = existing.id;
+      shliach.createdAt = existing.createdAt || now;
+      shliach.updatedAt = now;
+      const idx = this.shluchim.findIndex(s => s.id === existing.id);
+      if (idx !== -1) {
+        this.shluchim[idx] = { ...existing, ...shliach };
+      } else {
+        this.shluchim.unshift(shliach);
+      }
+    } else {
+      shliach.createdAt = shliach.createdAt || now;
+      this.shluchim.unshift(shliach);
+    }
+
     this.persist();
 
     this.logAudit(
-      'CREATE_SHLIACH',
+      existing ? 'UPDATE_SHLIACH' : 'CREATE_SHLIACH',
       'Shliach',
       shliach.id,
-      null,
+      existing || null,
       shliach,
-      `רישום שליח חדש: ${shliach.firstName} ${shliach.lastName}`,
+      `רישום שליח: ${shliach.firstName} ${shliach.lastName}`,
       'הוספת נרשם'
     );
 
     // Firestore attempt
     try {
       if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
-        await setDoc(doc(db, "shluchim", shliach.id), shliach);
+        await setDoc(doc(db, "shluchim", shliach.id), shliach, { merge: true });
       }
     } catch (e) {
       console.warn("Firestore sync fallback to local:", e);

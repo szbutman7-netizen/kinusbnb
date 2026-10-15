@@ -95,6 +95,8 @@ export const translations = {
     cityPlaceholder: "לדוגמה: פריז / ניו יורק / ירושלים",
     passportLabel: "מספר דרכון או תעודת זהות (לזיהוי בעמדת הקבלה)",
     passportPlaceholder: "038291029",
+    ageLabel: "גיל השליח",
+    agePlaceholder: "לדוגמה: 35",
 
     // Step 2 Fields
     step2Header: "זמני שהות ובקשות מיוחדות",
@@ -142,6 +144,19 @@ export const translations = {
     btnSubmitting: "מעבד תשלום...",
 
     // Validation
+    valRequiredField: "שדה חובה: נא למלא את כל השדות המסומנים",
+    valAgeRequired: "נא להזין גיל תקין (18 ומעלה)",
+    valHebrewNameRequired: "נא להזין שם מלא בעברית (אותיות בעברית בלבד)",
+    valFirstNameRequired: "נא להזין שם פרטי באנגלית",
+    valLastNameRequired: "נא להזין שם משפחה באנגלית",
+    valPassportRequired: "נא להזין מספר דרכון או תעודת זהות",
+    valCountryRequired: "נא לבחור מדינת שליחות",
+    valCityRequired: "נא להזין עיר שליחות",
+    valPhoneRequired: "נא להזין מספר טלפון נייד תקין",
+    valArrivalRequired: "נא לבחור תאריך ושעת הגעה",
+    valDepartureRequired: "נא לבחור תאריך ושעת עזיבה",
+    valChildrenNamesRequired: "נא להזין את שמות הילדים המתלווים",
+    valPaymentRequired: "נא למלא פרטי אשראי מלאים לתשלום",
     valEmailInvalid: "נא להזין כתובת דוא״ל תקינה",
     valDatesOutOfRange: "תאריכי הלינה חייבים להיות בטווח הכינוס: 3 עד 10 בנובמבר 2026 (כ״ג – ל׳ בחשוון תשפ״ז)",
     valDepartureBeforeArrival: "תאריך עזיבה אינו יכול להיות מוקדם מתאריך הגעה",
@@ -285,6 +300,8 @@ export const translations = {
     cityPlaceholder: "e.g., Paris / New York / Jerusalem",
     passportLabel: "Passport or National ID (for check-in verification)",
     passportPlaceholder: "038291029",
+    ageLabel: "Shliach Age",
+    agePlaceholder: "e.g., 35",
 
     // Step 2 Fields
     step2Header: "Dates of Stay & Special Requests",
@@ -332,6 +349,19 @@ export const translations = {
     btnSubmitting: "Processing Payment...",
 
     // Validation
+    valRequiredField: "Required field: Please complete all required fields",
+    valAgeRequired: "Please enter a valid age (18 or older)",
+    valHebrewNameRequired: "Please enter full Hebrew name (Hebrew letters only)",
+    valFirstNameRequired: "Please enter first name in English",
+    valLastNameRequired: "Please enter last name in English",
+    valPassportRequired: "Please enter passport or ID number",
+    valCountryRequired: "Please select country of shlichus",
+    valCityRequired: "Please enter city of shlichus",
+    valPhoneRequired: "Please enter a valid mobile phone number",
+    valArrivalRequired: "Please select arrival date and time",
+    valDepartureRequired: "Please select departure date and time",
+    valChildrenNamesRequired: "Please enter accompanying children's names",
+    valPaymentRequired: "Please complete all credit card payment fields",
     valEmailInvalid: "Please enter a valid email address",
     valDatesOutOfRange: "Dates must fall within the Kinus period: November 3 to 10, 2026 (23 – 30 Cheshvan 5787)",
     valDepartureBeforeArrival: "Departure date cannot be earlier than arrival date",

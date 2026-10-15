@@ -37,10 +37,10 @@ export default function PlacementPage() {
     return <div className="p-8 text-center text-slate-500">טוען נתוני שיבוץ...</div>;
   }
 
-  // Unplaced Shluchim
-  const unplacedShluchim = shluchim.filter((s) => !s.bedId);
+  // Unplaced Shluchim (excluding uncompleted drafts)
+  const unplacedShluchim = shluchim.filter((s) => !s.bedId && s.registrationStatus !== 'DRAFT');
   // Placed Shluchim
-  const placedShluchim = shluchim.filter((s) => !!s.bedId);
+  const placedShluchim = shluchim.filter((s) => !!s.bedId && s.registrationStatus !== 'DRAFT');
 
   const toggleSelectShliach = (id: string) => {
     setSelectedShliachIds((prev) =>
