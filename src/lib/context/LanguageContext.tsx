@@ -82,7 +82,7 @@ export const translations = {
     firstNamePlaceholder: "Menachem M.",
     lastNameLabel: "שם משפחה (באנגלית)",
     lastNamePlaceholder: "Cohen",
-    hebrewNameLabel: "שם מלא בעברית",
+    hebrewNameLabel: "שם מלא (בעברית)",
     hebrewNamePlaceholder: "הרב מנחם מענדל כהן",
     emailLabel: "דוא״ל לקבלת אישור ופרטי הדירה",
     emailPlaceholder: "rabbi@chabad.org",
@@ -96,7 +96,7 @@ export const translations = {
     passportLabel: "מספר דרכון או תעודת זהות (לזיהוי בעמדת הקבלה)",
     passportPlaceholder: "038291029",
     ageLabel: "גיל השליח",
-    agePlaceholder: "לדוגמה: 35",
+    agePlaceholder: "",
 
     // Step 2 Fields
     step2Header: "זמני שהות ובקשות מיוחדות",
@@ -108,7 +108,7 @@ export const translations = {
     departureDateLabel: "תאריך עזיבה משוער",
     departureTimeLabel: "שעת עזיבה משוערת",
     roommatesLabel: "שותפים מבוקשים לחדר (אם ישנם שלוחים שתרצו ללון עימם)",
-    roommatesPlaceholder: "לדוגמה: הרב לוי סגל, הרב יוסף כהן",
+    roommatesPlaceholder: "הרב לוי סגל, מתל אביב",
     roommatesHelp: "צוות השיבוץ יעשה מאמץ מרבי לשבץ אתכם יחד בהתאם למלאי הדירות.",
     specialRequestsLabel: "בקשות מיוחדות / צרכי נגישות",
     specialRequestsPlaceholder: "קומה נמוכה, מעלית, צרכי נגישות מיוחדים וכו'",
@@ -290,7 +290,7 @@ export const translations = {
     firstNamePlaceholder: "Menachem M.",
     lastNameLabel: "Last Name (English)",
     lastNamePlaceholder: "Cohen",
-    hebrewNameLabel: "Full Hebrew Name",
+    hebrewNameLabel: "Full Name (in Hebrew)",
     hebrewNamePlaceholder: "הרב מנחם מענדל כהן",
     emailLabel: "Email (for confirmation & room details)",
     emailPlaceholder: "rabbi@chabad.org",
@@ -304,7 +304,7 @@ export const translations = {
     passportLabel: "Passport or National ID (for check-in verification)",
     passportPlaceholder: "038291029",
     ageLabel: "Shliach Age",
-    agePlaceholder: "e.g., 35",
+    agePlaceholder: "",
 
     // Step 2 Fields
     step2Header: "Dates of Stay & Special Requests",
@@ -316,7 +316,7 @@ export const translations = {
     departureDateLabel: "Estimated Departure Date",
     departureTimeLabel: "Estimated Departure Time",
     roommatesLabel: "Preferred Roommates (Shluchim you wish to room with)",
-    roommatesPlaceholder: "e.g., Rabbi Levi Segal, Rabbi Yosef Cohen",
+    roommatesPlaceholder: "Rabbi Levi Segal, Tel Aviv",
     roommatesHelp: "The placement team will make every effort to accommodate your rooming preferences based on apartment capacity.",
     specialRequestsLabel: "Special Requests / Accessibility Needs",
     specialRequestsPlaceholder: "Low floor, elevator access, special mobility requirements, etc.",

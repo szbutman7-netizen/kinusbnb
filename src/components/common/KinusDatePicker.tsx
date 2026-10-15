@@ -13,6 +13,7 @@ interface KinusDatePickerProps {
   placeholder?: string;
   label: string;
   hint?: string;
+  required?: boolean;
 }
 
 export function KinusDatePicker({
@@ -24,6 +25,7 @@ export function KinusDatePicker({
   placeholder,
   label,
   hint,
+  required,
 }: KinusDatePickerProps) {
   const { language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
@@ -70,13 +72,14 @@ export function KinusDatePicker({
   return (
     <div className="relative" ref={containerRef}>
       <label htmlFor={id} className="block text-xs font-semibold text-slate-200 mb-1">
-        {label}
+        {label} {required && <span className="text-amber-400">*</span>}
       </label>
 
       <button
         id={id}
         type="button"
         role="combobox"
+        aria-required={required}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label={`${label}: ${value ? formatDateDisplay(value) : placeholder}`}

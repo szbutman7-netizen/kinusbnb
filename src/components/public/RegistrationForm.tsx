@@ -175,18 +175,10 @@ export function RegistrationForm() {
         setErrorMessage(t("valHebrewNameRequired"));
         return;
       }
-      if (/[a-zA-Z]/.test(formData.hebrewName)) {
-        setErrorMessage(t("hebrewOnlyError"));
-        return;
-      }
-      if (!formData.firstName.trim()) {
-        setErrorMessage(t("valFirstNameRequired"));
-        return;
-      }
-      if (!formData.lastName.trim()) {
-        setErrorMessage(t("valLastNameRequired"));
-        return;
-      }
+      const nameParts = formData.hebrewName.trim().split(/\s+/);
+      const inferredFirstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(" ") : nameParts[0] || "";
+      const inferredLastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
+
       const ageNum = Number(formData.age);
       if (!formData.age || isNaN(ageNum) || ageNum < 18 || ageNum > 120) {
         setErrorMessage(t("valAgeRequired"));
@@ -218,8 +210,8 @@ export function RegistrationForm() {
       try {
         const draft = await dataStore.saveShliachDraft({
           id: savedShliachId || undefined,
-          firstName: formData.firstName.trim(),
-          lastName: formData.lastName.trim(),
+          firstName: inferredFirstName,
+          lastName: inferredLastName,
           hebrewName: formData.hebrewName.trim(),
           age: ageNum,
           passportOrId: formData.passportOrId.trim(),
@@ -338,15 +330,15 @@ export function RegistrationForm() {
 
     try {
       const shliachId = savedShliachId || ("shliach-" + Date.now());
-      const displayName =
-        formData.hebrewName.trim() ||
-        [formData.firstName, formData.lastName].filter(Boolean).join(" ") ||
-        t("successDefaultShliachName");
+      const displayName = formData.hebrewName.trim() || t("successDefaultShliachName");
+      const nameParts = displayName.split(/\s+/);
+      const inferredFirstName = nameParts.length > 1 ? nameParts.slice(0, -1).join(" ") : nameParts[0] || "";
+      const inferredLastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
 
       const newShliach: Shliach = {
         id: shliachId,
-        firstName: formData.firstName.trim(),
-        lastName: formData.lastName.trim(),
+        firstName: inferredFirstName,
+        lastName: inferredLastName,
         hebrewName: displayName,
         age: Number(formData.age) || undefined,
         email: formData.email.trim().toLowerCase(),
@@ -518,8 +510,6 @@ export function RegistrationForm() {
 
   // Real-time live validation states
   const isHebrewNameValid = formData.hebrewName.trim().length > 1 && !/[a-zA-Z]/.test(formData.hebrewName);
-  const isFirstNameValid = formData.firstName.trim().length > 1;
-  const isLastNameValid = formData.lastName.trim().length > 1;
   const isAgeValid = !isNaN(Number(formData.age)) && Number(formData.age) >= 18 && Number(formData.age) <= 120;
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim());
   const isPhoneValid = formData.phone.trim().replace(/\D/g, "").length >= 7;
@@ -701,7 +691,7 @@ export function RegistrationForm() {
             {/* Hebrew Name */}
             <div>
               <label htmlFor="hebrewName" className="block text-xs font-semibold text-slate-200 mb-1">
-                {language === "he" ? "שם מלא בלשון הקודש (עברית)" : "Full Hebrew Name (Hebrew only)"} <span className="text-amber-400">*</span>
+                {language === "he" ? "שם מלא (בעברית)" : "Full Name (in Hebrew)"} <span className="text-amber-400">*</span>
               </label>
               <div className="relative">
                 <input
@@ -724,57 +714,6 @@ export function RegistrationForm() {
               </div>
             </div>
 
-            {/* English First & Last Name */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("firstNameLabel")} <span className="text-amber-400">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    id="firstName"
-                    type="text"
-                    name="firstName"
-                    autoComplete="given-name"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    placeholder={t("firstNamePlaceholder")}
-                    required
-                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
-                      isFirstNameValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
-                    } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
-                      isFirstNameValid ? (isRtl ? "pl-10" : "pr-10") : ""
-                    }`}
-                  />
-                  {isFirstNameValid && <ValidBadge />}
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="lastName" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("lastNameLabel")} <span className="text-amber-400">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    id="lastName"
-                    type="text"
-                    name="lastName"
-                    autoComplete="family-name"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    placeholder={t("lastNamePlaceholder")}
-                    required
-                    className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
-                      isLastNameValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
-                    } bg-[#0B1E38]/90 text-white placeholder-slate-400 focus:outline-none text-base sm:text-xs transition-all ${
-                      isLastNameValid ? (isRtl ? "pl-10" : "pr-10") : ""
-                    }`}
-                  />
-                  {isLastNameValid && <ValidBadge />}
-                </div>
-              </div>
-            </div>
-
             {/* Age & Passport / ID */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -790,7 +729,6 @@ export function RegistrationForm() {
                     max="120"
                     value={formData.age}
                     onChange={handleChange}
-                    placeholder={t("agePlaceholder")}
                     required
                     className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
                       isAgeValid ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
@@ -977,17 +915,17 @@ export function RegistrationForm() {
                   id="arrivalDate"
                   name="arrivalDate"
                   label={t("arrivalDateLabel")}
+                  required
                   value={formData.arrivalDate}
                   onChange={(val) => setFormData(prev => ({ ...prev, arrivalDate: val }))}
                   allowedDates={formSettings?.allowedArrivalDates?.length ? formSettings.allowedArrivalDates : DEFAULT_ARRIVAL_DATES}
                   placeholder={t("dateSelectPlaceholder")}
-                  hint={t("dateRangeHint")}
                 />
               </div>
 
               <div>
                 <label htmlFor="arrivalTime" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("arrivalTimeLabel")}
+                  {t("arrivalTimeLabel")} <span className="text-amber-400">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -996,6 +934,7 @@ export function RegistrationForm() {
                     name="arrivalTime"
                     value={formData.arrivalTime}
                     onChange={handleChange}
+                    required
                     className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
                       formData.arrivalTime ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
                     } bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs transition-all ${
@@ -1013,17 +952,17 @@ export function RegistrationForm() {
                   id="departureDate"
                   name="departureDate"
                   label={t("departureDateLabel")}
+                  required
                   value={formData.departureDate}
                   onChange={(val) => setFormData(prev => ({ ...prev, departureDate: val }))}
                   allowedDates={formSettings?.allowedDepartureDates?.length ? formSettings.allowedDepartureDates : DEFAULT_DEPARTURE_DATES}
                   placeholder={t("dateSelectPlaceholder")}
-                  hint={t("dateRangeHint")}
                 />
               </div>
 
               <div>
                 <label htmlFor="departureTime" className="block text-xs font-semibold text-slate-200 mb-1">
-                  {t("departureTimeLabel")}
+                  {t("departureTimeLabel")} <span className="text-amber-400">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -1032,6 +971,7 @@ export function RegistrationForm() {
                     name="departureTime"
                     value={formData.departureTime}
                     onChange={handleChange}
+                    required
                     className={`kinus-input w-full px-3.5 py-2.5 rounded-xl border ${
                       formData.departureTime ? "border-emerald-500/60 shadow-[0_0_12px_rgba(52,211,153,0.15)]" : "border-slate-700"
                     } bg-[#0B1E38]/90 text-white focus:outline-none text-base sm:text-xs transition-all ${
