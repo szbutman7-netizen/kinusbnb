@@ -115,17 +115,16 @@ async function generateOgImages() {
             background: rgba(232, 216, 168, 0.12);
             border: 1px solid rgba(232, 216, 168, 0.35);
             color: #E8D8A8;
-            padding: 6px 20px;
+            padding: 6px 28px;
             border-radius: 9999px;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
             margin-bottom: 16px;
-            text-transform: uppercase;
           }
 
           .title {
-            font-size: 54px;
+            font-size: 56px;
             font-weight: 800;
             color: #FFFFFF;
             letter-spacing: -0.02em;
@@ -165,11 +164,11 @@ async function generateOgImages() {
             ${emblemSvg}
           </div>
           <div class="badge">
-            מערכת רישום ואירוח רשמית • תשפ״ה
+            תשפ״ז
           </div>
           <h1 class="title">כינוס השלוחים העולמי</h1>
-          <p class="subtitle">הרשמה, סליקה ושיבוץ דירות אירוח לשלוחי חב״ד</p>
-          <p class="en-subtitle">International Conference of Shluchim • Official Housing &amp; Registration</p>
+          <p class="subtitle">מערך אירוח ולינה לשלוחים בימי הכינוס</p>
+          <p class="en-subtitle">International Conference of Shluchim • Hospitality &amp; Housing</p>
         </div>
       </body>
     </html>
@@ -198,7 +197,11 @@ async function generateOgImages() {
   fs.copyFileSync(ogPngPath, appOgPngPath);
   console.log(`Copied to ${appOgPngPath}`);
 
-  // 2. Also generate square 600x600 WhatsApp preview image (fallback when platform prefers square)
+  const twitterImgPath = path.join(appDir, 'twitter-image.png');
+  fs.copyFileSync(ogPngPath, twitterImgPath);
+  console.log(`Copied to ${twitterImgPath}`);
+
+  // 2. Also generate square 600x600 WhatsApp preview image
   await page.setViewportSize({ width: 600, height: 600 });
   const squareHtml = `
     <!DOCTYPE html>
@@ -269,10 +272,11 @@ async function generateOgImages() {
             background: rgba(232, 216, 168, 0.12);
             border: 1px solid rgba(232, 216, 168, 0.35);
             color: #E8D8A8;
-            padding: 4px 14px;
+            padding: 5px 22px;
             border-radius: 9999px;
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.1em;
             margin-bottom: 12px;
           }
           .title {
@@ -298,10 +302,10 @@ async function generateOgImages() {
             ${emblemSvg}
           </div>
           <div class="badge">
-            מערכת רישום ואירוח • תשפ״ה
+            תשפ״ז
           </div>
           <h1 class="title">כינוס השלוחים העולמי</h1>
-          <p class="subtitle">הרשמה ושיבוץ לינה לשלוחי חב״ד</p>
+          <p class="subtitle">מערך אירוח ולינה לשלוחים בימי הכינוס</p>
         </div>
       </body>
     </html>
