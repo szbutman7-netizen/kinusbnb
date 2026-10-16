@@ -20,6 +20,9 @@ export default function HomePage() {
 
   const faqs = [
     { q: t("faqTargetQ"), a: t("faqTargetA") },
+    { q: t("faqGuaranteeQ"), a: t("faqGuaranteeA") },
+    { q: t("faqDeadlineQ"), a: t("faqDeadlineA") },
+    { q: t("faqChildrenQ"), a: t("faqChildrenA") },
     { q: t("faqLocationQ"), a: t("faqLocationA") },
     { q: t("faq2Q"), a: t("faq2A") },
     { q: t("faq1Q"), a: t("faq1A") },
